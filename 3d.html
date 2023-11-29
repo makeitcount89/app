@@ -1,199 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Squash Game</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-
-    canvas {
-      touch-action: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Squash Game</title>
+    <style>
+        canvas {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-  <script src="https://cdn.babylonjs.com/babylon.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      var canvas = document.createElement("canvas");
-      document.body.appendChild(canvas);
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Set up Babylon.js
+            var canvas = document.createElement("canvas");
+            document.body.appendChild(canvas);
 
-      var engine = new BABYLON.Engine(canvas, true);
-      var createScene = function () {
-        var scene = new BABYLON.Scene(engine);
+            var engine = new BABYLON.Engine(canvas, true);
+            var scene = new BABYLON.Scene(engine);
 
-        // Create walls
-        var wallMaterial = new BABYLON.StandardMaterial("wallMat", scene);
-        wallMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
-        wallMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-        wallMaterial.backFaceCulling = false;
+            // Create paddle
+            var paddle = BABYLON.MeshBuilder.CreateBox("paddle", { width: 5, height: 1, depth: 1 }, scene);
+            paddle.position.y = -5;
 
-        var walls = [];
-        for (var i = 0; i < 4; i++) {
-          var wall = BABYLON.MeshBuilder.CreateBox("wall" + i, { size: 1 }, scene);
-          wall.material = wallMaterial;
-          walls.push(wall);
-        }
+            // Create ball
+            var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
+            ball.position.y = 0;
 
-        // Scale the court to approximate the proportions of a squash court
-        var courtSize = 7;
-        walls[0].scaling.x = walls[1].scaling.x = courtSize; // left and right walls
-        walls[2].scaling.z = walls[3].scaling.z = courtSize; // front and back walls
+            // Set up camera
+            var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -10), scene);
+            camera.setTarget(BABYLON.Vector3.Zero());
 
-        walls[0].position.x = -courtSize / 2; // left wall
-        walls[1].position.x = courtSize / 2;  // right wall
-        walls[2].position.z = courtSize / 2;  // front wall
-        walls[3].position.z = -courtSize / 2; // back wall
+            // Enable physics
+            scene.enablePhysics();
 
-        // Create racket
-        var racketMaterial = new BABYLON.StandardMaterial("racketMat", scene);
-        racketMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0);
+            // Set up physics for the ball
+            ball.physicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 1 }, scene);
+            ball.physicsImpostor.applyImpulse(new BABYLON.Vector3(1, 0, 1), ball.getAbsolutePosition());
 
-        var racket = BABYLON.MeshBuilder.CreateBox("racket", { size: 1 }, scene);
-        racket.material = racketMaterial;
-        racket.position.y = -courtSize / 4;
+            // Set up physics for the paddle
+            paddle.physicsImpostor = new BABYLON.PhysicsImpostor(paddle, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0 }, scene);
 
-        // Create ball
-        var ballMaterial = new BABYLON.StandardMaterial("ballMat", scene);
-        ballMaterial.diffuseColor = new BABYLON.Color3(0, 1, 0);
+            // Listen for keyboard input to move the paddle
+            window.addEventListener("keydown", function (event) {
+                if (event.key === "ArrowLeft" && paddle.position.x > -10) {
+                    paddle.position.x -= 1;
+                } else if (event.key === "ArrowRight" && paddle.position.x < 10) {
+                    paddle.position.x += 1;
+                }
+            });
 
-        var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 0.5 }, scene);
-        ball.material = ballMaterial;
-        ball.position.y = courtSize / 4;
-
-        // Set up camera
-        var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, courtSize, -courtSize * 1.5), scene);
-        camera.setTarget(BABYLON.Vector3.Zero());
-        camera.attachControl(canvas, true);
-
-        // Enable touch controls on the racket
-        var startingTouchX = 0;
-        racket.onPointerDown = function (evt, pickInfo) {
-          startingTouchX = evt.clientX;
-        };
-
-        racket.onPointerMove = function (evt, pickInfo) {
-          if (startingTouchX !== undefined) {
-            var deltaTouchX = evt.clientX - startingTouchX;
-            var scaleFactor = courtSize / engine.getRenderWidth();
-            racket.position.x += deltaTouchX * scaleFactor;
-            startingTouchX = evt.clientX;
-          }
-        };
-
-        racket.onPointerUp = function () {
-          startingTouchX = undefined;
-        };
-
-        // Add lights and shadows
-        var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-        light.intensity = 1;
-
-        var shadowGenerator = new BABYLON.ShadowGenerator(1024, light);
-        shadowGenerator.useBlurExponentialShadowMap = true;
-
-        // Add textured floor
-        var groundMaterial = new BABYLON.StandardMaterial("groundMat", scene);
-        groundMaterial.diffuseTexture = new BABYLON.Texture("https://www.babylonjs-playground.com/textures/floor.jpg", scene);
-        groundMaterial.diffuseTexture.uScale = courtSize;
-        groundMaterial.diffuseTexture.vScale = courtSize;
-
-        var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: courtSize, height: courtSize }, scene);
-        ground.material = groundMaterial;
-
-        // Scoring
-        var score = 0;
-        var scoreText = new BABYLON.GUI.TextBlock();
-        scoreText.text = "Score: 0";
-        scoreText.color = "white";
-        scoreText.fontSize = 24;
-        scoreText.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        scoreText.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        scoreText.paddingTop = "10px";
-        scene.onBeforeRenderObservable.add(function () {
-          scoreText.text = "Score: " + score;
+            // Run the game loop
+            engine.runRenderLoop(function () {
+                scene.render();
+            });
         });
-
-        // Game Over condition
-        var gameOver = false;
-        var gameOverText = new BABYLON.GUI.TextBlock();
-        gameOverText.text = "";
-        gameOverText.color = "red";
-        gameOverText.fontSize = 36;
-        gameOverText.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-        gameOverText.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-        scene.onBeforeRenderObservable.add(function () {
-          if (!gameOver) {
-            if (ball.position.y < -courtSize / 2) {
-              // Ball hit the ground
-              if (score >= 11) {
-                gameOver = true;
-                gameOverText.text = "Game Over! You won with a score of " + score;
-              } else {
-                // Reset ball position
-                ball.position.y = courtSize / 4;
-                ball.position.x = Math.random() * courtSize - courtSize / 2;
-                score -= 1; // Lose a point for missing the ball
-              }
-            }
-            for (var i = 0; i < 4; i++) {
-              if (ball.intersectsMesh(walls[i], false)) {
-                ball.position.y = walls[i].position.y + (i % 2 === 0 ? courtSize / 4 : -courtSize / 4);
-              }
-            }
-          }
-        });
-
-        // Animation
-        scene.registerBeforeRender(function () {
-          if (!gameOver) {
-            ball.position.y -= 0.01; // simulate gravity
-            if (ball.intersectsMesh(racket, false)) {
-              ball.position.y = racket.position.y + courtSize / 4;
-              score += 1; // Gain a point for hitting the ball
-            }
-          }
-        });
-
-        return scene;
-      };
-
-      var scene = createScene();
-
-      engine.runRenderLoop(function () {
-        scene.render();
-      });
-
-      window.addEventListener("resize", function () {
-        engine.resize();
-      });
-
-      // Fullscreen functionality
-      document.addEventListener("fullscreenchange", function () {
-        if (document.fullscreenElement === canvas) {
-          canvas.width = screen.width;
-          canvas.height = screen.height;
-        } else {
-          canvas.width = window.innerWidth;
-          canvas.height = window.innerHeight;
-        }
-        engine.resize();
-      });
-
-      document.body.addEventListener("click", function () {
-        if (!document.fullscreenElement) {
-          canvas.requestFullscreen().catch(err => {
-            console.error(`Error attempting to enable full-screen mode: ${err.message}`);
-          });
-        } else {
-          document.exitFullscreen();
-        }
-      });
-    });
-  </script>
+    </script>
 </body>
 </html>
