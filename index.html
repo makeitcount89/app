@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Squash Game</title>
+</head>
+<body>
+    <h1>Welcome to the 3D Squash Game!</h1>
+    
+    <script>
+        // JavaScript code to parse URL parameters and redirect to the appropriate dimension
+        (function () {
+            var urlParams = new URLSearchParams(window.location.search);
+            var dimension = urlParams.get('dimension');
+
+            if (dimension === '3d' || dimension === '4d' || dimension === '5d' || dimension === '6d') {
+                window.location.href = dimension + '.html';
+            } else {
+                console.error('Invalid dimension specified. Please use "3d", "4d", "5d", or "6d".');
+            }
+        })();
+    </script>
+</body>
+</html>
