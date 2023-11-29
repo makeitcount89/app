@@ -66,7 +66,7 @@
         ball.position.y = courtSize / 4;
 
         // Set up camera
-        var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, courtSize, -courtSize * 1.5), scene);
+        var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, courtSize * 1.5, -courtSize * 1.5), scene);
         camera.setTarget(BABYLON.Vector3.Zero());
         camera.attachControl(canvas, true);
 
@@ -91,7 +91,7 @@
 
         // Add lights and shadows
         var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-        light.intensity = 0.7;
+        light.intensity = 1;
 
         var shadowGenerator = new BABYLON.ShadowGenerator(1024, light);
         shadowGenerator.useBlurExponentialShadowMap = true;
@@ -104,6 +104,23 @@
 
         var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: courtSize, height: courtSize }, scene);
         ground.material = groundMaterial;
+
+        // Scoring
+        var score = 0;
+        var scoreText = new BABYLON.GUI.TextBlock();
+        scoreText.text = "Score: 0";
+        scoreText.color = "white";
+        scoreText.fontSize = 24;
+        scoreText.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        scoreText.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        scoreText.paddingTop = "10px";
+        scene.onBeforeRenderObservable.add(function () {
+          scoreText.text = "Score: " + score;
+        });
+        scene.onPointerUp = function () {
+          startingTouchX = undefined;
+          score += 10; // Increment score on racket hit
+        };
 
         // Animation
         scene.registerBeforeRender(function () {
