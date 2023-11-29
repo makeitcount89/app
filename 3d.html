@@ -1,121 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Squash Game</title>
-    <style>
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Squash Game</title>
+  <style>
+    canvas {
+      touch-action: none;
+    }
+  </style>
 </head>
 <body>
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var canvas = document.createElement("canvas");
-            document.body.appendChild(canvas);
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var canvas = document.createElement("canvas");
+      document.body.appendChild(canvas);
 
-            var engine = new BABYLON.Engine(canvas, true);
-            var scene = new BABYLON.Scene(engine);
+      var engine = new BABYLON.Engine(canvas, true);
+      var createScene = function () {
+        var scene = new BABYLON.Scene(engine);
 
-            var camera = new BABYLON.FollowCamera("camera", new BABYLON.Vector3(0, 0, -10), scene);
-            camera.radius = 10;
-            camera.heightOffset = 2;
-            camera.rotationOffset = 180;
+        // Create walls
+        var wallMaterial = new BABYLON.StandardMaterial("wallMat", scene);
+        wallMaterial.diffuseColor = new BABYLON.Color3(0, 0, 1);
 
-            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        var walls = [];
+        for (var i = 0; i < 4; i++) {
+          var wall = BABYLON.MeshBuilder.CreateBox("wall" + i, { size: 1 }, scene);
+          wall.material = wallMaterial;
+          walls.push(wall);
+        }
 
-            var paddle = BABYLON.MeshBuilder.CreateCylinder("paddle", { height: 0.5, diameterTop: 2, diameterBottom: 2 }, scene);
-            paddle.position.y = -2;
+        walls[0].position.x = -5; // left wall
+        walls[1].position.x = 5;  // right wall
+        walls[2].position.z = 5;  // front wall
+        walls[3].position.z = -5; // back wall
 
-            var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 0.5 }, scene);
-            ball.position.y = 0;
+        // Create racket
+        var racketMaterial = new BABYLON.StandardMaterial("racketMat", scene);
+        racketMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0);
 
-            var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 }, scene);
-            ground.material = new BABYLON.StandardMaterial("groundMat", scene);
-            ground.material.diffuseColor = new BABYLON.Color3(0, 1, 0);
+        var racket = BABYLON.MeshBuilder.CreateBox("racket", { size: 1 }, scene);
+        racket.material = racketMaterial;
+        racket.position.y = -2; // adjust the height of the racket
 
-            var boundaryLines = [];
-            for (var i = -5; i <= 5; i += 2) {
-                var line = BABYLON.MeshBuilder.CreateLines("line", { points: [new BABYLON.Vector3(i, -3, 5), new BABYLON.Vector3(i, 3, 5)], updatable: true }, scene);
-                boundaryLines.push(line);
+        // Create ball
+        var ballMaterial = new BABYLON.StandardMaterial("ballMat", scene);
+        ballMaterial.diffuseColor = new BABYLON.Color3(0, 1, 0);
+
+        var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 0.5 }, scene);
+        ball.material = ballMaterial;
+        ball.position.y = 2; // adjust the height of the ball
+
+        // Set up camera
+        var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -10), scene);
+        camera.setTarget(BABYLON.Vector3.Zero());
+
+        // Enable touch controls
+        scene.onPointerDown = function (evt, pickInfo) {
+          if (pickInfo.pickedMesh === racket) {
+            // Move the racket to the touched position
+            racket.position.x = pickInfo.pickedPoint.x;
+          }
+        };
+
+        // Animation
+        scene.registerBeforeRender(function () {
+          ball.position.y -= 0.01; // simulate gravity
+          if (ball.intersectsMesh(racket, false)) {
+            // Reflect the ball when it hits the racket
+            ball.position.y = racket.position.y + 1;
+          }
+          for (var i = 0; i < 4; i++) {
+            if (ball.intersectsMesh(walls[i], false)) {
+              // Reflect the ball when it hits a wall
+              ball.position.y = walls[i].position.y + (i % 2 === 0 ? 1 : -1);
             }
-
-            engine.runRenderLoop(function () {
-                scene.render();
-            });
-
-            window.addEventListener("resize", function () {
-                engine.resize();
-            });
-
-            scene.registerBeforeRender(function () {
-                // Move the paddle with arrow keys
-                if (scene.inputStates.left) {
-                    paddle.position.x -= 0.1;
-                }
-                if (scene.inputStates.right) {
-                    paddle.position.x += 0.1;
-                }
-
-                // Ball movement
-                ball.position.z += 0.1;
-
-                // Check for collisions with paddle
-                if (ball.intersectsMesh(paddle, false)) {
-                    ball.position.z -= 0.1; // Prevent sticking to the paddle
-                    ball.position.y = -2;   // Reset ball position
-                }
-
-                // Check for collisions with boundaries
-                for (var i = 0; i < boundaryLines.length; i++) {
-                    if (ball.intersectsMesh(boundaryLines[i], false)) {
-                        ball.position.z -= 0.1; // Prevent sticking to the boundary
-                    }
-                }
-            });
-
-            // Enable keyboard input
-            scene.inputStates = {};
-            scene.actionManager = new BABYLON.ActionManager(scene);
-
-            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, function (evt) {
-                scene.inputStates[evt.sourceEvent.key] = true;
-            }));
-
-            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {
-                scene.inputStates[evt.sourceEvent.key] = false;
-            }));
-
-            // Enable touch controls
-            var startingTouchX;
-
-            canvas.addEventListener("touchstart", function (event) {
-                startingTouchX = event.touches[0].clientX;
-            });
-
-            canvas.addEventListener("touchmove", function (event) {
-                var touchX = event.touches[0].clientX;
-                var deltaX = touchX - startingTouchX;
-
-                if (deltaX > 0) {
-                    scene.inputStates.right = true;
-                    scene.inputStates.left = false;
-                } else {
-                    scene.inputStates.left = true;
-                    scene.inputStates.right = false;
-                }
-            });
-
-            canvas.addEventListener("touchend", function () {
-                scene.inputStates.left = false;
-                scene.inputStates.right = false;
-            });
+          }
         });
-    </script>
+
+        return scene;
+      };
+
+      var scene = createScene();
+
+      engine.runRenderLoop(function () {
+        scene.render();
+      });
+
+      window.addEventListener("resize", function () {
+        engine.resize();
+      });
+    });
+  </script>
 </body>
 </html>
