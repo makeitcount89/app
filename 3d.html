@@ -66,7 +66,7 @@
         ball.position.y = courtSize / 4;
 
         // Set up camera
-        var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, courtSize * 1.5, -courtSize * 1.5), scene);
+        var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, courtSize, -courtSize * 1.5), scene);
         camera.setTarget(BABYLON.Vector3.Zero());
         camera.attachControl(canvas, true);
 
@@ -122,15 +122,34 @@
           score += 10; // Increment score on racket hit
         };
 
+        // Game Over condition
+        var gameOver = false;
+        var gameOverText = new BABYLON.GUI.TextBlock();
+        gameOverText.text = "Game Over!";
+        gameOverText.color = "red";
+        gameOverText.fontSize = 36;
+        gameOverText.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        gameOverText.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        scene.onBeforeRenderObservable.add(function () {
+          if (ball.position.y < -courtSize / 2 && !gameOver) {
+            // Ball hit the ground, trigger game over
+            gameOver = true;
+            gameOverText.text = "Game Over! Final Score: " + score;
+            gameOverText.isVisible = true;
+          }
+        });
+
         // Animation
         scene.registerBeforeRender(function () {
-          ball.position.y -= 0.01; // simulate gravity
-          if (ball.intersectsMesh(racket, false)) {
-            ball.position.y = racket.position.y + courtSize / 4;
-          }
-          for (var i = 0; i < 4; i++) {
-            if (ball.intersectsMesh(walls[i], false)) {
-              ball.position.y = walls[i].position.y + (i % 2 === 0 ? courtSize / 4 : -courtSize / 4);
+          if (!gameOver) {
+            ball.position.y -= 0.01; // simulate gravity
+            if (ball.intersectsMesh(racket, false)) {
+              ball.position.y = racket.position.y + courtSize / 4;
+            }
+            for (var i = 0; i < 4; i++) {
+              if (ball.intersectsMesh(walls[i], false)) {
+                ball.position.y = walls[i].position.y + (i % 2 === 0 ? courtSize / 4 : -courtSize / 4);
+              }
             }
           }
         });
