@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>3D Squash Game</title>
   <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
     canvas {
       touch-action: none;
     }
@@ -23,7 +28,9 @@
 
         // Create walls
         var wallMaterial = new BABYLON.StandardMaterial("wallMat", scene);
-        wallMaterial.diffuseColor = new BABYLON.Color3(0, 0, 1);
+        wallMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+        wallMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+        wallMaterial.backFaceCulling = false;
 
         var walls = [];
         for (var i = 0; i < 4; i++) {
@@ -33,7 +40,7 @@
         }
 
         // Scale the court to approximate the proportions of a squash court
-        var courtSize = 7; // Adjust as needed
+        var courtSize = 7;
         walls[0].scaling.x = walls[1].scaling.x = courtSize; // left and right walls
         walls[2].scaling.z = walls[3].scaling.z = courtSize; // front and back walls
 
@@ -48,7 +55,7 @@
 
         var racket = BABYLON.MeshBuilder.CreateBox("racket", { size: 1 }, scene);
         racket.material = racketMaterial;
-        racket.position.y = -courtSize / 4; // adjust the height of the racket
+        racket.position.y = -courtSize / 4;
 
         // Create ball
         var ballMaterial = new BABYLON.StandardMaterial("ballMat", scene);
@@ -56,11 +63,12 @@
 
         var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 0.5 }, scene);
         ball.material = ballMaterial;
-        ball.position.y = courtSize / 4; // adjust the height of the ball
+        ball.position.y = courtSize / 4;
 
         // Set up camera
-        var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -courtSize), scene);
+        var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, courtSize, -courtSize * 1.5), scene);
         camera.setTarget(BABYLON.Vector3.Zero());
+        camera.attachControl(canvas, true);
 
         // Enable touch controls
         var startingTouchX = 0;
@@ -70,7 +78,6 @@
 
         scene.onPointerMove = function (evt, pickInfo) {
           if (startingTouchX !== undefined) {
-            // Move the racket based on the touch movement
             var deltaTouchX = evt.clientX - startingTouchX;
             var scaleFactor = courtSize / engine.getRenderWidth();
             racket.position.x += deltaTouchX * scaleFactor;
@@ -82,16 +89,30 @@
           startingTouchX = undefined;
         };
 
+        // Add lights and shadows
+        var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        light.intensity = 0.7;
+
+        var shadowGenerator = new BABYLON.ShadowGenerator(1024, light);
+        shadowGenerator.useBlurExponentialShadowMap = true;
+
+        // Add textured floor
+        var groundMaterial = new BABYLON.StandardMaterial("groundMat", scene);
+        groundMaterial.diffuseTexture = new BABYLON.Texture("https://www.babylonjs-playground.com/textures/floor.jpg", scene);
+        groundMaterial.diffuseTexture.uScale = courtSize;
+        groundMaterial.diffuseTexture.vScale = courtSize;
+
+        var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: courtSize, height: courtSize }, scene);
+        ground.material = groundMaterial;
+
         // Animation
         scene.registerBeforeRender(function () {
           ball.position.y -= 0.01; // simulate gravity
           if (ball.intersectsMesh(racket, false)) {
-            // Reflect the ball when it hits the racket
             ball.position.y = racket.position.y + courtSize / 4;
           }
           for (var i = 0; i < 4; i++) {
             if (ball.intersectsMesh(walls[i], false)) {
-              // Reflect the ball when it hits a wall
               ball.position.y = walls[i].position.y + (i % 2 === 0 ? courtSize / 4 : -courtSize / 4);
             }
           }
@@ -108,6 +129,27 @@
 
       window.addEventListener("resize", function () {
         engine.resize();
+      });
+
+      // Fullscreen functionality
+      document.addEventListener("fullscreenchange", function () {
+        if (document.fullscreenElement) {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        } else {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+      });
+
+      document.body.addEventListener("click", function () {
+        if (!document.fullscreenElement) {
+          canvas.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+          });
+        } else {
+          document.exitFullscreen();
+        }
       });
     });
   </script>
