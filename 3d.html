@@ -70,13 +70,13 @@
         camera.setTarget(BABYLON.Vector3.Zero());
         camera.attachControl(canvas, true);
 
-        // Enable touch controls
+        // Enable touch controls on the racket
         var startingTouchX = 0;
-        scene.onPointerDown = function (evt, pickInfo) {
+        racket.onPointerDown = function (evt, pickInfo) {
           startingTouchX = evt.clientX;
         };
 
-        scene.onPointerMove = function (evt, pickInfo) {
+        racket.onPointerMove = function (evt, pickInfo) {
           if (startingTouchX !== undefined) {
             var deltaTouchX = evt.clientX - startingTouchX;
             var scaleFactor = courtSize / engine.getRenderWidth();
@@ -85,7 +85,7 @@
           }
         };
 
-        scene.onPointerUp = function () {
+        racket.onPointerUp = function () {
           startingTouchX = undefined;
         };
 
@@ -117,25 +117,34 @@
         scene.onBeforeRenderObservable.add(function () {
           scoreText.text = "Score: " + score;
         });
-        scene.onPointerUp = function () {
-          startingTouchX = undefined;
-          score += 10; // Increment score on racket hit
-        };
 
         // Game Over condition
         var gameOver = false;
         var gameOverText = new BABYLON.GUI.TextBlock();
-        gameOverText.text = "Game Over!";
+        gameOverText.text = "";
         gameOverText.color = "red";
         gameOverText.fontSize = 36;
         gameOverText.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         gameOverText.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
         scene.onBeforeRenderObservable.add(function () {
-          if (ball.position.y < -courtSize / 2 && !gameOver) {
-            // Ball hit the ground, trigger game over
-            gameOver = true;
-            gameOverText.text = "Game Over! Final Score: " + score;
-            gameOverText.isVisible = true;
+          if (!gameOver) {
+            if (ball.position.y < -courtSize / 2) {
+              // Ball hit the ground
+              if (score >= 11) {
+                gameOver = true;
+                gameOverText.text = "Game Over! You won with a score of " + score;
+              } else {
+                // Reset ball position
+                ball.position.y = courtSize / 4;
+                ball.position.x = Math.random() * courtSize - courtSize / 2;
+                score -= 1; // Lose a point for missing the ball
+              }
+            }
+            for (var i = 0; i < 4; i++) {
+              if (ball.intersectsMesh(walls[i], false)) {
+                ball.position.y = walls[i].position.y + (i % 2 === 0 ? courtSize / 4 : -courtSize / 4);
+              }
+            }
           }
         });
 
@@ -145,11 +154,7 @@
             ball.position.y -= 0.01; // simulate gravity
             if (ball.intersectsMesh(racket, false)) {
               ball.position.y = racket.position.y + courtSize / 4;
-            }
-            for (var i = 0; i < 4; i++) {
-              if (ball.intersectsMesh(walls[i], false)) {
-                ball.position.y = walls[i].position.y + (i % 2 === 0 ? courtSize / 4 : -courtSize / 4);
-              }
+              score += 1; // Gain a point for hitting the ball
             }
           }
         });
@@ -169,13 +174,14 @@
 
       // Fullscreen functionality
       document.addEventListener("fullscreenchange", function () {
-        if (document.fullscreenElement) {
-          canvas.width = window.innerWidth;
-          canvas.height = window.innerHeight;
+        if (document.fullscreenElement === canvas) {
+          canvas.width = screen.width;
+          canvas.height = screen.height;
         } else {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
         }
+        engine.resize();
       });
 
       document.body.addEventListener("click", function () {
