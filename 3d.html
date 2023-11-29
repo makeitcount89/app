@@ -22,12 +22,14 @@
             var engine = new BABYLON.Engine(canvas, true);
             var scene = new BABYLON.Scene(engine);
 
-            var camera = new BABYLON.ArcRotateCamera("camera", 0, 0, 10, new BABYLON.Vector3(0, 0, 0), scene);
-            camera.attachControl(canvas, true);
+            var camera = new BABYLON.FollowCamera("camera", new BABYLON.Vector3(0, 0, -10), scene);
+            camera.radius = 10;
+            camera.heightOffset = 2;
+            camera.rotationOffset = 180;
 
             var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
-            var paddle = BABYLON.MeshBuilder.CreateBox("paddle", { width: 2, height: 0.5, depth: 0.2 }, scene);
+            var paddle = BABYLON.MeshBuilder.CreateCylinder("paddle", { height: 0.5, diameterTop: 2, diameterBottom: 2 }, scene);
             paddle.position.y = -2;
 
             var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 0.5 }, scene);
@@ -37,16 +39,11 @@
             ground.material = new BABYLON.StandardMaterial("groundMat", scene);
             ground.material.diffuseColor = new BABYLON.Color3(0, 1, 0);
 
-            var walls = [];
-            walls.push(BABYLON.MeshBuilder.CreateBox("wall1", { width: 0.1, height: 5, depth: 10 }, scene));
-            walls.push(BABYLON.MeshBuilder.CreateBox("wall2", { width: 0.1, height: 5, depth: 10 }, scene));
-            walls.push(BABYLON.MeshBuilder.CreateBox("wall3", { width: 10, height: 5, depth: 0.1 }, scene));
-            walls.push(BABYLON.MeshBuilder.CreateBox("wall4", { width: 10, height: 5, depth: 0.1 }, scene));
-
-            walls[0].position.x = -5;
-            walls[1].position.x = 5;
-            walls[2].position.z = -5;
-            walls[3].position.z = 5;
+            var boundaryLines = [];
+            for (var i = -5; i <= 5; i += 2) {
+                var line = BABYLON.MeshBuilder.CreateLines("line", { points: [new BABYLON.Vector3(i, -3, 5), new BABYLON.Vector3(i, 3, 5)], updatable: true }, scene);
+                boundaryLines.push(line);
+            }
 
             engine.runRenderLoop(function () {
                 scene.render();
@@ -74,10 +71,10 @@
                     ball.position.y = -2;   // Reset ball position
                 }
 
-                // Check for collisions with walls
-                for (var i = 0; i < walls.length; i++) {
-                    if (ball.intersectsMesh(walls[i], false)) {
-                        ball.position.z -= 0.1; // Prevent sticking to the wall
+                // Check for collisions with boundaries
+                for (var i = 0; i < boundaryLines.length; i++) {
+                    if (ball.intersectsMesh(boundaryLines[i], false)) {
+                        ball.position.z -= 0.1; // Prevent sticking to the boundary
                     }
                 }
             });
@@ -93,6 +90,31 @@
             scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {
                 scene.inputStates[evt.sourceEvent.key] = false;
             }));
+
+            // Enable touch controls
+            var startingTouchX;
+
+            canvas.addEventListener("touchstart", function (event) {
+                startingTouchX = event.touches[0].clientX;
+            });
+
+            canvas.addEventListener("touchmove", function (event) {
+                var touchX = event.touches[0].clientX;
+                var deltaX = touchX - startingTouchX;
+
+                if (deltaX > 0) {
+                    scene.inputStates.right = true;
+                    scene.inputStates.left = false;
+                } else {
+                    scene.inputStates.left = true;
+                    scene.inputStates.right = false;
+                }
+            });
+
+            canvas.addEventListener("touchend", function () {
+                scene.inputStates.left = false;
+                scene.inputStates.right = false;
+            });
         });
     </script>
 </body>
