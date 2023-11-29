@@ -32,10 +32,15 @@
           walls.push(wall);
         }
 
-        walls[0].position.x = -5; // left wall
-        walls[1].position.x = 5;  // right wall
-        walls[2].position.z = 5;  // front wall
-        walls[3].position.z = -5; // back wall
+        // Scale the court to approximate the proportions of a squash court
+        var courtSize = 7; // Adjust as needed
+        walls[0].scaling.x = walls[1].scaling.x = courtSize; // left and right walls
+        walls[2].scaling.z = walls[3].scaling.z = courtSize; // front and back walls
+
+        walls[0].position.x = -courtSize / 2; // left wall
+        walls[1].position.x = courtSize / 2;  // right wall
+        walls[2].position.z = courtSize / 2;  // front wall
+        walls[3].position.z = -courtSize / 2; // back wall
 
         // Create racket
         var racketMaterial = new BABYLON.StandardMaterial("racketMat", scene);
@@ -43,7 +48,7 @@
 
         var racket = BABYLON.MeshBuilder.CreateBox("racket", { size: 1 }, scene);
         racket.material = racketMaterial;
-        racket.position.y = -2; // adjust the height of the racket
+        racket.position.y = -courtSize / 4; // adjust the height of the racket
 
         // Create ball
         var ballMaterial = new BABYLON.StandardMaterial("ballMat", scene);
@@ -51,18 +56,30 @@
 
         var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 0.5 }, scene);
         ball.material = ballMaterial;
-        ball.position.y = 2; // adjust the height of the ball
+        ball.position.y = courtSize / 4; // adjust the height of the ball
 
         // Set up camera
-        var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -10), scene);
+        var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -courtSize), scene);
         camera.setTarget(BABYLON.Vector3.Zero());
 
         // Enable touch controls
+        var startingTouchX = 0;
         scene.onPointerDown = function (evt, pickInfo) {
-          if (pickInfo.pickedMesh === racket) {
-            // Move the racket to the touched position
-            racket.position.x = pickInfo.pickedPoint.x;
+          startingTouchX = evt.clientX;
+        };
+
+        scene.onPointerMove = function (evt, pickInfo) {
+          if (startingTouchX !== undefined) {
+            // Move the racket based on the touch movement
+            var deltaTouchX = evt.clientX - startingTouchX;
+            var scaleFactor = courtSize / engine.getRenderWidth();
+            racket.position.x += deltaTouchX * scaleFactor;
+            startingTouchX = evt.clientX;
           }
+        };
+
+        scene.onPointerUp = function () {
+          startingTouchX = undefined;
         };
 
         // Animation
@@ -70,12 +87,12 @@
           ball.position.y -= 0.01; // simulate gravity
           if (ball.intersectsMesh(racket, false)) {
             // Reflect the ball when it hits the racket
-            ball.position.y = racket.position.y + 1;
+            ball.position.y = racket.position.y + courtSize / 4;
           }
           for (var i = 0; i < 4; i++) {
             if (ball.intersectsMesh(walls[i], false)) {
               // Reflect the ball when it hits a wall
-              ball.position.y = walls[i].position.y + (i % 2 === 0 ? 1 : -1);
+              ball.position.y = walls[i].position.y + (i % 2 === 0 ? courtSize / 4 : -courtSize / 4);
             }
           }
         });
