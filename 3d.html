@@ -67,18 +67,20 @@
       backWall.visibility = 0.5; // Make back wall transparent
 
       // Red lines for floor and wall markings
-      var createLine = function (points, color) {
-        var line = BABYLON.MeshBuilder.CreateLines("line", { points: points, updatable: true }, scene);
+      var createLine = function (points, color, thickness) {
+        var line = BABYLON.MeshBuilder.CreateLines("line", { points: points, updatable: true, instance: line }, scene);
         var material = new BABYLON.StandardMaterial("material", scene);
         material.emissiveColor = color; // Red color
         line.material = material;
+        line.color = color;
+        line.thinLineWidth = thickness;
         return line;
       };
 
       // Red lines for floor and wall markings
-      createLine([new BABYLON.Vector3(-courtWidth / 2, frontWallHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, frontWallHeight, courtLength / 2)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(-courtWidth / 2, serviceLineHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, serviceLineHeight, courtLength / 2)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(-courtWidth / 2, courtHeightBack, -courtLength / 2), new BABYLON.Vector3(courtWidth / 2, courtHeightBack, -courtLength / 2)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-courtWidth / 2, frontWallHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, frontWallHeight, courtLength / 2)], new BABYLON.Color3(1, 0, 0), 2);
+      createLine([new BABYLON.Vector3(-courtWidth / 2, serviceLineHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, serviceLineHeight, courtLength / 2)], new BABYLON.Color3(1, 0, 0), 2);
+      createLine([new BABYLON.Vector3(-courtWidth / 2, tinLineHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, tinLineHeight, courtLength / 2)], new BABYLON.Color3(1, 0, 0), 2);
 
       // Create tin (transparent panel)
       var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
@@ -88,7 +90,7 @@
       // Create service boxes and lines
       var createServiceBox = function (zPosition) {
         // Red lines for service box markings
-        createLine([new BABYLON.Vector3(-courtWidth / 2, serviceLineHeight, zPosition), new BABYLON.Vector3(courtWidth / 2, serviceLineHeight, zPosition)], new BABYLON.Color3(1, 0, 0));
+        createLine([new BABYLON.Vector3(-courtWidth / 2, frontWallHeight, zPosition), new BABYLON.Vector3(courtWidth / 2, frontWallHeight, zPosition)], new BABYLON.Color3(1, 0, 0), 2);
       };
 
       createServiceBox(courtLength / 2 - shortLineDistance - serviceBoxDepth / 2);
