@@ -1,76 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Pong Game</title>
-    <style>
-        body { margin: 0; overflow: hidden; }
-    </style>
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Squash Error Tracking</title>
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 <body>
-    <canvas id="renderCanvas" style="touch-action: none;"></canvas>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const canvas = document.getElementById("renderCanvas");
-            const engine = new BABYLON.Engine(canvas, true);
+  <canvas id="renderCanvas"></canvas>
+  <button onclick="increaseWinnerCounter()">Increase Winner Counter</button>
+  <button onclick="increaseErrorCounter()">Increase Error Counter</button>
+  <button onclick="undo()">Undo</button>
 
-            const createScene = () => {
-                const scene = new BABYLON.Scene(engine);
-                const camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -5), scene);
-                camera.setTarget(BABYLON.Vector3.Zero());
-                camera.attachControl(canvas, false); // Disable default camera control
+  <script>
+    var canvas = document.getElementById("renderCanvas");
+    var engine = new BABYLON.Engine(canvas, true);
 
-                const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+    var createScene = function () {
+      var scene = new BABYLON.Scene(engine);
 
-                // Create game elements
-                const paddle = BABYLON.MeshBuilder.CreateBox("paddle", { width: 1, height: 0.2, depth: 2 }, scene);
-                paddle.position.y = 2;
+      // Create the squash court and floor
+      // Add your Babylon.js code here for court representation
 
-                const ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 0.5 }, scene);
-                ball.position.y = 2;
-                ball.position.z = 0.5; // Adjusted starting position
+      return scene;
+    };
 
-                const ballSpeed = 0.1;
-                const paddleSpeed = 0.2;
+    var scene = createScene();
 
-                // Game loop
-                scene.onBeforeRenderObservable.add(() => {
-                    // Ball movement
-                    ball.position.z += ballSpeed;
+    engine.runRenderLoop(function () {
+      scene.render();
+    });
 
-                    // Paddle movement
-                    if (scene.pointerX !== undefined) {
-                        const pointerX = scene.pointerX / engine.getRenderWidth();
-                        const newX = (pointerX - 0.5) * 10;
-                        paddle.position.x = BABYLON.Scalar.Lerp(paddle.position.x, newX, paddleSpeed);
-                    }
+    // Winner and Error Counters
+    var winnerCounter = 0;
+    var errorCounter = 0;
 
-                    // Ball and paddle collision
-                    if (ball.intersectsMesh(paddle, true)) {
-                        ballSpeed *= -1;
-                    }
+    function increaseWinnerCounter() {
+      winnerCounter++;
+      updateCharts();
+    }
 
-                    // Ball reset
-                    if (ball.position.z < -5 || ball.position.z > 5) {
-                        ball.position.z = 0;
-                    }
-                });
+    function increaseErrorCounter() {
+      errorCounter++;
+      updateCharts();
+    }
 
-                return scene;
-            };
+    function undo() {
+      // Implement your undo logic here
+      // This is a placeholder function
+      alert("Undo functionality will be implemented here.");
+    }
 
-            const scene = createScene();
+    // Google Charts
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawCharts);
 
-            engine.runRenderLoop(() => {
-                scene.render();
-            });
+    function drawCharts() {
+      updateCharts();
+    }
 
-            window.addEventListener("resize", () => {
-                engine.resize();
-            });
-        });
-    </script>
+    function updateCharts() {
+      var data = google.visualization.arrayToDataTable([
+        ['Type', 'Count'],
+        ['Winner', winnerCounter],
+        ['Error', errorCounter]
+      ]);
+
+      var options = {
+        title: 'Squash Error Tracking',
+        pieHole: 0.4,
+      };
+
+      var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
+  </script>
+
+  <div id="chart_div" style="width: 300px; height: 300px;"></div>
 </body>
 </html>
