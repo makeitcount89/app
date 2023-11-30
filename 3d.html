@@ -207,13 +207,17 @@ errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -cou
 
      // Function to increase counter
     function increaseCounter(type, corner) {
-      actionsHistory.push({ ...counters });
-      counters[type]++;
-      updateCharts();
-      updateBars();
-      updateClickCount(type);
-      updateCornerClickCount(type, corner);
-    }
+  actionsHistory.push({ ...counters });
+
+  // Update the counter for the specific corner
+  counters[type + corner.charAt(0).toUpperCase() + corner.slice(1)]++;
+
+  updateCharts();
+  updateBars();
+  updateClickCount(type);
+  updateCornerClickCount(type, corner);
+}
+
 
 
 
