@@ -2,15 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Squash Game</title>
+    <title>3D Pong Game</title>
     <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
-
         canvas {
             touch-action: none;
         }
@@ -19,46 +13,54 @@
 <body>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Set up Babylon.js
-            var canvas = document.createElement("canvas");
+        document.addEventListener('DOMContentLoaded', function () {
+            var canvas = document.createElement('canvas');
             document.body.appendChild(canvas);
 
             var engine = new BABYLON.Engine(canvas, true);
-            var scene = new BABYLON.Scene(engine);
 
-            // Create paddle
-            var paddle = BABYLON.MeshBuilder.CreateBox("paddle", { width: 5, height: 1, depth: 1 }, scene);
-            paddle.position.y = -5;
+            var createScene = function () {
+                var scene = new BABYLON.Scene(engine);
+                var camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, 5, -10), scene);
+                camera.setTarget(BABYLON.Vector3.Zero());
+                camera.attachControl(canvas, true);
 
-            // Create ball
-            var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
-            ball.position.y = 0;
+                var light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene);
+                light.intensity = 0.7;
 
-            // Set up camera
-            var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -10), scene);
-            camera.setTarget(BABYLON.Vector3.Zero());
+                var paddle = BABYLON.MeshBuilder.CreateBox('paddle', { width: 1, height: 0.2, depth: 2 }, scene);
+                paddle.position.y = 2;
 
-            // Enable physics
-            scene.enablePhysics();
+                var ball = BABYLON.MeshBuilder.CreateSphere('ball', { diameter: 0.5 }, scene);
+                ball.position.y = 2;
 
-            // Set up physics for the ball
-            ball.physicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 1 }, scene);
-            ball.physicsImpostor.applyImpulse(new BABYLON.Vector3(1, 0, 1), ball.getAbsolutePosition());
+                var ballDirection = new BABYLON.Vector3(0.03, 0, 0.05);
 
-            // Set up physics for the paddle
-            paddle.physicsImpostor = new BABYLON.PhysicsImpostor(paddle, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0 }, scene);
+                scene.onBeforeRenderObservable.add(function () {
+                    paddle.position.x = scene.pointerX / engine.getRenderWidth() * 6 - 3;
 
-            // Listen for touch input to move the paddle
-            canvas.addEventListener("touchmove", function (event) {
-                var touch = event.touches[0];
-                var touchX = touch.clientX / window.innerWidth * 2 - 1;
-                paddle.position.x = touchX * 10;
-            });
+                    ball.position.addInPlace(ballDirection);
 
-            // Run the game loop
+                    if (ball.intersectsMesh(paddle, false)) {
+                        ballDirection.x *= -1;
+                    }
+
+                    if (Math.abs(ball.position.z) > 5) {
+                        ballDirection.z *= -1;
+                    }
+                });
+
+                return scene;
+            };
+
+            var scene = createScene();
+
             engine.runRenderLoop(function () {
                 scene.render();
+            });
+
+            window.addEventListener('resize', function () {
+                engine.resize();
             });
         });
     </script>
