@@ -198,6 +198,11 @@ function increaseCounter(type, corner) {
         updateClickCount();
       }
     }
+    var scene = createScene();
+engine.runRenderLoop(function () {
+  scene.render();
+});
+
 
     // Google Charts
     google.charts.load('current', {'packages':['corechart']});
