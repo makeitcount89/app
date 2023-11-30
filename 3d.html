@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Squash Error Tracking</title>
+  <title>Realistic Squash Court</title>
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <script src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
@@ -33,7 +33,19 @@
 
       court.material = woodMaterial;
 
-      // Add your Babylon.js code here for boundary lines and other details
+      // Create walls
+      var wall1 = BABYLON.MeshBuilder.CreateBox("wall1", { width: 0.2, height: 4, depth: 20 }, scene);
+      wall1.position.x = -5.1;
+
+      var wall2 = BABYLON.MeshBuilder.CreateBox("wall2", { width: 0.2, height: 4, depth: 20 }, scene);
+      wall2.position.x = 5.1;
+
+      // Create tin (transparent panel)
+      var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: 9.8, height: 0.1, depth: 0.2 }, scene);
+      tin.position.y = -0.05;
+      tin.position.z = 10;
+
+      // Add your Babylon.js code here for other details
 
       return scene;
     };
