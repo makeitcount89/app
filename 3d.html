@@ -9,14 +9,20 @@
 </head>
 <body>
   <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+  <button onclick="increaseCounter('winner')">Increase Winner Counter</button>
+  <button onclick="increaseCounter('error')">Increase Error Counter</button>
+  <button onclick="undo()">Undo</button>
+
   <script>
     var canvas = document.getElementById("renderCanvas");
     var engine = new BABYLON.Engine(canvas, true);
 
     var createScene = function () {
       var scene = new BABYLON.Scene(engine);
-      var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI, Math.PI / 2, 20, new BABYLON.Vector3(0, 0, 0), scene);
-      
+
+      // Adjusted camera position and target for back wall and front wall
+      var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI, Math.PI / 2, 32, new BABYLON.Vector3(0, 0, 0), scene);
+
       camera.attachControl(canvas, true);
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
@@ -26,7 +32,68 @@
       var courtHeightFront = 18.5; // in feet
       var courtHeightBack = 7; // in feet
 
-      // ... (rest of your Babylon.js code)
+      var frontWallMinHeight = 18.5; // in feet
+      var frontWallHeight = 15; // in feet
+      var serviceLineHeight = 5.84; // in feet
+      var tinLineHeight = 19 / 12; // 19 inches converted to feet
+
+      var serviceBoxWidth = 63 / 12; // 63 inches converted to feet
+      var serviceBoxDepth = 63 / 12; // 63 inches converted to feet
+      var shortLineDistance = 17.85; // in feet
+
+      // Create the squash court
+      var court = BABYLON.MeshBuilder.CreateBox("court", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
+      court.position.y = -0.05; // Adjust the position based on your scene
+
+      // Add light blue floor
+      var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
+      floorMaterial.diffuseColor = new BABYLON.Color3(0.6, 0.8, 1); // Light blue color
+      court.material = floorMaterial;
+
+      // Create front wall
+      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
+      frontWall.position.z = courtLength / 2 - 0.1;
+      frontWall.position.y = frontWallHeight / 2;
+
+      // Make the front wall white
+      var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
+      frontWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // White color
+      frontWall.material = frontWallMaterial;
+
+      // Create back wall (transparent)
+      var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: courtHeightBack, depth: 0.2 }, scene);
+      backWall.position.z = -courtLength / 2 + 0.1;
+      backWall.position.y = courtHeightBack / 2;
+      backWall.visibility = 0.5; // Make back wall transparent
+
+      // Red lines for floor and wall markings
+      var createLine = function (points, color) {
+        var line = BABYLON.MeshBuilder.CreateLines("line", { points: points, updatable: true }, scene);
+        var material = new BABYLON.StandardMaterial("material", scene);
+        material.emissiveColor = color; // Red color
+        line.material = material;
+        return line;
+      };
+
+      // Red lines for floor and wall markings
+      createLine([new BABYLON.Vector3(-courtWidth / 2, frontWallHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, frontWallHeight, courtLength / 2)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-courtWidth / 2, courtHeightBack, -courtLength / 2), new BABYLON.Vector3(courtWidth / 2, courtHeightBack, -courtLength / 2)], new BABYLON.Color3(1, 0, 0));
+
+      // Create tin (transparent panel)
+      var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
+      tin.position.z = courtLength / 2 - 0.1;
+      tin.position.y = tinLineHeight / 2;
+
+      // Create service boxes and lines
+      var createServiceBox = function (zPosition) {
+        // Red lines for service box markings
+        createLine([new BABYLON.Vector3(-courtWidth / 2, frontWallHeight, zPosition), new BABYLON.Vector3(courtWidth / 2, frontWallHeight, zPosition)], new BABYLON.Color3(1, 0, 0));
+      };
+
+      createServiceBox(courtLength / 2 - shortLineDistance - serviceBoxDepth / 2);
+      createServiceBox(-courtLength / 2 + shortLineDistance + serviceBoxDepth / 2);
+
+      // Add your Babylon.js code here for other details
 
       return scene;
     };
@@ -40,8 +107,7 @@
     // Counter and Undo
     var counters = {
       winner: 0,
-      error: 0,
-      dropShot: 0 // New counter for left side drop shots
+      error: 0
     };
 
     var actionsHistory = [];
@@ -71,8 +137,7 @@
       var data = google.visualization.arrayToDataTable([
         ['Type', 'Count'],
         ['Winner', counters.winner],
-        ['Error', counters.error],
-        ['Drop Shot', counters.dropShot] // Add the new counter for drop shots
+        ['Error', counters.error]
       ]);
 
       var options = {
@@ -84,9 +149,6 @@
       chart.draw(data, options);
     }
   </script>
-
-  <!-- Move the button for left side drop shots to the front left of the squash court -->
-  <button onclick="increaseCounter('dropShot')" style="position: absolute; top: 10px; left: 10px;">Left Side Drop Shot</button>
 
   <div id="chart_div" style="width: 300px; height: 300px;"></div>
 </body>
