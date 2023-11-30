@@ -129,34 +129,34 @@
       };
    
 
-      // Create bars in the four corners
-      winnerBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopLeft');
-      errorBars.topLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopLeft');
-      winnerBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopRight');
-      errorBars.topRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopRight');
-      winnerBars.bottomLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomLeft');
-      errorBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomLeft');
-      winnerBars.bottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
-      errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
+        // Create bars in the four corners
+    winnerBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0));
+    errorBars.topLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0));
+    winnerBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0));
+    errorBars.topRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0));
+    winnerBars.bottomLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0));
+    errorBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0));
+    winnerBars.bottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0));
+    errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0));
 
-      return scene;
-    };
- var scene = createScene();
+    return scene;
+  };
 
-    engine.runRenderLoop(function () {
-      scene.render();
-    });
-    
+  var scene = createScene();
 
-    // Function to update bars
-    function updateBars() {
-      for (var corner in winnerBars) {
-        winnerBars[corner].scaling.y = counters.winner;
-      }
-      for (var corner in errorBars) {
-        errorBars[corner].scaling.y = counters.error;
-      }
+  engine.runRenderLoop(function () {
+    scene.render();
+  });
+
+  // Function to update bars
+  function updateBars() {
+    for (var corner in winnerBars) {
+      winnerBars[corner].scaling.y = counters.winner;
     }
+    for (var corner in errorBars) {
+      errorBars[corner].scaling.y = counters.error;
+    }
+  }
 
     // Function to update click count for each corner
     function updateCornerClickCount(type, corner) {
