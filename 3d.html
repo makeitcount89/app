@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Realistic Squash Court</title>
+  <title>Realistic Singles Squash Court</title>
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <script src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
@@ -23,8 +23,23 @@
       camera.attachControl(canvas, true);
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
+      // Create the realistic Singles Squash Court
+      var courtLength = 32; // in feet
+      var courtWidth = 21; // in feet
+      var courtHeightFront = 18.5; // in feet
+      var courtHeightBack = 7; // in feet
+
+      var frontWallMinHeight = 18.5; // in feet
+      var frontWallHeight = 15; // in feet
+      var serviceLineHeight = 5.84; // in feet
+      var tinLineHeight = 19 / 12; // 19 inches converted to feet
+
+      var serviceBoxWidth = 63 / 12; // 63 inches converted to feet
+      var serviceBoxDepth = 63 / 12; // 63 inches converted to feet
+      var shortLineDistance = 17.85; // in feet
+
       // Create the squash court
-      var court = BABYLON.MeshBuilder.CreateBox("court", { width: 10, height: 0.1, depth: 20 }, scene);
+      var court = BABYLON.MeshBuilder.CreateBox("court", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
       court.position.y = -0.05; // Adjust the position based on your scene
 
       // Add light blue floor
@@ -32,24 +47,15 @@
       floorMaterial.diffuseColor = new BABYLON.Color3(0.6, 0.8, 1); // Light blue color
       court.material = floorMaterial;
 
-      // Create walls with proper scale and height
-      var wallHeightFront = 4;
-      var wallHeightBack = 2;
-      var wall1 = BABYLON.MeshBuilder.CreateBox("wall1", { width: 0.2, height: wallHeightFront, depth: 20 }, scene);
-      wall1.position.x = -5.1;
-      wall1.position.y = wallHeightFront / 2;
+      // Create front wall
+      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
+      frontWall.position.z = courtLength / 2 - 0.1;
+      frontWall.position.y = frontWallHeight / 2;
 
-      var wall2 = BABYLON.MeshBuilder.CreateBox("wall2", { width: 0.2, height: wallHeightFront, depth: 20 }, scene);
-      wall2.position.x = 5.1;
-      wall2.position.y = wallHeightFront / 2;
-
-      var wall3 = BABYLON.MeshBuilder.CreateBox("wall3", { width: 10, height: wallHeightBack, depth: 0.2 }, scene);
-      wall3.position.z = 10.1;
-      wall3.position.y = wallHeightBack / 2;
-
-      var wall4 = BABYLON.MeshBuilder.CreateBox("wall4", { width: 10, height: wallHeightBack, depth: 0.2 }, scene);
-      wall4.position.z = -10.1;
-      wall4.position.y = wallHeightBack / 2;
+      // Create back wall
+      var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: courtHeightBack, depth: 0.2 }, scene);
+      backWall.position.z = -courtLength / 2 + 0.1;
+      backWall.position.y = courtHeightBack / 2;
 
       // Create red lines for floor and wall markings
       var createLine = function (points, color) {
@@ -61,16 +67,25 @@
       };
 
       // Red lines for floor and wall markings
-      createLine([new BABYLON.Vector3(-5, 0.05, -10), new BABYLON.Vector3(5, 0.05, -10)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(-5, 0.05, 10), new BABYLON.Vector3(5, 0.05, 10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-courtWidth / 2, 0.05, -courtLength / 2), new BABYLON.Vector3(courtWidth / 2, 0.05, -courtLength / 2)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-courtWidth / 2, 0.05, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, 0.05, courtLength / 2)], new BABYLON.Color3(1, 0, 0));
 
-      createLine([new BABYLON.Vector3(-5, wallHeightFront, 10), new BABYLON.Vector3(5, wallHeightFront, 10)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(-5, wallHeightBack, -10), new BABYLON.Vector3(5, wallHeightBack, -10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-courtWidth / 2, frontWallHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, frontWallHeight, courtLength / 2)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-courtWidth / 2, courtHeightBack, -courtLength / 2), new BABYLON.Vector3(courtWidth / 2, courtHeightBack, -courtLength / 2)], new BABYLON.Color3(1, 0, 0));
 
       // Create tin (transparent panel)
-      var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: 9.8, height: 0.1, depth: 0.2 }, scene);
-      tin.position.y = -0.05;
-      tin.position.z = 10;
+      var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
+      tin.position.z = courtLength / 2 - 0.1;
+      tin.position.y = tinLineHeight / 2;
+
+      // Create service boxes
+      var serviceBox1 = BABYLON.MeshBuilder.CreateBox("serviceBox1", { width: serviceBoxWidth, height: 0.1, depth: serviceBoxDepth }, scene);
+      serviceBox1.position.z = courtLength / 2 - shortLineDistance - serviceBoxDepth / 2;
+      serviceBox1.position.y = 0.05;
+
+      var serviceBox2 = BABYLON.MeshBuilder.CreateBox("serviceBox2", { width: serviceBoxWidth, height: 0.1, depth: serviceBoxDepth }, scene);
+      serviceBox2.position.z = -courtLength / 2 + shortLineDistance + serviceBoxDepth / 2;
+      serviceBox2.position.y = 0.05;
 
       // Add your Babylon.js code here for other details
 
