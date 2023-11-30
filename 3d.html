@@ -42,20 +42,8 @@
     var canvas = document.getElementById("renderCanvas");
     var engine = new BABYLON.Engine(canvas, true);
 
-    var winnerBars = {
-  topLeft: null,
-  topRight: null,
-  bottomLeft: null,
-  bottomRight: null
-};
+    var winnerBars = {}, errorBars = {};
 
-var errorBars = {
-  topLeft: null,
-  topRight: null,
-  bottomLeft: null,
-  bottomRight: null
-};
-    
     // Counter and Undo
     var counters = {
       winner: 0,
@@ -149,37 +137,29 @@ var errorBars = {
 
     
      
-    function createBar(position, height, color, id, corner) {
-  var bar = BABYLON.MeshBuilder.CreateBox(id, { width: 1, height: height, depth: 1 }, scene);
-  bar.position = position;
-  var material = new BABYLON.StandardMaterial("barMaterial", scene);
-  material.diffuseColor = color;
-  bar.material = material;
-
-  // Set the bar in the respective corner object
-  if (corner === 'winner') {
-    winnerBars[id] = bar;
-  } else if (corner === 'error') {
-    errorBars[id] = bar;
-  }
-
-  return bar;
-}
-
+    // Function to create individual bars
+    function createBar(position, height, color, id) {
+      var bar = BABYLON.MeshBuilder.CreateBox(id, { width: 1, height: height, depth: 1 }, scene);
+      bar.position = position;
+      var material = new BABYLON.StandardMaterial("barMaterial", scene);
+      material.diffuseColor = color;
+      bar.material = material;
+      return bar;
+    }
 
     // Create bars for each button
-    winnerBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopLeft', 'winner');
-errorBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopLeft', 'error');
+    winnerBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopLeft');
+  errorBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopLeft');
 
-winnerBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopRight', 'winner');
-errorBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopRight', 'error');
+  winnerBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopRight');
+  errorBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopRight');
 
-winnerBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomLeft', 'winner');
-errorBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomLeft', 'error');
+  winnerBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomLeft');
+  errorBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomLeft');
 
-winnerBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight', 'winner');
-errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight', 'error');
-      
+  winnerBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
+  errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
+
   return scene;
     };
 
@@ -207,17 +187,13 @@ errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -cou
 
      // Function to increase counter
     function increaseCounter(type, corner) {
-  actionsHistory.push({ ...counters });
-
-  // Update the counter for the specific corner
-  counters[type + corner.charAt(0).toUpperCase() + corner.slice(1)]++;
-
-  updateCharts();
-  updateBars();
-  updateClickCount(type);
-  updateCornerClickCount(type, corner);
-}
-
+      actionsHistory.push({ ...counters });
+      counters[type]++;
+      updateCharts();
+      updateBars();
+      updateClickCount(type);
+      updateCornerClickCount(type, corner);
+    }
 
 
 
