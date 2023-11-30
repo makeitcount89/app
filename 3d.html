@@ -15,6 +15,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var canvas = document.createElement('canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
             document.body.appendChild(canvas);
 
             var engine = new BABYLON.Engine(canvas, true);
@@ -23,7 +25,6 @@
                 var scene = new BABYLON.Scene(engine);
                 var camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, 5, -10), scene);
                 camera.setTarget(BABYLON.Vector3.Zero());
-                camera.attachControl(canvas, true);
 
                 var light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene);
                 light.intensity = 0.7;
@@ -36,9 +37,18 @@
 
                 var ballDirection = new BABYLON.Vector3(0.03, 0, 0.05);
 
-                scene.onBeforeRenderObservable.add(function () {
-                    paddle.position.x = scene.pointerX / engine.getRenderWidth() * 6 - 3;
+                // Create front wall with red lines
+                var frontWall = BABYLON.MeshBuilder.CreatePlane('frontWall', { width: 6, height: 4 }, scene);
+                frontWall.position = new BABYLON.Vector3(0, 2, 5);
+                var frontWallMaterial = new BABYLON.StandardMaterial('frontWallMaterial', scene);
+                frontWallMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0);
+                frontWall.material = frontWallMaterial;
 
+                scene.onBeforeRenderObservable.add(function () {
+                    // Move paddle with touch controls
+                    paddle.position.x = (scene.pointerX / engine.getRenderWidth() * 6 - 3) * 1.5;
+
+                    // Move the ball and handle collisions
                     ball.position.addInPlace(ballDirection);
 
                     if (ball.intersectsMesh(paddle, false)) {
@@ -60,6 +70,8 @@
             });
 
             window.addEventListener('resize', function () {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
                 engine.resize();
             });
         });
