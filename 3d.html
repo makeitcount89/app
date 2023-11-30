@@ -9,8 +9,8 @@
 </head>
 <body>
   <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
-  <button onclick="increaseWinnerCounter()">Increase Winner Counter</button>
-  <button onclick="increaseErrorCounter()">Increase Error Counter</button>
+  <button onclick="increaseCounter('winner')">Increase Winner Counter</button>
+  <button onclick="increaseCounter('error')">Increase Error Counter</button>
   <button onclick="undo()">Undo</button>
 
   <script>
@@ -44,24 +44,23 @@
       scene.render();
     });
 
-    // Winner and Error Counters
-    var winnerCounter = 0;
-    var errorCounter = 0;
+    // Counter and Undo
+    var counters = {
+      winner: 0,
+      error: 0
+    };
 
-    function increaseWinnerCounter() {
-      winnerCounter++;
-      updateCharts();
-    }
+    var previousCounters = {};
 
-    function increaseErrorCounter() {
-      errorCounter++;
+    function increaseCounter(type) {
+      previousCounters = { ...counters };
+      counters[type]++;
       updateCharts();
     }
 
     function undo() {
-      // Implement your undo logic here
-      // This is a placeholder function
-      alert("Undo functionality will be implemented here.");
+      counters = { ...previousCounters };
+      updateCharts();
     }
 
     // Google Charts
@@ -75,8 +74,8 @@
     function updateCharts() {
       var data = google.visualization.arrayToDataTable([
         ['Type', 'Count'],
-        ['Winner', winnerCounter],
-        ['Error', errorCounter]
+        ['Winner', counters.winner],
+        ['Error', counters.error]
       ]);
 
       var options = {
