@@ -150,13 +150,14 @@
     scene.render();
   });
 
-  // Function to update bars
-  function updateBars() {
-    for (var corner in winnerBars) {
-      winnerBars[corner].scaling.y = counters.winner;
-      errorBars[corner].scaling.y = counters.error;
-    }
+// Function to update bars
+function updateBars() {
+  for (var corner in winnerBars) {
+    winnerBars[corner].scaling.y = counters.winner;
+    errorBars[corner].scaling.y = counters.error;
   }
+}
+
 
     // Function to update click count for each corner
     function updateCornerClickCount(type, corner) {
@@ -164,8 +165,6 @@
     }
           var canvas = document.getElementById("renderCanvas");
     var engine = new BABYLON.Engine(canvas, true);
-
-    var winnerBar, errorBar, winnerErrorBar, errorWinnerBar;
 
   
 
@@ -218,13 +217,6 @@
       chart.draw(data, options);
     }
 
-    // Function to update bars
-    function updateBars() {
-      winnerBar.scaling.y = counters.winner;
-      errorBar.scaling.y = counters.error;
-      winnerErrorBar.scaling.y = counters.winner;
-      errorWinnerBar.scaling.y = counters.error;
-    }
 
     // Function to update click count
     function updateClickCount(type) {
