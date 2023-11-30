@@ -19,8 +19,12 @@
 
     var createScene = function () {
       var scene = new BABYLON.Scene(engine);
+
+      // Set camera to arc rotate mode
       var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
       camera.attachControl(canvas, true);
+      camera.setPosition(new BABYLON.Vector3(0, 0, -courtLength / 2));
+
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
       // Create the realistic Singles Squash Court
