@@ -80,8 +80,23 @@
       var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
       tin.position.z = courtLength / 2 - 0.1;
       tin.position.y = tinLineHeight / 2;
-
       
+
+      // Function to create a bar
+      var createBar = function (position, height, color) {
+        var bar = BABYLON.MeshBuilder.CreateBox("bar", { width: 1, height: height, depth: 1 }, scene);
+        bar.position = position;
+        var material = new BABYLON.StandardMaterial("barMaterial", scene);
+        material.diffuseColor = color;
+        bar.material = material;
+        return bar;
+      };
+
+      // Create bars in the four corners
+      var winnerBar = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0));
+      var errorBar = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0));
+      var winnerErrorBar = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 1, 0));
+      var errorWinnerBar = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 0, 1));
 
       return scene;
     };
@@ -104,12 +119,14 @@
       actionsHistory.push({ ...counters });
       counters[type]++;
       updateCharts();
+      updateBars();
     }
 
     function undo() {
       if (actionsHistory.length > 0) {
         counters = actionsHistory.pop();
         updateCharts();
+        updateBars();
       }
     }
 
@@ -135,6 +152,14 @@
 
       var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
       chart.draw(data, options);
+    }
+
+    // Function to update bars
+    function updateBars() {
+      winnerBar.scaling.y = counters.winner;
+      errorBar.scaling.y = counters.error;
+      winnerErrorBar.scaling.y = counters.winner;
+      errorWinnerBar.scaling.y = counters.error;
     }
   </script>
 
