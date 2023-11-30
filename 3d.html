@@ -48,7 +48,8 @@ var counters = {
   winner: 0,
   error: 0
 };
-
+var actionsHistory = [];
+    
   var createScene = function () {
       var scene = new BABYLON.Scene(engine);
       var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
@@ -126,10 +127,6 @@ var counters = {
       tin.position.z = courtLength / 2 - 0.1;
       tin.position.y = tinLineHeight / 2;
 
-      
-
-var actionsHistory = [];
-
 function createBar(position, height, color, id) {
   var bar = BABYLON.MeshBuilder.CreateBox(id, { width: 1, height: height, depth: 1 }, scene);
   bar.position = position;
@@ -152,6 +149,8 @@ errorBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, court
 winnerBars.bottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
 errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
 
+          return scene;
+    };
 // Function to update bars
 function updateBars() {
   for (var corner in winnerBars) {
@@ -219,29 +218,7 @@ function increaseCounter(type, corner) {
     }
 
 
-    // Function to update click count
-    function updateClickCount(type) {
-      if (type === 'winner') {
-        document.getElementById('winnerCount').innerText = counters.winner;
-      } else if (type === 'error') {
-        document.getElementById('errorCount').innerText = counters.error;
-      }
-    }
-  
-    function increaseCounter(type, corner) {
-      actionsHistory.push({ ...counters });
-      counters[type]++;
-      updateCharts();
-      updateBars();
-      updateClickCount(type);
-      updateCornerClickCount(type, corner);
-    }
-
-    // Function to update click count for each corner
-    function updateCornerClickCount(type, corner) {
-      document.getElementById(`${type}Count${corner}`).innerText = counters[type];
-    }
-    
+ 
   </script>
 
   <div id="chart_div" style="width: 300px; height: 300px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
