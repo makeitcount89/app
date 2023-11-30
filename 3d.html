@@ -11,20 +11,17 @@
   <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
 
   <div style="position: absolute; top: 10px; left: 10px;">
-    <button id="errorTopLeft" onclick="increaseCounter('error', 'topLeft')">Top Left Error</button>
-    <button id="winnerTopLeft" onclick="increaseCounter('winner', 'topLeft')">Top Left Winner</button>
+    <button onclick="increaseCounter('winner', 'frontLeft')">Front Left Winner</button>
+    <button onclick="increaseCounter('error', 'frontLeft')">Front Left Error</button>
+    <button onclick="increaseCounter('winner', 'backLeft')">Back Left Winner</button>
+    <button onclick="increaseCounter('error', 'backLeft')">Back Left Error</button>
   </div>
+
   <div style="position: absolute; top: 10px; right: 10px;">
-    <button id="errorTopRight" onclick="increaseCounter('error', 'topRight')">Top Right Error</button>
-    <button id="winnerTopRight" onclick="increaseCounter('winner', 'topRight')">Top Right Winner</button>
-  </div>
-  <div style="position: absolute; bottom: 10px; left: 10px;">
-    <button id="errorBottomLeft" onclick="increaseCounter('error', 'bottomLeft')">Bottom Left Error</button>
-    <button id="winnerBottomLeft" onclick="increaseCounter('winner', 'bottomLeft')">Bottom Left Winner</button>
-  </div>
-  <div style="position: absolute; bottom: 10px; right: 10px;">
-    <button id="errorBottomRight" onclick="increaseCounter('error', 'bottomRight')">Bottom Right Error</button>
-    <button id="winnerBottomRight" onclick="increaseCounter('winner', 'bottomRight')">Bottom Right Winner</button>
+    <button onclick="increaseCounter('winner', 'frontRight')">Front Right Winner</button>
+    <button onclick="increaseCounter('error', 'frontRight')">Front Right Error</button>
+    <button onclick="increaseCounter('winner', 'backRight')">Back Right Winner</button>
+    <button onclick="increaseCounter('error', 'backRight')">Back Right Error</button>
   </div>
 
   <button onclick="undo()" style="position: absolute; top: 50%; left: 50%;">Undo</button>
@@ -115,31 +112,13 @@
         return bar;
       };
 
-      // Create bars in the four corners
-      winnerBarTopLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), "winnerBarTopLeft");
-      errorBarTopLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), "errorBarTopLeft");
-      winnerErrorBarTopLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 1, 0), "winnerErrorBarTopLeft");
-      errorWinnerBarTopLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 0, 1), "errorWinnerBarTopLeft");
+    var winnerBarFrontLeft, errorBarFrontLeft, winnerErrorBarFrontLeft, errorWinnerBarFrontLeft;
+    var winnerBarFrontRight, errorBarFrontRight, winnerErrorBarFrontRight, errorWinnerBarFrontRight;
+    var winnerBarBackLeft, errorBarBackLeft, winnerErrorBarBackLeft, errorWinnerBarBackLeft;
+    var winnerBarBackRight, errorBarBackRight, winnerErrorBarBackRight, errorWinnerBarBackRight;
 
-      winnerBarTopRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), "winnerBarTopRight");
-      errorBarTopRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), "errorBarTopRight");
-      winnerErrorBarTopRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 1, 0), "winnerErrorBarTopRight");
-      errorWinnerBarTopRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 0, 1), "errorWinnerBarTopRight");
-
-      winnerBarBottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), "winnerBarBottomLeft");
-      errorBarBottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), "errorBarBottomLeft");
-      winnerErrorBarBottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 1, 0), "winnerErrorBarBottomLeft");
-      errorWinnerBarBottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 0, 1), "errorWinnerBarBottomLeft");
-
-      winnerBarBottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), "winnerBarBottomRight");
-      errorBarBottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), "errorBarBottomRight");
-      winnerErrorBarBottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 1, 0), "winnerErrorBarBottomRight");
-      errorWinnerBarBottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 0, 1), "errorWinnerBarBottomRight");
-
-      return scene;
-    };
-
-    var scene = createScene();
+    // Your existing createScene function
+      var scene = createScene();
 
     engine.runRenderLoop(function () {
       scene.render();
@@ -194,10 +173,48 @@
       var chart = new google.visualization.PieChart(document.getElementById('chartContainer'));
       chart.draw(data, options);
     }
+
+    var createBar = function (position, height, color, name) {
+      var bar = BABYLON.MeshBuilder.CreateBox(name, { width: 1, height: height, depth: 1 }, scene);
+      bar.position = position;
+      var material = new BABYLON.StandardMaterial(name + "Material", scene);
+      material.diffuseColor = color;
+      bar.material = material;
+      return bar;
+    };
+
+    // Create bars for each corner
+    winnerBarFrontLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), "winnerBarFrontLeft");
+    errorBarFrontLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), "errorBarFrontLeft");
+    winnerErrorBarFrontLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 1, 0), "winnerErrorBarFrontLeft");
+    errorWinnerBarFrontLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 0, 1), "errorWinnerBarFrontLeft");
+
+    winnerBarFrontRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), "winnerBarFrontRight");
+    errorBarFrontRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), "errorBarFrontRight");
+    winnerErrorBarFrontRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 1, 0), "winnerErrorBarFrontRight");
+    errorWinnerBarFrontRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 0, 1), "errorWinnerBarFrontRight");
+
+    winnerBarBackLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), "winnerBarBackLeft");
+    errorBarBackLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), "errorBarBackLeft");
+    winnerErrorBarBackLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 1, 0), "winnerErrorBarBackLeft");
+    errorWinnerBarBackLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 0, 1), "errorWinnerBarBackLeft");
+
+    winnerBarBackRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), "winnerBarBackRight");
+    errorBarBackRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), "errorBarBackRight");
+    winnerErrorBarBackRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 1, 0), "winnerErrorBarBackRight");
+    errorWinnerBarBackRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 0, 1), "errorWinnerBarBackRight");
+
+    // Your existing counter, undo, and Google Charts code
+
+
+      return scene;
+    };
   </script>
 
-  <div id="chartContainer" style="width: 300px; height: 200px; position: absolute; top: 70px; right: 10px;"></div>
+  <div id="chart_div" style="width: 300px; height: 300px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
 </body>
 </html>
+
+
 
     
