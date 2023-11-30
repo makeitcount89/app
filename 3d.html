@@ -33,6 +33,7 @@
       var courtHeightBack = 7; // in feet
 
       var tinLineHeight = 19 / 12; // 19 inches converted to feet
+      var serviceLineHeight = 5.84; // in feet
 
       // Create the squash court
       var court = BABYLON.MeshBuilder.CreateBox("court", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
@@ -52,6 +53,16 @@
       var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
       frontWallMaterial.alpha = 0.5; // Set transparency
       frontWall.material = frontWallMaterial;
+
+      // Create service wall (transparent)
+      var serviceWall = BABYLON.MeshBuilder.CreateBox("serviceWall", { width: courtWidth, height: tinLineHeight, depth: 0.2 }, scene);
+      serviceWall.position.z = courtLength / 2 - serviceLineHeight - 0.1;
+      serviceWall.position.y = tinLineHeight / 2;
+
+      // Make the service wall transparent
+      var serviceWallMaterial = new BABYLON.StandardMaterial("serviceWallMaterial", scene);
+      serviceWallMaterial.alpha = 0.5; // Set transparency
+      serviceWall.material = serviceWallMaterial;
 
       return scene;
     };
