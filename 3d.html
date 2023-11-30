@@ -164,7 +164,7 @@
     };
 
    // Function to update bars
-    function updateBars() {
+    function updateBars(type, corner) {
       for (var corner in winnerBars) {
         winnerBars[corner].scaling.y = counters.winner;
         errorBars[corner].scaling.y = counters.error;
@@ -190,7 +190,7 @@
       actionsHistory.push({ ...counters });
       counters[type]++;
       updateCharts();
-      updateBars();
+      updateBars(type, corner);
       updateClickCount(type);
       updateCornerClickCount(type, corner);
     }
