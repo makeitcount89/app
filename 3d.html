@@ -73,7 +73,7 @@
       var createLine = function (points, color) {
         var line = BABYLON.MeshBuilder.CreateLines("line", { points: points, updatable: true }, scene);
         var material = new BABYLON.StandardMaterial("material", scene);
-        material.emissiveColor = new BABYLON.Color3(1, 0, 0); // Red color
+        material.emissiveColor = color; // Red color
         line.material = material;
         return line;
       };
@@ -94,10 +94,12 @@
       var serviceBox1 = BABYLON.MeshBuilder.CreateBox("serviceBox1", { width: serviceBoxWidth, height: 0.1, depth: serviceBoxDepth }, scene);
       serviceBox1.position.z = courtLength / 2 - shortLineDistance - serviceBoxDepth / 2;
       serviceBox1.position.y = 0.05;
+      createLine([new BABYLON.Vector3(-courtWidth / 2, 0.05, courtLength / 2 - shortLineDistance), new BABYLON.Vector3(courtWidth / 2, 0.05, courtLength / 2 - shortLineDistance)], new BABYLON.Color3(1, 0, 0));
 
       var serviceBox2 = BABYLON.MeshBuilder.CreateBox("serviceBox2", { width: serviceBoxWidth, height: 0.1, depth: serviceBoxDepth }, scene);
       serviceBox2.position.z = -courtLength / 2 + shortLineDistance + serviceBoxDepth / 2;
       serviceBox2.position.y = 0.05;
+      createLine([new BABYLON.Vector3(-courtWidth / 2, 0.05, -courtLength / 2 + shortLineDistance), new BABYLON.Vector3(courtWidth / 2, 0.05, -courtLength / 2 + shortLineDistance)], new BABYLON.Color3(1, 0, 0));
 
       // Add your Babylon.js code here for other details
 
