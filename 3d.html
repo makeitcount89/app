@@ -39,6 +39,8 @@
   <p style="position: absolute; top: 100px; left: 10px;">Total Errors: <span id="errorCount">0</span></p>
 
   <script>
+    var ball;
+    
     var canvas = document.getElementById("renderCanvas");
     var engine = new BABYLON.Engine(canvas, true);
 
@@ -138,7 +140,30 @@ frontWall.material = frontWallMaterial;
       tin.position.z = courtLength / 2 - 0.1;
       tin.position.y = tinLineHeight / 2;
 
-    
+    function createBall() {
+  // Create a sphere for the ball
+  ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
+
+  // Set the initial position of the ball
+  ball.position = new BABYLON.Vector3(0, 1, -courtLength / 2 + 2);
+
+  // Set the initial velocity of the ball
+  ball.velocity = new BABYLON.Vector3(0, 0, 1);
+
+  // Material for the ball
+  var ballMaterial = new BABYLON.StandardMaterial("ballMaterial", scene);
+  ballMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0); // Yellow color
+  ball.material = ballMaterial;
+
+  // Enable physics for the ball
+  ball.physicsImpostor = new BABYLON.PhysicsImpostor(
+    ball,
+    BABYLON.PhysicsImpostor.SphereImpostor,
+    { mass: 1, restitution: 0.8 }, // Adjust restitution for bouncing effect
+    scene
+  );
+    }
+      
      
     // Function to create individual bars
     function createBar(position, height, color, id) {
@@ -162,7 +187,7 @@ frontWall.material = frontWallMaterial;
 
   winnerBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
   errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
-
+createBall();
   return scene;
     };
 
@@ -211,7 +236,11 @@ frontWall.material = frontWallMaterial;
 
     var scene = createScene();
     engine.runRenderLoop(function () {
-      scene.render();
+  ball.position.addInPlace(ball.velocity);
+  checkBallCollision(); // Add a function to handle collisions
+  scene.render();
+});
+
     });
 
     // Google Charts
@@ -237,6 +266,19 @@ frontWall.material = frontWallMaterial;
       var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
       chart.draw(data, options);
     }
+    function checkBallCollision() {
+  // Collision with the front wall
+  if (ball.intersectsMesh(frontWall, true)) {
+    ball.velocity.z *= -1; // Reverse the velocity on collision
+  }
+
+  // Collision with the ground
+  if (ball.position.y - 0.5 < 0) {
+    ball.position.y = 0.5; // Adjust the ball's position to avoid it sinking into the ground
+    ball.velocity.y *= -1; // Reverse the velocity on collision
+  }
+    }
+    
   </script>
 
   <div id="chart_div" style="width: 300px; height: 300px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
