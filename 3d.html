@@ -185,21 +185,16 @@
       }
     }
 
-   function increaseCounter(type, corner, event) {
-  // Get the target button's ID
-  var buttonId = event.target.id;
+     // Function to increase counter
+    function increaseCounter(type, corner) {
+      actionsHistory.push({ ...counters });
+      counters[type]++;
+      updateCharts();
+      updateBars();
+      updateClickCount(type);
+      updateCornerClickCount(type, corner);
+    }
 
-  // Check which corner and type the button belongs to
-  if (buttonId.includes(corner)) {
-    // Increment the corresponding counter
-    actionsHistory.push({ ...counters });
-    counters[type]++;
-    updateCharts();
-    updateBars();
-    updateClickCount(type);
-    updateCornerClickCount(type, corner);
-  }
-}
 
 
     function undo() {
