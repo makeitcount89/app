@@ -13,33 +13,43 @@
   <div style="position: absolute; top: 10px; left: 10px;">
     <button id="errorTopLeft" onclick="increaseCounter('error', 'topLeft')">Top Left Error</button>
     <button id="winnerTopLeft" onclick="increaseCounter('winner', 'topLeft')">Top Left Winner</button>
+    <div id="counterTopLeft" style="color: green;">Winner: <span id="winnerCountTopLeft">0</span>, Error: <span id="errorCountTopLeft">0</span></div>
   </div>
   <div style="position: absolute; top: 10px; right: 10px;">
     <button id="errorTopRight" onclick="increaseCounter('error', 'topRight')">Top Right Error</button>
     <button id="winnerTopRight" onclick="increaseCounter('winner', 'topRight')">Top Right Winner</button>
+    <div id="counterTopRight" style="color: green;">Winner: <span id="winnerCountTopRight">0</span>, Error: <span id="errorCountTopRight">0</span></div>
   </div>
   <div style="position: absolute; bottom: 10px; left: 10px;">
     <button id="errorBottomLeft" onclick="increaseCounter('error', 'bottomLeft')">Bottom Left Error</button>
     <button id="winnerBottomLeft" onclick="increaseCounter('winner', 'bottomLeft')">Bottom Left Winner</button>
+    <div id="counterBottomLeft" style="color: green;">Winner: <span id="winnerCountBottomLeft">0</span>, Error: <span id="errorCountBottomLeft">0</span></div>
   </div>
   <div style="position: absolute; bottom: 10px; right: 10px;">
     <button id="errorBottomRight" onclick="increaseCounter('error', 'bottomRight')">Bottom Right Error</button>
     <button id="winnerBottomRight" onclick="increaseCounter('winner', 'bottomRight')">Bottom Right Winner</button>
+    <div id="counterBottomRight" style="color: green;">Winner: <span id="winnerCountBottomRight">0</span>, Error: <span id="errorCountBottomRight">0</span></div>
   </div>
 
   <button onclick="undo()" style="position: absolute; top: 50%; left: 50%;">Undo</button>
 
-  <p style="position: absolute; top: 70px; left: 10px;">Winner Clicks: <span id="winnerCount">0</span></p>
-  <p style="position: absolute; top: 100px; left: 10px;">Error Clicks: <span id="errorCount">0</span></p>
+  <p style="position: absolute; top: 70px; left: 10px;">Total Winners: <span id="winnerCount">0</span></p>
+  <p style="position: absolute; top: 100px; left: 10px;">Total Errors: <span id="errorCount">0</span></p>
 
   <script>
     
     var canvas = document.getElementById("renderCanvas");
     var engine = new BABYLON.Engine(canvas, true);
 
+    var winnerBars = {}, errorBars = {};
     var winnerBar, errorBar, winnerErrorBar, errorWinnerBar;
 
     var createScene = function () {
+      var scene = new BABYLON.Scene(engine);
+      var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
+      camera.attachControl(canvas, true);
+      var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+  var createScene = function () {
       var scene = new BABYLON.Scene(engine);
       var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
       camera.attachControl(canvas, true);
@@ -112,21 +122,46 @@
         bar.material = material;
         return bar;
       };
+   
 
       // Create bars in the four corners
-      winnerBar = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0));
-      errorBar = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0));
-      winnerErrorBar = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 1, 0));
-      errorWinnerBar = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 0, 1));
+      winnerBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopLeft');
+      errorBars.topLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopLeft');
+      winnerBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopRight');
+      errorBars.topRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopRight');
+      winnerBars.bottomLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomLeft');
+      errorBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomLeft');
+      winnerBars.bottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
+      errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
 
       return scene;
     };
-
-    var scene = createScene();
+ var scene = createScene();
 
     engine.runRenderLoop(function () {
       scene.render();
     });
+
+    // Function to update bars
+    function updateBars() {
+      for (var corner in winnerBars) {
+        winnerBars[corner].scaling.y = counters.winner;
+      }
+      for (var corner in errorBars) {
+        errorBars[corner].scaling.y = counters.error;
+      }
+    }
+
+    // Function to update click count for each corner
+    function updateCornerClickCount(type, corner) {
+      document.getElementById(`${type}Count${corner}`).innerText = counters[type];
+    }
+          var canvas = document.getElementById("renderCanvas");
+    var engine = new BABYLON.Engine(canvas, true);
+
+    var winnerBar, errorBar, winnerErrorBar, errorWinnerBar;
+
+  
 
     // Counter and Undo
     var counters = {
