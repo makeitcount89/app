@@ -38,17 +38,23 @@
 
   <script>
     
-    var canvas = document.getElementById("renderCanvas");
-var engine = new BABYLON.Engine(canvas, true);
+ var canvas = document.getElementById("renderCanvas");
+    var engine = new BABYLON.Engine(canvas, true);
 
-var winnerBars = {}, errorBars = {};
+    var winnerBars = {}, errorBars = {};
 
-// Counter and Undo
-var counters = {
-  winner: 0,
-  error: 0
-};
-var actionsHistory = [];
+    // Counter and Undo
+    var counters = {
+      winner: 0,
+      error: 0
+    };
+    var actionsHistory = [];
+
+    var scene = createScene();
+
+    engine.runRenderLoop(function () {
+      scene.render();
+    });
     
   var createScene = function () {
       var scene = new BABYLON.Scene(engine);
@@ -150,7 +156,7 @@ winnerBars.bottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -cou
 errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
 
           return scene;
-    };
+    }
 // Function to update bars
 function updateBars() {
   for (var corner in winnerBars) {
