@@ -127,62 +127,64 @@
       tin.position.z = courtLength / 2 - 0.1;
       tin.position.y = tinLineHeight / 2;
 
-function createBar(position, height, color, id) {
-  var bar = BABYLON.MeshBuilder.CreateBox(id, { width: 1, height: height, depth: 1 }, scene);
-  bar.position = position;
-  var material = new BABYLON.StandardMaterial("barMaterial", scene);
-  material.diffuseColor = color;
-  bar.material = material;
-  return bar;
-}
-
-// Create bars in the four corners
-winnerBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopLeft');
-errorBars.topLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopLeft');
-
-winnerBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopRight');
-errorBars.topRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopRight');
-
-winnerBars.bottomLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomLeft');
-errorBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomLeft');
-
-winnerBars.bottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
-errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
-
+    
           return scene;
     };
-// Function to update bars
-function updateBars() {
-  for (var corner in winnerBars) {
-    winnerBars[corner].scaling.y = counters.winner;
-    errorBars[corner].scaling.y = counters.error;
-  }
-}
 
-// Function to update click count for each corner
-function updateCornerClickCount(type, corner) {
-  document.getElementById(`${type}Count${corner}`).innerText = counters[type];
-}
+    // Function to create individual bars
+    function createBar(position, height, color, id) {
+      var bar = BABYLON.MeshBuilder.CreateBox(id, { width: 1, height: height, depth: 1 }, scene);
+      bar.position = position;
+      var material = new BABYLON.StandardMaterial("barMaterial", scene);
+      material.diffuseColor = color;
+      bar.material = material;
+      return bar;
+    }
 
-// Function to update click count
-function updateClickCount(type) {
-  if (type === 'winner') {
-    document.getElementById('winnerCount').innerText = counters.winner;
-  } else if (type === 'error') {
-    document.getElementById('errorCount').innerText = counters.error;
-  }
-}
+    // Create bars for each button
+    winnerBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopLeft');
+    errorBars.topLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopLeft');
 
-// Function to increase counter
-function increaseCounter(type, corner) {
-  actionsHistory.push({ ...counters });
-  counters[type]++;
-  updateCharts();
-  updateBars();
-  updateClickCount(type);
-  updateCornerClickCount(type, corner);
-}
+    winnerBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopRight');
+    errorBars.topRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopRight');
 
+    winnerBars.bottomLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomLeft');
+    errorBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomLeft');
+
+    winnerBars.bottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
+    errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
+
+    // Function to update bars
+    function updateBars() {
+      for (var corner in winnerBars) {
+        winnerBars[corner].scaling.y = counters.winner;
+        errorBars[corner].scaling.y = counters.error;
+      }
+    }
+
+    // Function to update click count for each corner
+    function updateCornerClickCount(type, corner) {
+      document.getElementById(`${type}Count${corner}`).innerText = counters[type];
+    }
+
+    // Function to update click count
+    function updateClickCount(type) {
+      if (type === 'winner') {
+        document.getElementById('winnerCount').innerText = counters.winner;
+      } else if (type === 'error') {
+        document.getElementById('errorCount').innerText = counters.error;
+      }
+    }
+
+    // Function to increase counter
+    function increaseCounter(type, corner) {
+      actionsHistory.push({ ...counters });
+      counters[type]++;
+      updateCharts();
+      updateBars();
+      updateClickCount(type);
+      updateCornerClickCount(type, corner);
+    }
 
     function undo() {
       if (actionsHistory.length > 0) {
@@ -192,14 +194,14 @@ function increaseCounter(type, corner) {
         updateClickCount();
       }
     }
-    var scene = createScene();
-engine.runRenderLoop(function () {
-  scene.render();
-});
 
+    var scene = createScene();
+    engine.runRenderLoop(function () {
+      scene.render();
+    });
 
     // Google Charts
-    google.charts.load('current', {'packages':['corechart']});
+    google.charts.load('current', { 'packages': ['corechart'] });
     google.charts.setOnLoadCallback(drawCharts);
 
     function drawCharts() {
@@ -221,9 +223,6 @@ engine.runRenderLoop(function () {
       var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
       chart.draw(data, options);
     }
-
-
- 
   </script>
 
   <div id="chart_div" style="width: 300px; height: 300px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
