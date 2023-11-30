@@ -206,16 +206,45 @@
     winnerErrorBarBackRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 1, 0), "winnerErrorBarBackRight");
     errorWinnerBarBackRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 0, 1), "errorWinnerBarBackRight");
 
-    // Your existing counter, undo, and Google Charts code
+    // Update Bars function
+    function updateBars() {
+      winnerBarFrontLeft.scaling.y = counters.winner;
+      errorBarFrontLeft.scaling.y = counters.error;
+      winnerErrorBarFrontLeft.scaling.y = Math.min(counters.winner, counters.error);
+      errorWinnerBarFrontLeft.scaling.y = Math.min(counters.winner, counters.error);
+
+      winnerBarFrontRight.scaling.y = counters.winner;
+      errorBarFrontRight.scaling.y = counters.error;
+      winnerErrorBarFrontRight.scaling.y = Math.min(counters.winner, counters.error);
+      errorWinnerBarFrontRight.scaling.y = Math.min(counters.winner, counters.error);
+
+      winnerBarBackLeft.scaling.y = counters.winner;
+      errorBarBackLeft.scaling.y = counters.error;
+      winnerErrorBarBackLeft.scaling.y = Math.min(counters.winner, counters.error);
+      errorWinnerBarBackLeft.scaling.y = Math.min(counters.winner, counters.error);
+
+      winnerBarBackRight.scaling.y = counters.winner;
+      errorBarBackRight.scaling.y = counters.error;
+      winnerErrorBarBackRight.scaling.y = Math.min(counters.winner, counters.error);
+      errorWinnerBarBackRight.scaling.y = Math.min(counters.winner, counters.error);
+    }
+
+    // Update Click Count function
+    function updateClickCount(type) {
+      var countElement = document.getElementById(type + 'Count');
+      countElement.textContent = counters[type];
+    }
+
+    // Update Corner Click Count function
+    function updateCornerClickCount(type, corner) {
+      var cornerCountElement = document.getElementById(type + corner + 'Count');
+      cornerCountElement.textContent = counters[type];
+    }
+
+    return scene;
+  };
 
 
-      return scene;
-    };
-  </script>
-
+</script>
 </body>
 </html>
-
-
-
-    
