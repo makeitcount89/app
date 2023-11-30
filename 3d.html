@@ -50,6 +50,16 @@
       camera.attachControl(canvas, true);
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
+      // Animation
+      scene.registerBeforeRender(function () {
+        if (camera.alpha <= Math.PI) {
+          camera.alpha += 0.01;  // Rotate 180 degrees
+        }
+        if (camera.radius > 18) {
+          camera.radius -= 0.1;  // Zoom out 10%
+        }
+      });
+
       // Create the realistic Singles Squash Court
       var courtLength = 32; // in feet
       var courtWidth = 21; // in feet
