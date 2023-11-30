@@ -9,13 +9,31 @@
 </head>
 <body>
   <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
-  <button id="winnerButton" onclick="increaseCounter('winner')">Increase Winner Counter</button>
-  <button id="errorButton" onclick="increaseCounter('error')">Increase Error Counter</button>
-  <button onclick="undo()">Undo</button>
-  <p>Winner Clicks: <span id="winnerCount">0</span></p>
-  <p>Error Clicks: <span id="errorCount">0</span></p>
+
+  <div style="position: absolute; top: 10px; left: 10px;">
+    <button id="errorTopLeft" onclick="increaseCounter('error', 'topLeft')">Top Left Error</button>
+    <button id="winnerTopLeft" onclick="increaseCounter('winner', 'topLeft')">Top Left Winner</button>
+  </div>
+  <div style="position: absolute; top: 10px; right: 10px;">
+    <button id="errorTopRight" onclick="increaseCounter('error', 'topRight')">Top Right Error</button>
+    <button id="winnerTopRight" onclick="increaseCounter('winner', 'topRight')">Top Right Winner</button>
+  </div>
+  <div style="position: absolute; bottom: 10px; left: 10px;">
+    <button id="errorBottomLeft" onclick="increaseCounter('error', 'bottomLeft')">Bottom Left Error</button>
+    <button id="winnerBottomLeft" onclick="increaseCounter('winner', 'bottomLeft')">Bottom Left Winner</button>
+  </div>
+  <div style="position: absolute; bottom: 10px; right: 10px;">
+    <button id="errorBottomRight" onclick="increaseCounter('error', 'bottomRight')">Bottom Right Error</button>
+    <button id="winnerBottomRight" onclick="increaseCounter('winner', 'bottomRight')">Bottom Right Winner</button>
+  </div>
+
+  <button onclick="undo()" style="position: absolute; top: 50%; left: 50%;">Undo</button>
+
+  <p style="position: absolute; top: 70px; left: 10px;">Winner Clicks: <span id="winnerCount">0</span></p>
+  <p style="position: absolute; top: 100px; left: 10px;">Error Clicks: <span id="errorCount">0</span></p>
 
   <script>
+    
     var canvas = document.getElementById("renderCanvas");
     var engine = new BABYLON.Engine(canvas, true);
 
@@ -175,8 +193,22 @@
         document.getElementById('errorCount').innerText = counters.error;
       }
     }
+  
+    function increaseCounter(type, corner) {
+      actionsHistory.push({ ...counters });
+      counters[type]++;
+      updateCharts();
+      updateBars();
+      updateClickCount(type);
+      updateCornerClickCount(type, corner);
+    }
+
+    // Function to update click count for each corner
+    function updateCornerClickCount(type, corner) {
+      document.getElementById(`${type}Count${corner}`).innerText = counters[type];
+    }
   </script>
 
-  <div id="chart_div" style="width: 300px; height: 300px;"></div>
+  <div id="chart_div" style="width: 300px; height: 300px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
 </body>
 </html>
