@@ -52,6 +52,11 @@
       frontWall.position.z = courtLength / 2 - 0.1;
       frontWall.position.y = frontWallHeight / 2;
 
+      // Make the front wall white
+      var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
+      frontWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // White color
+      frontWall.material = frontWallMaterial;
+
       // Create back wall (transparent)
       var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: courtHeightBack, depth: 0.2 }, scene);
       backWall.position.z = -courtLength / 2 + 0.1;
@@ -68,9 +73,6 @@
       };
 
       // Red lines for floor and wall markings
-      createLine([new BABYLON.Vector3(-courtWidth / 2, 0.05, -courtLength / 2), new BABYLON.Vector3(courtWidth / 2, 0.05, -courtLength / 2)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(-courtWidth / 2, 0.05, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, 0.05, courtLength / 2)], new BABYLON.Color3(1, 0, 0));
-
       createLine([new BABYLON.Vector3(-courtWidth / 2, frontWallHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, frontWallHeight, courtLength / 2)], new BABYLON.Color3(1, 0, 0));
       createLine([new BABYLON.Vector3(-courtWidth / 2, courtHeightBack, -courtLength / 2), new BABYLON.Vector3(courtWidth / 2, courtHeightBack, -courtLength / 2)], new BABYLON.Color3(1, 0, 0));
 
@@ -81,12 +83,8 @@
 
       // Create service boxes and lines
       var createServiceBox = function (zPosition) {
-        var serviceBox = BABYLON.MeshBuilder.CreateBox("serviceBox", { width: serviceBoxWidth, height: 0.1, depth: serviceBoxDepth }, scene);
-        serviceBox.position.z = zPosition;
-        serviceBox.position.y = 0.05;
-
         // Red lines for service box markings
-        createLine([new BABYLON.Vector3(-courtWidth / 2, 0.05, zPosition), new BABYLON.Vector3(courtWidth / 2, 0.05, zPosition)], new BABYLON.Color3(1, 0, 0));
+        createLine([new BABYLON.Vector3(-courtWidth / 2, frontWallHeight, zPosition), new BABYLON.Vector3(courtWidth / 2, frontWallHeight, zPosition)], new BABYLON.Color3(1, 0, 0));
       };
 
       createServiceBox(courtLength / 2 - shortLineDistance - serviceBoxDepth / 2);
