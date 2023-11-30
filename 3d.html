@@ -5,88 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Pong Game</title>
     <style>
-        canvas {
-            touch-action: none;
-        }
+        body { margin: 0; overflow: hidden; }
     </style>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
 </head>
 <body>
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <canvas id="renderCanvas" style="touch-action: none;"></canvas>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var canvas = document.createElement('canvas');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            document.body.appendChild(canvas);
+        document.addEventListener("DOMContentLoaded", function () {
+            const canvas = document.getElementById("renderCanvas");
+            const engine = new BABYLON.Engine(canvas, true);
 
-            var engine = new BABYLON.Engine(canvas, true);
+            const createScene = () => {
+                const scene = new BABYLON.Scene(engine);
+                const camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -5), scene);
+                camera.setTarget(BABYLON.Vector3.Zero());
+                camera.attachControl(canvas, false); // Disable default camera control
 
-            var createScene = function () {
-                var scene = new BABYLON.Scene(engine);
-                var camera = new BABYLON.ArcRotateCamera('camera', 0, 0, 10, new BABYLON.Vector3.Zero(), scene);
-                camera.attachControl(canvas, true);
+                const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
-                var light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene);
-                light.intensity = 0.7;
-
-                var paddle = BABYLON.MeshBuilder.CreateBox('paddle', { width: 1, height: 0.2, depth: 2 }, scene);
+                // Create game elements
+                const paddle = BABYLON.MeshBuilder.CreateBox("paddle", { width: 1, height: 0.2, depth: 2 }, scene);
                 paddle.position.y = 2;
 
-                var ball = BABYLON.MeshBuilder.CreateSphere('ball', { diameter: 0.5 }, scene);
+                const ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 0.5 }, scene);
                 ball.position.y = 2;
+                ball.position.z = 0.5; // Adjusted starting position
 
-                var ballDirection = new BABYLON.Vector3(0.03, 0, 0.05);
+                const ballSpeed = 0.1;
+                const paddleSpeed = 0.2;
 
-                // Create front wall with red lines
-                var frontWall = BABYLON.MeshBuilder.CreatePlane('frontWall', { width: 6, height: 4 }, scene);
-                frontWall.position = new BABYLON.Vector3(0, 2, 5);
-                var frontWallMaterial = new BABYLON.StandardMaterial('frontWallMaterial', scene);
-                frontWallMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0);
-                frontWall.material = frontWallMaterial;
+                // Game loop
+                scene.onBeforeRenderObservable.add(() => {
+                    // Ball movement
+                    ball.position.z += ballSpeed;
 
-                var isSingleTouch = false;
-
-                scene.onBeforeRenderObservable.add(function () {
-                    // Move paddle with single-finger movements
-                    if (scene.pointerId) {
-                        if (!isSingleTouch) {
-                            isSingleTouch = true;
-                            camera.detachControl(canvas);
-                        }
-
-                        paddle.position.x += (scene.pointerX / engine.getRenderWidth() * 6 - 3) * 0.05;
-                        paddle.position.x = BABYLON.Scalar.Clamp(paddle.position.x, -4, 4);
-                    } else {
-                        if (isSingleTouch) {
-                            isSingleTouch = false;
-                            camera.attachControl(canvas, true);
-                        }
+                    // Paddle movement
+                    if (scene.pointerX !== undefined) {
+                        const pointerX = scene.pointerX / engine.getRenderWidth();
+                        const newX = (pointerX - 0.5) * 10;
+                        paddle.position.x = BABYLON.Scalar.Lerp(paddle.position.x, newX, paddleSpeed);
                     }
 
-                    // Move the ball and handle collisions
-                    ball.position.addInPlace(ballDirection);
-
-                    if (ball.intersectsMesh(paddle, false)) {
-                        ballDirection.x *= -1;
+                    // Ball and paddle collision
+                    if (ball.intersectsMesh(paddle, true)) {
+                        ballSpeed *= -1;
                     }
 
-                    if (Math.abs(ball.position.z) > 5) {
-                        ballDirection.z *= -1;
+                    // Ball reset
+                    if (ball.position.z < -5 || ball.position.z > 5) {
+                        ball.position.z = 0;
                     }
                 });
 
                 return scene;
             };
 
-            var scene = createScene();
+            const scene = createScene();
 
-            engine.runRenderLoop(function () {
+            engine.runRenderLoop(() => {
                 scene.render();
             });
 
-            window.addEventListener('resize', function () {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+            window.addEventListener("resize", () => {
                 engine.resize();
             });
         });
