@@ -42,7 +42,6 @@
     var engine = new BABYLON.Engine(canvas, true);
 
     var winnerBars = {}, errorBars = {};
-    var winnerBar, errorBar, winnerErrorBar, errorWinnerBar;
 
   var createScene = function () {
       var scene = new BABYLON.Scene(engine);
@@ -132,7 +131,7 @@
       };
    
 
-        // Create bars in the four corners
+      // Create bars in the four corners
     winnerBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0));
     errorBars.topLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0));
     winnerBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0));
@@ -142,12 +141,9 @@
     winnerBars.bottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0));
     errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0));
 
-    // Assign created bars to variables
-    winnerBar = winnerBars.topLeft;
-    errorBar = errorBars.topLeft;
-
     return scene;
   };
+
   var scene = createScene();
 
   engine.runRenderLoop(function () {
@@ -158,8 +154,6 @@
   function updateBars() {
     for (var corner in winnerBars) {
       winnerBars[corner].scaling.y = counters.winner;
-    }
-    for (var corner in errorBars) {
       errorBars[corner].scaling.y = counters.error;
     }
   }
