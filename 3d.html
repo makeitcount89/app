@@ -141,6 +141,7 @@
     engine.runRenderLoop(function () {
       scene.render();
     });
+    }
 
     // Function to update bars
     function updateBars() {
@@ -242,6 +243,7 @@
     function updateCornerClickCount(type, corner) {
       document.getElementById(`${type}Count${corner}`).innerText = counters[type];
     }
+    
   </script>
 
   <div id="chart_div" style="width: 300px; height: 300px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
