@@ -96,10 +96,10 @@
       var court = BABYLON.MeshBuilder.CreateBox("court", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
       court.position.y = -0.05; // Adjust the position based on your scene
 
-      // Add light blue floor
       var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
-      floorMaterial.diffuseColor = new BABYLON.Color3(0.6, 0.8, 1); // Light blue color
-      court.material = floorMaterial;
+floorMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/7ca9b0f3b750b1f2bea273392ae55417c1aa6d42/squash%20error%20tracker-min%20(1)%20(2)%20(1).png", scene);
+court.material = floorMaterial;
+      
 
       // Create front wall
       var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
