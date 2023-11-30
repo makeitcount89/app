@@ -32,14 +32,7 @@
       var courtHeightFront = 18.5; // in feet
       var courtHeightBack = 7; // in feet
 
-      var frontWallMinHeight = 18.5; // in feet
-      var frontWallHeight = 15; // in feet
-      var serviceLineHeight = 5.84; // in feet
       var tinLineHeight = 19 / 12; // 19 inches converted to feet
-
-      var serviceBoxWidth = 63 / 12; // 63 inches converted to feet
-      var serviceBoxDepth = 63 / 12; // 63 inches converted to feet
-      var shortLineDistance = 17.85; // in feet
 
       // Create the squash court
       var court = BABYLON.MeshBuilder.CreateBox("court", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
@@ -51,50 +44,14 @@
       court.material = floorMaterial;
 
       // Create front wall (transparent)
-      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
+      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: tinLineHeight, depth: 0.2 }, scene);
       frontWall.position.z = courtLength / 2 - 0.1;
-      frontWall.position.y = frontWallHeight / 2;
+      frontWall.position.y = tinLineHeight / 2;
 
       // Make the front wall transparent
       var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
       frontWallMaterial.alpha = 0.5; // Set transparency
       frontWall.material = frontWallMaterial;
-
-      // Create back wall (transparent)
-      var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: courtHeightBack, depth: 0.2 }, scene);
-      backWall.position.z = -courtLength / 2 + 0.1;
-      backWall.position.y = courtHeightBack / 2;
-      backWall.visibility = 0.5; // Make back wall transparent
-
-      // Red lines for floor and wall markings
-      var createLine = function (points, color, thickness) {
-        var line = BABYLON.MeshBuilder.CreateLines("line", { points: points, updatable: true, instance: line }, scene);
-        var material = new BABYLON.StandardMaterial("material", scene);
-        material.emissiveColor = color; // Red color
-        line.material = material;
-        line.color = color;
-        line.thinLineWidth = thickness;
-        return line;
-      };
-
-      // Red lines for floor and wall markings
-      createLine([new BABYLON.Vector3(-courtWidth / 2, frontWallHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, frontWallHeight, courtLength / 2)], new BABYLON.Color3(1, 0, 0), 2);
-      createLine([new BABYLON.Vector3(-courtWidth / 2, serviceLineHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, serviceLineHeight, courtLength / 2)], new BABYLON.Color3(1, 1, 1), 6);
-      createLine([new BABYLON.Vector3(-courtWidth / 2, tinLineHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, tinLineHeight, courtLength / 2)], new BABYLON.Color3(1, 0, 0), 2);
-
-      // Create tin (transparent panel)
-      var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
-      tin.position.z = courtLength / 2 - 0.1;
-      tin.position.y = tinLineHeight / 2;
-
-      // Create service boxes and lines
-      var createServiceBox = function (zPosition) {
-        // Red lines for service box markings
-        createLine([new BABYLON.Vector3(-courtWidth / 2, serviceLineHeight, zPosition), new BABYLON.Vector3(courtWidth / 2, serviceLineHeight, zPosition)], new BABYLON.Color3(1, 1, 1), 6);
-      };
-
-      createServiceBox(courtLength / 2 - shortLineDistance - serviceBoxDepth / 2);
-      createServiceBox(-courtLength / 2 + shortLineDistance + serviceBoxDepth / 2);
 
       return scene;
     };
