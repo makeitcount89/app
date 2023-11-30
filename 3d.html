@@ -33,17 +33,52 @@
 
       court.material = woodMaterial;
 
-      // Create walls
+      // Create walls with proper scale
       var wall1 = BABYLON.MeshBuilder.CreateBox("wall1", { width: 0.2, height: 4, depth: 20 }, scene);
       wall1.position.x = -5.1;
 
       var wall2 = BABYLON.MeshBuilder.CreateBox("wall2", { width: 0.2, height: 4, depth: 20 }, scene);
       wall2.position.x = 5.1;
 
+      var wall3 = BABYLON.MeshBuilder.CreateBox("wall3", { width: 10, height: 4, depth: 0.2 }, scene);
+      wall3.position.z = 10.1;
+
+      var wall4 = BABYLON.MeshBuilder.CreateBox("wall4", { width: 10, height: 4, depth: 0.2 }, scene);
+      wall4.position.z = -10.1;
+
+      // Create red lines for T and service boxes
+      var createLine = function (points, color) {
+        var line = BABYLON.MeshBuilder.CreateLines("line", { points: points, updatable: true }, scene);
+        var material = new BABYLON.StandardMaterial("material", scene);
+        material.emissiveColor = new BABYLON.Color3(1, 0, 0); // Red color
+        line.material = material;
+        return line;
+      };
+
+      var createRectangle = function (width, height, position, rotation) {
+        var rect = BABYLON.MeshBuilder.CreatePlane("rectangle", { width: width, height: height }, scene);
+        rect.position = position;
+        rect.rotation = rotation;
+        return rect;
+      };
+
+      // Red lines for T and service boxes
+      createLine([new BABYLON.Vector3(-2, 0.05, 10), new BABYLON.Vector3(2, 0.05, 10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-2, 0.05, -10), new BABYLON.Vector3(2, 0.05, -10)], new BABYLON.Color3(1, 0, 0));
+
+      createRectangle(4, 2, new BABYLON.Vector3(0, 0.05, 10), new BABYLON.Vector3(Math.PI / 2, 0, 0));
+      createRectangle(4, 2, new BABYLON.Vector3(0, 0.05, -10), new BABYLON.Vector3(Math.PI / 2, 0, 0));
+
       // Create tin (transparent panel)
       var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: 9.8, height: 0.1, depth: 0.2 }, scene);
       tin.position.y = -0.05;
       tin.position.z = 10;
+
+      // High out lines on the front, sides, and back walls
+      createLine([new BABYLON.Vector3(-5, 4, 10), new BABYLON.Vector3(5, 4, 10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-5, 4, -10), new BABYLON.Vector3(5, 4, -10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-5, 4, -10), new BABYLON.Vector3(-5, 4, 10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(5, 4, -10), new BABYLON.Vector3(5, 4, 10)], new BABYLON.Color3(1, 0, 0));
 
       // Add your Babylon.js code here for other details
 
@@ -62,17 +97,19 @@
       error: 0
     };
 
-    var previousCounters = {};
+    var actionsHistory = [];
 
     function increaseCounter(type) {
-      previousCounters = { ...counters };
+      actionsHistory.push({ ...counters });
       counters[type]++;
       updateCharts();
     }
 
     function undo() {
-      counters = { ...previousCounters };
-      updateCharts();
+      if (actionsHistory.length > 0) {
+        counters = actionsHistory.pop();
+        updateCharts();
+      }
     }
 
     // Google Charts
