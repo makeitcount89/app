@@ -11,23 +11,25 @@
   <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
 
   <div style="position: absolute; top: 10px; left: 10px;">
-    <button id="errorTopLeft" onclick="increaseCounter('error', 'topLeft')">Top Left Error</button>
-    <button id="winnerTopLeft" onclick="increaseCounter('winner', 'topLeft')">Top Left Winner</button>
+   <button id="errorTopLeft" onclick="increaseCounter('error', 'topLeft', event)">Top Left Error</button>
+<button id="winnerTopLeft" onclick="increaseCounter('winner', 'topLeft', event)">Top Left Winner</button>
+<!-- Repeat similar changes for other buttons -->
+
     <div id="counterTopLeft" style="color: green;">Winner: <span id="winnerCountTopLeft">0</span>, Error: <span id="errorCountTopLeft">0</span></div>
   </div>
   <div style="position: absolute; top: 10px; right: 10px;">
-    <button id="errorTopRight" onclick="increaseCounter('error', 'topRight')">Top Right Error</button>
-    <button id="winnerTopRight" onclick="increaseCounter('winner', 'topRight')">Top Right Winner</button>
+    <button id="errorTopRight" onclick="increaseCounter('error', 'topRight', event)">Top Right Error</button>
+    <button id="winnerTopRight" onclick="increaseCounter('winner', 'topRight', event)">Top Right Winner</button>
     <div id="counterTopRight" style="color: green;">Winner: <span id="winnerCountTopRight">0</span>, Error: <span id="errorCountTopRight">0</span></div>
   </div>
   <div style="position: absolute; bottom: 10px; left: 10px;">
-    <button id="errorBottomLeft" onclick="increaseCounter('error', 'bottomLeft')">Bottom Left Error</button>
-    <button id="winnerBottomLeft" onclick="increaseCounter('winner', 'bottomLeft')">Bottom Left Winner</button>
+    <button id="errorBottomLeft" onclick="increaseCounter('error', 'bottomLeft', event)">Bottom Left Error</button>
+    <button id="winnerBottomLeft" onclick="increaseCounter('winner', 'bottomLeft', event)">Bottom Left Winner</button>
     <div id="counterBottomLeft" style="color: green;">Winner: <span id="winnerCountBottomLeft">0</span>, Error: <span id="errorCountBottomLeft">0</span></div>
   </div>
   <div style="position: absolute; bottom: 10px; right: 10px;">
-    <button id="errorBottomRight" onclick="increaseCounter('error', 'bottomRight')">Bottom Right Error</button>
-    <button id="winnerBottomRight" onclick="increaseCounter('winner', 'bottomRight')">Bottom Right Winner</button>
+    <button id="errorBottomRight" onclick="increaseCounter('error', 'bottomRight', event)">Bottom Right Error</button>
+    <button id="winnerBottomRight" onclick="increaseCounter('winner', 'bottomRight', event)">Bottom Right Winner</button>
     <div id="counterBottomRight" style="color: green;">Winner: <span id="winnerCountBottomRight">0</span>, Error: <span id="errorCountBottomRight">0</span></div>
   </div>
 
