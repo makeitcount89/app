@@ -27,24 +27,28 @@
       var court = BABYLON.MeshBuilder.CreateBox("court", { width: 10, height: 0.1, depth: 20 }, scene);
       court.position.y = -0.05; // Adjust the position based on your scene
 
-      // Add wooden floorboards texture
-      var woodMaterial = new BABYLON.StandardMaterial("woodMaterial", scene);
-      woodMaterial.diffuseTexture = new BABYLON.Texture('wood.jpg', scene); // Replace 'wood.jpg' with your texture
+      // Add light blue floor
+      var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
+      floorMaterial.diffuseColor = new BABYLON.Color3(0.6, 0.8, 1); // Light blue color
+      court.material = floorMaterial;
 
-      court.material = woodMaterial;
-
-      // Create walls with proper scale
-      var wall1 = BABYLON.MeshBuilder.CreateBox("wall1", { width: 0.2, height: 4, depth: 20 }, scene);
+      // Create walls with proper scale and height
+      var wallHeight = 4;
+      var wall1 = BABYLON.MeshBuilder.CreateBox("wall1", { width: 0.2, height: wallHeight, depth: 20 }, scene);
       wall1.position.x = -5.1;
+      wall1.position.y = wallHeight / 2;
 
-      var wall2 = BABYLON.MeshBuilder.CreateBox("wall2", { width: 0.2, height: 4, depth: 20 }, scene);
+      var wall2 = BABYLON.MeshBuilder.CreateBox("wall2", { width: 0.2, height: wallHeight, depth: 20 }, scene);
       wall2.position.x = 5.1;
+      wall2.position.y = wallHeight / 2;
 
-      var wall3 = BABYLON.MeshBuilder.CreateBox("wall3", { width: 10, height: 4, depth: 0.2 }, scene);
+      var wall3 = BABYLON.MeshBuilder.CreateBox("wall3", { width: 10, height: wallHeight, depth: 0.2 }, scene);
       wall3.position.z = 10.1;
+      wall3.position.y = wallHeight / 2;
 
-      var wall4 = BABYLON.MeshBuilder.CreateBox("wall4", { width: 10, height: 4, depth: 0.2 }, scene);
+      var wall4 = BABYLON.MeshBuilder.CreateBox("wall4", { width: 10, height: wallHeight, depth: 0.2 }, scene);
       wall4.position.z = -10.1;
+      wall4.position.y = wallHeight / 2;
 
       // Create red lines for T and service boxes
       var createLine = function (points, color) {
@@ -55,19 +59,15 @@
         return line;
       };
 
-      var createRectangle = function (width, height, position, rotation) {
-        var rect = BABYLON.MeshBuilder.CreatePlane("rectangle", { width: width, height: height }, scene);
-        rect.position = position;
-        rect.rotation = rotation;
-        return rect;
-      };
-
       // Red lines for T and service boxes
       createLine([new BABYLON.Vector3(-2, 0.05, 10), new BABYLON.Vector3(2, 0.05, 10)], new BABYLON.Color3(1, 0, 0));
       createLine([new BABYLON.Vector3(-2, 0.05, -10), new BABYLON.Vector3(2, 0.05, -10)], new BABYLON.Color3(1, 0, 0));
 
-      createRectangle(4, 2, new BABYLON.Vector3(0, 0.05, 10), new BABYLON.Vector3(Math.PI / 2, 0, 0));
-      createRectangle(4, 2, new BABYLON.Vector3(0, 0.05, -10), new BABYLON.Vector3(Math.PI / 2, 0, 0));
+      createLine([new BABYLON.Vector3(-5, 0.05, 5), new BABYLON.Vector3(-5, 0.05, 10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(5, 0.05, 5), new BABYLON.Vector3(5, 0.05, 10)], new BABYLON.Color3(1, 0, 0));
+
+      createLine([new BABYLON.Vector3(-5, 0.05, -5), new BABYLON.Vector3(-5, 0.05, -10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(5, 0.05, -5), new BABYLON.Vector3(5, 0.05, -10)], new BABYLON.Color3(1, 0, 0));
 
       // Create tin (transparent panel)
       var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: 9.8, height: 0.1, depth: 0.2 }, scene);
@@ -75,10 +75,10 @@
       tin.position.z = 10;
 
       // High out lines on the front, sides, and back walls
-      createLine([new BABYLON.Vector3(-5, 4, 10), new BABYLON.Vector3(5, 4, 10)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(-5, 4, -10), new BABYLON.Vector3(5, 4, -10)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(-5, 4, -10), new BABYLON.Vector3(-5, 4, 10)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(5, 4, -10), new BABYLON.Vector3(5, 4, 10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-5, wallHeight, 10), new BABYLON.Vector3(5, wallHeight, 10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-5, wallHeight, -10), new BABYLON.Vector3(5, wallHeight, -10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-5, wallHeight, -10), new BABYLON.Vector3(-5, wallHeight, 10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(5, wallHeight, -10), new BABYLON.Vector3(5, wallHeight, 10)], new BABYLON.Color3(1, 0, 0));
 
       // Add your Babylon.js code here for other details
 
