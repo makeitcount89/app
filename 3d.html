@@ -40,6 +40,7 @@
 
   <script>
     var ball;
+  var frontWall
     
     var canvas = document.getElementById("renderCanvas");
     var engine = new BABYLON.Engine(canvas, true);
@@ -66,6 +67,7 @@
       camera.lowerRadiusLimit = 10; // Set the minimum zoom level
       camera.upperRadiusLimit = 30; // Set the maximum zoom level
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), new BABYLON.CannonJSPlugin());
 
       // Animation
       scene.registerBeforeRender(function () {
@@ -106,7 +108,7 @@ court.material = floorMaterial;
       
 
       // Create front wall
-      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
+      frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
       frontWall.position.z = courtLength / 2 - 0.1;
       frontWall.position.y = frontWallHeight / 2;
 
