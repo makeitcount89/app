@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <script src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
+
 <body>
   <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
   <button onclick="increaseCounter('winner')">Increase Winner Counter</button>
@@ -21,7 +23,7 @@
       var scene = new BABYLON.Scene(engine);
 
       // Adjusted camera position for higher view looking slightly down on the back wall
-      var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI/4, Math.PI / 2.5, 35, new BABYLON.Vector3(0, 0, 0), scene);
+      var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 4, Math.PI / 2.5, 35, new BABYLON.Vector3(0, 0, 0), scene);
 
       camera.attachControl(canvas, true);
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
@@ -32,8 +34,14 @@
       var courtHeightFront = 18.5; // in feet
       var courtHeightBack = 7; // in feet
 
-      var tinLineHeight = 19 / 12; // 19 inches converted to feet
+      var frontWallMinHeight = 18.5; // in feet
+      var frontWallHeight = 15; // in feet
       var serviceLineHeight = 5.84; // in feet
+      var tinLineHeight = 19 / 12; // 19 inches converted to feet
+
+      var serviceBoxWidth = 63 / 12; // 63 inches converted to feet
+      var serviceBoxDepth = 63 / 12; // 63 inches converted to feet
+      var shortLineDistance = 17.85; // in feet
 
       // Create the squash court
       var court = BABYLON.MeshBuilder.CreateBox("court", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
@@ -45,24 +53,34 @@
       court.material = floorMaterial;
 
       // Create front wall (transparent)
-      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: tinLineHeight, depth: 0.2 }, scene);
+      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
       frontWall.position.z = courtLength / 2 - 0.1;
-      frontWall.position.y = tinLineHeight / 2;
+      frontWall.position.y = frontWallHeight / 2;
 
       // Make the front wall transparent
       var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
       frontWallMaterial.alpha = 0.5; // Set transparency
       frontWall.material = frontWallMaterial;
 
-      // Create service wall (transparent)
-      var serviceWall = BABYLON.MeshBuilder.CreateBox("serviceWall", { width: courtWidth, height: tinLineHeight, depth: 0.2 }, scene);
-      serviceWall.position.z = courtLength / 2 - serviceLineHeight - 0.1;
-      serviceWall.position.y = tinLineHeight / 2;
+      // Create back wall (transparent)
+      var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: courtHeightBack, depth: 0.2 }, scene);
+      backWall.position.z = -courtLength / 2 + 0.1;
+      backWall.position.y = courtHeightBack / 2;
+      backWall.visibility = 0.5; // Make back wall transparent
 
-      // Make the service wall transparent
-      var serviceWallMaterial = new BABYLON.StandardMaterial("serviceWallMaterial", scene);
-      serviceWallMaterial.alpha = 0.5; // Set transparency
-      serviceWall.material = serviceWallMaterial;
+      // Create tin (transparent panel)
+      var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
+      tin.position.z = courtLength / 2 - 0.1;
+      tin.position.y = tinLineHeight / 2;
+
+      // Create service boxes and lines
+      var createServiceBox = function (zPosition) {
+        // Red lines for service box markings
+        createLine([new BABYLON.Vector3(-courtWidth / 2, serviceLineHeight, zPosition), new BABYLON.Vector3(courtWidth / 2, serviceLineHeight, zPosition)], new BABYLON.Color3(1, 1, 1), 6);
+      };
+
+      createServiceBox(courtLength / 2 - shortLineDistance - serviceBoxDepth / 2);
+      createServiceBox(-courtLength / 2 + shortLineDistance + serviceBoxDepth / 2);
 
       return scene;
     };
@@ -95,7 +113,7 @@
     }
 
     // Google Charts
-    google.charts.load('current', {'packages':['corechart']});
+    google.charts.load('current', { 'packages': ['corechart'] });
     google.charts.setOnLoadCallback(drawCharts);
 
     function drawCharts() {
@@ -121,4 +139,5 @@
 
   <div id="chart_div" style="width: 300px; height: 300px;"></div>
 </body>
+
 </html>
