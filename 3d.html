@@ -108,8 +108,9 @@
 
       // Make the front wall textured
 var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
-frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://drive.google.com/uc?export=view&id=1_Vqfm5vZM4Z1O4DErbHzO5nojKP-WE4i", scene);
+frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://drive.google.com/uc?id=1_Vqfm5vZM4Z1O4DErbHzO5nojKP-WE4i", scene);
 frontWall.material = frontWallMaterial;
+      
 
       // Create back wall (transparent)
       var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: courtHeightBack, depth: 0.2 }, scene);
