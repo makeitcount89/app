@@ -33,24 +33,25 @@
       court.material = floorMaterial;
 
       // Create walls with proper scale and height
-      var wallHeight = 4;
-      var wall1 = BABYLON.MeshBuilder.CreateBox("wall1", { width: 0.2, height: wallHeight, depth: 20 }, scene);
+      var wallHeightFront = 4;
+      var wallHeightBack = 2;
+      var wall1 = BABYLON.MeshBuilder.CreateBox("wall1", { width: 0.2, height: wallHeightFront, depth: 20 }, scene);
       wall1.position.x = -5.1;
-      wall1.position.y = wallHeight / 2;
+      wall1.position.y = wallHeightFront / 2;
 
-      var wall2 = BABYLON.MeshBuilder.CreateBox("wall2", { width: 0.2, height: wallHeight, depth: 20 }, scene);
+      var wall2 = BABYLON.MeshBuilder.CreateBox("wall2", { width: 0.2, height: wallHeightFront, depth: 20 }, scene);
       wall2.position.x = 5.1;
-      wall2.position.y = wallHeight / 2;
+      wall2.position.y = wallHeightFront / 2;
 
-      var wall3 = BABYLON.MeshBuilder.CreateBox("wall3", { width: 10, height: wallHeight, depth: 0.2 }, scene);
+      var wall3 = BABYLON.MeshBuilder.CreateBox("wall3", { width: 10, height: wallHeightBack, depth: 0.2 }, scene);
       wall3.position.z = 10.1;
-      wall3.position.y = wallHeight / 2;
+      wall3.position.y = wallHeightBack / 2;
 
-      var wall4 = BABYLON.MeshBuilder.CreateBox("wall4", { width: 10, height: wallHeight, depth: 0.2 }, scene);
+      var wall4 = BABYLON.MeshBuilder.CreateBox("wall4", { width: 10, height: wallHeightBack, depth: 0.2 }, scene);
       wall4.position.z = -10.1;
-      wall4.position.y = wallHeight / 2;
+      wall4.position.y = wallHeightBack / 2;
 
-      // Create red lines for T and service boxes
+      // Create red lines for floor and wall markings
       var createLine = function (points, color) {
         var line = BABYLON.MeshBuilder.CreateLines("line", { points: points, updatable: true }, scene);
         var material = new BABYLON.StandardMaterial("material", scene);
@@ -59,26 +60,17 @@
         return line;
       };
 
-      // Red lines for T and service boxes
-      createLine([new BABYLON.Vector3(-2, 0.05, 10), new BABYLON.Vector3(2, 0.05, 10)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(-2, 0.05, -10), new BABYLON.Vector3(2, 0.05, -10)], new BABYLON.Color3(1, 0, 0));
+      // Red lines for floor and wall markings
+      createLine([new BABYLON.Vector3(-5, 0.05, -10), new BABYLON.Vector3(5, 0.05, -10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-5, 0.05, 10), new BABYLON.Vector3(5, 0.05, 10)], new BABYLON.Color3(1, 0, 0));
 
-      createLine([new BABYLON.Vector3(-5, 0.05, 5), new BABYLON.Vector3(-5, 0.05, 10)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(5, 0.05, 5), new BABYLON.Vector3(5, 0.05, 10)], new BABYLON.Color3(1, 0, 0));
-
-      createLine([new BABYLON.Vector3(-5, 0.05, -5), new BABYLON.Vector3(-5, 0.05, -10)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(5, 0.05, -5), new BABYLON.Vector3(5, 0.05, -10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-5, wallHeightFront, 10), new BABYLON.Vector3(5, wallHeightFront, 10)], new BABYLON.Color3(1, 0, 0));
+      createLine([new BABYLON.Vector3(-5, wallHeightBack, -10), new BABYLON.Vector3(5, wallHeightBack, -10)], new BABYLON.Color3(1, 0, 0));
 
       // Create tin (transparent panel)
       var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: 9.8, height: 0.1, depth: 0.2 }, scene);
       tin.position.y = -0.05;
       tin.position.z = 10;
-
-      // High out lines on the front, sides, and back walls
-      createLine([new BABYLON.Vector3(-5, wallHeight, 10), new BABYLON.Vector3(5, wallHeight, 10)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(-5, wallHeight, -10), new BABYLON.Vector3(5, wallHeight, -10)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(-5, wallHeight, -10), new BABYLON.Vector3(-5, wallHeight, 10)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(5, wallHeight, -10), new BABYLON.Vector3(5, wallHeight, 10)], new BABYLON.Color3(1, 0, 0));
 
       // Add your Babylon.js code here for other details
 
