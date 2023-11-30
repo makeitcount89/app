@@ -50,14 +50,14 @@
       floorMaterial.diffuseColor = new BABYLON.Color3(0.6, 0.8, 1); // Light blue color
       court.material = floorMaterial;
 
-      // Create front wall
+      // Create front wall (transparent)
       var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
       frontWall.position.z = courtLength / 2 - 0.1;
       frontWall.position.y = frontWallHeight / 2;
 
-      // Make the front wall white
+      // Make the front wall transparent
       var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
-      frontWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // White color
+      frontWallMaterial.alpha = 0.5; // Set transparency
       frontWall.material = frontWallMaterial;
 
       // Create back wall (transparent)
@@ -87,7 +87,7 @@
       // Create service boxes and lines
       var createServiceBox = function (zPosition) {
         // Red lines for service box markings
-        createLine([new BABYLON.Vector3(-courtWidth / 2, frontWallHeight, zPosition), new BABYLON.Vector3(courtWidth / 2, frontWallHeight, zPosition)], new BABYLON.Color3(1, 0, 0));
+        createLine([new BABYLON.Vector3(-courtWidth / 2, serviceLineHeight, zPosition), new BABYLON.Vector3(courtWidth / 2, serviceLineHeight, zPosition)], new BABYLON.Color3(1, 0, 0));
       };
 
       createServiceBox(courtLength / 2 - shortLineDistance - serviceBoxDepth / 2);
