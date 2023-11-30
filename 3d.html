@@ -59,7 +59,7 @@
     camera.alpha += 0.01;  // Additional 90 degrees rotation
   }
   if (camera.radius > 18) {
-    camera.radius -= 0.1;  // Zoom out 10%
+    camera.radius -= 0.2;  // Zoom out 10%
   }
       });
 
@@ -142,9 +142,12 @@
     winnerBars.bottomRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0));
     errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0));
 
+    // Assign created bars to variables
+    winnerBar = winnerBars.topLeft;
+    errorBar = errorBars.topLeft;
+
     return scene;
   };
-
   var scene = createScene();
 
   engine.runRenderLoop(function () {
