@@ -52,10 +52,22 @@
       frontWall.position.z = courtLength / 2 - 0.1;
       frontWall.position.y = frontWallHeight / 2;
 
-      // Create back wall
+      // Create back wall (transparent)
       var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: courtHeightBack, depth: 0.2 }, scene);
       backWall.position.z = -courtLength / 2 + 0.1;
       backWall.position.y = courtHeightBack / 2;
+      backWall.visibility = 0.5; // Make back wall transparent
+
+      // Create side walls tapering from the top to the back wall
+      var sideWall1 = BABYLON.MeshBuilder.CreateBox("sideWall1", { width: 0.2, height: courtHeightFront, depth: courtLength }, scene);
+      sideWall1.position.x = -courtWidth / 2 - 0.1;
+      sideWall1.position.z = frontWall.position.z;
+      sideWall1.position.y = (frontWallHeight + courtHeightFront) / 2;
+
+      var sideWall2 = BABYLON.MeshBuilder.CreateBox("sideWall2", { width: 0.2, height: courtHeightFront, depth: courtLength }, scene);
+      sideWall2.position.x = courtWidth / 2 + 0.1;
+      sideWall2.position.z = frontWall.position.z;
+      sideWall2.position.y = (frontWallHeight + courtHeightFront) / 2;
 
       // Create red lines for floor and wall markings
       var createLine = function (points, color) {
