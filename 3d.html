@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Realistic Singles Squash Court</title>
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/babylon.physicsEngine.min.js"></script>
+  
   <script src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 <body>
@@ -163,6 +165,27 @@ frontWall.material = frontWallMaterial;
   winnerBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
   errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
 
+      // Create the ball
+var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
+ball.position = new BABYLON.Vector3(0, 1, 0); // Initial position
+
+// Physics
+var physicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
+ball.physicsImpostor = physicsImpostor;
+
+// Bounce off walls
+scene.registerBeforeRender(function () {
+    if (ball.intersectsMesh(frontWall, true)) {
+        // Ball hit front wall
+        ball.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, -5)); // Adjust velocity as needed
+    } else if (ball.intersectsMesh(backWall, true)) {
+        // Ball hit back wall
+        ball.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, 5)); // Adjust velocity as needed
+    }
+});
+      
+
+      
   return scene;
     };
 
