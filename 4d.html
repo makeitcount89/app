@@ -6,6 +6,7 @@
   <title>Squash Court</title>
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <script src="https://cdn.babylonjs.com/cannon.js"></script>
+  <script src="https://cdn.babylonjs.com/pe/babylon.physicsEngine.min.js"></script>
 </head>
 <body>
   <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
@@ -22,15 +23,13 @@
     function createScene() {
       var scene = new BABYLON.Scene(engine);
       var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
-      camera.detachControl(canvas);
+      camera.detachControl(canvas, true); // Enable camera movement
       camera.lowerRadiusLimit = 10;
       camera.upperRadiusLimit = 30;
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
       var courtLength = 32;
       var courtWidth = 21;
-
-      var courtHeightBack = 7;
 
       var frontWallHeight = 15;
       var tinLineHeight = 19 / 12;
@@ -60,34 +59,70 @@
       // Create the squash ball with physics
       var ball = BABYLON.Mesh.CreateSphere("ball", 16, 1, scene);
       ball.position.y = 1;
-      var ballMaterial = new BABYLON.StandardMaterial("ballMaterial", scene);
-      ballMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0);
-      ball.material = ballMaterial;
 
+      // Enable physics on the ball
       var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
       ball.physicsImpostor = ballPhysicsImpostor;
 
-      // Animation to rotate the camera 180 degrees
+      // Define variables to track the drag state
+      var startingPoint;
+      var currentMesh;
+
+      // Modify the onPointerDown function
+      scene.onPointerDown = function (evt, pickResult) {
+        if (pickResult.hit && (evt.pointerType === "touch" || evt.pointerType === "mouse")) {
+          // Store the starting point and the picked mesh
+          startingPoint = pickResult.pickedPoint;
+          currentMesh = pickResult.pickedMesh;
+
+          // Disconnect camera control during dragging
+          camera.detachControl(canvas);
+
+          // Enable the onPointerMove and onPointerUp functions
+          canvas.addEventListener("pointermove", pointerMove);
+          canvas.addEventListener("pointerup", pointerUp);
+        }
+      };
+
+      // Define the onPointerMove function
+      var pointerMove = function (evt) {
+        var current = scene.pick(evt.clientX, evt.clientY);
+        if (!current.hit || current.pickedMesh !== currentMesh) {
+          return;
+        }
+
+        // Calculate the difference between the current and starting points
+        var diff = current.pickedPoint.subtract(startingPoint);
+
+        // Move the ball based on the difference
+        currentMesh.position.addInPlace(diff);
+
+        // Update the starting point for the next move
+        startingPoint = current.pickedPoint;
+      };
+
+      // Define the onPointerUp function
+      var pointerUp = function () {
+        // Reconnect camera control after releasing the drag
+        camera.attachControl(canvas, true);
+
+        // Remove the event listeners for pointer move and pointer up
+        canvas.removeEventListener("pointermove", pointerMove);
+        canvas.removeEventListener("pointerup", pointerUp);
+      };
+
+      // Animation to rotate the camera 180 degrees and zoom out further
       scene.registerBeforeRender(function () {
-        if (camera.alpha <= Math.PI) {
+        if (camera.alpha <= 1.5 * Math.PI) {
           camera.alpha += 0.01; // Rotate 180 degrees
+        }
+        if (camera.radius > 20) {
+          camera.radius -= 0.3; // Zoom out 15%
         }
       });
 
       return scene;
     }
-
-    canvas.addEventListener("pointerdown", function (evt) {
-      scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
-    });
-
-    scene.onPointerDown = function (evt, pickResult) {
-      if (pickResult.hit && evt.pointerType === "touch") {
-        var forceDirection = pickResult.pickedPoint.subtract(camera.position).normalize();
-        var forceMagnitude = 10;
-        ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), pickResult.pickedPoint);
-      }
-    };
   </script>
 </body>
 </html>
