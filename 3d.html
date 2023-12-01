@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Realistic Singles Squash Court</title>
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
-  <script src="https://cdn.babylonjs.com/babylon.physicsEngine.min.js"></script>
-  
   <script src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 <body>
@@ -42,56 +40,8 @@
 
   <script>
     var canvas = document.getElementById("renderCanvas");
-var engine = new BABYLON.Engine(canvas, true);
-var scene = createScene();
-var startingPoint;
-var currentMesh;
+    var engine = new BABYLON.Engine(canvas, true);
 
-engine.runRenderLoop(function () {
-  scene.render();
-});
-
-canvas.addEventListener("pointerdown", function (evt) {
-  if (evt.pointerType === "touch" && evt.pointers.length === 1) {
-    startingPoint = getGroundPosition(evt);
-    currentMesh = null;
-  }
-});
-
-canvas.addEventListener("pointerup", function (evt) {
-    if (startingPoint) {
-        // Get the ending point and calculate the direction
-        var endingPoint = getGroundPosition(evt);  // <-- Add the evt parameter here
-        var direction = endingPoint.subtract(startingPoint);
-
-        // Set the ball's velocity based on the touch direction
-        ball.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(direction.x * 5, 0, direction.z * 5)); // Adjust speed as needed
-
-        startingPoint = null;
-    }
-});
-
-
-canvas.addEventListener("pointermove", function (evt) {
-  if (startingPoint && evt.pointerType === "touch" && evt.pointers.length === 1) {
-    // Your logic for single-finger dragging if needed
-  } else if (evt.pointerType === "touch" && evt.pointers.length === 2) {
-    // Your logic for double-finger dragging, e.g., camera movement
-  }
-});
-
-function getGroundPosition(evt) {
-  var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) {
-    return mesh == court;
-  });
-
-  if (pickInfo.hit) {
-    return pickInfo.pickedPoint;
-  }
-
-  return null;
-}
-    
     var winnerBars = {}, errorBars = {};
 
     // Counter and Undo
@@ -100,6 +50,8 @@ function getGroundPosition(evt) {
       error: 0
     };
     var actionsHistory = [];
+
+    var scene = createScene();
 
     engine.runRenderLoop(function () {
       scene.render();
@@ -211,61 +163,6 @@ frontWall.material = frontWallMaterial;
   winnerBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
   errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
 
-      // Create the ball
-var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
-ball.position = new BABYLON.Vector3(0, 1, 0); // Initial position
-
-// Physics
-var physicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-ball.physicsImpostor = physicsImpostor;
-
-// Bounce off walls
-scene.registerBeforeRender(function () {
-    if (ball.intersectsMesh(frontWall, true)) {
-        // Ball hit front wall
-        ball.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, -5)); // Adjust velocity as needed
-    } else if (ball.intersectsMesh(backWall, true)) {
-        // Ball hit back wall
-        ball.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, 5)); // Adjust velocity as needed
-    }
-});
-
-      var startingPoint;
-var currentMesh;
-
-canvas.addEventListener("pointerdown", function (evt) {
-    startingPoint = getGroundPosition(evt);
-    currentMesh = null;
-});
-
-canvas.addEventListener("pointerup", function () {
-    if (startingPoint) {
-        // Get the ending point and calculate the direction
-        var endingPoint = getGroundPosition(evt);
-        var direction = endingPoint.subtract(startingPoint);
-        
-        // Set the ball's velocity based on the touch direction
-        ball.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(direction.x * 5, 0, direction.z * 5)); // Adjust speed as needed
-
-        startingPoint = null;
-    }
-});
-
-function getGroundPosition(evt) {
-    // Use a ray to get the ground position where the user clicked
-    var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) {
-        return mesh == court; // Check if the mesh is the court
-    });
-
-    if (pickInfo.hit) {
-        return pickInfo.pickedPoint;
-    }
-
-    return null;
-                                                                   }
-      
-
-      
   return scene;
     };
 
