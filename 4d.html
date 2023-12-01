@@ -22,7 +22,7 @@
     function createScene() {
       var scene = new BABYLON.Scene(engine);
       var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
-      camera.attachControl(canvas, true); // Enable camera movement
+      camera.detachControl(canvas, true); // Enable camera movement
       camera.lowerRadiusLimit = 10;
       camera.upperRadiusLimit = 30;
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
@@ -84,13 +84,17 @@
       });
 
       // Enable touch controls
-      scene.onPointerObservable.add((eventData) => {
-        if (eventData.type === BABYLON.PointerEventTypes.POINTERDOWN) {
-          var forceDirection = eventData.pickInfo.pickedPoint.subtract(camera.position).normalize();
-          var forceMagnitude = 10; // Adjust the force as needed
-          ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), eventData.pickInfo.pickedPoint);
-        }
-      });
+scene.onPointerObservable.add((eventData) => {
+  if (eventData.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+    var pickInfo = eventData.pickInfo;
+    if (pickInfo.hit && pickInfo.pickedMesh === ball) {
+      var forceDirection = pickInfo.pickedPoint.subtract(ball.position).normalize();
+      var forceMagnitude = 10; // Adjust the force as needed
+      ball.physicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition());
+    }
+  }
+});
+
 
       return scene;
     }
