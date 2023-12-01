@@ -22,7 +22,7 @@
     function createScene() {
       var scene = new BABYLON.Scene(engine);
       var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
-      camera.detachControl(canvas, true); // Disable camera movement
+      camera.attachControl(canvas, true); // Enable camera movement
       camera.lowerRadiusLimit = 10;
       camera.upperRadiusLimit = 30;
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
@@ -73,7 +73,7 @@
       var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
       ball.physicsImpostor = ballPhysicsImpostor;
 
-      // Animation to rotate the camera 250 degrees and zoom out further
+      // Animation to rotate the camera 180 degrees and zoom out further
       scene.registerBeforeRender(function () {
         if (camera.alpha <= 1.5 * Math.PI) {
           camera.alpha += 0.01; // Rotate 180 degrees
@@ -82,6 +82,21 @@
           camera.radius -= 0.3; // Zoom out 15%
         }
       });
+
+      // Enable touch controls
+      scene.getEngine().inputManager.touchEnabled = true;
+
+      canvas.addEventListener("pointerdown", function (evt) {
+        scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
+      });
+
+      scene.onPointerDown = function (evt, pickResult) {
+        if (pickResult.hit && evt.pointerType === "touch") {
+          var forceDirection = pickResult.pickedPoint.subtract(camera.position).normalize();
+          var forceMagnitude = 10; // Adjust the force as needed
+          ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), pickResult.pickedPoint);
+        }
+      };
 
       return scene;
     }
