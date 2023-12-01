@@ -164,24 +164,29 @@ frontWall.material = frontWallMaterial;
   winnerBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
   errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
 
-
-      // Create the ball
+ // Create the ball
       ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
       ball.position.y = 1; // Adjust the initial height of the ball
 
       // Set the ball's initial velocity
-      var ballVelocity = new BABYLON.Vector3(0.5, 0, 0.2);
+      var ballVelocity = new BABYLON.Vector3(0, 0, 0);
+
+      // Add a pointer down event listener to detect taps on the canvas
+      scene.onPointerDown = function (event, pickResult) {
+        // Check if the pointer hit the ball
+        if (pickResult.hit && pickResult.pickedMesh === ball) {
+          // Tap the ball towards the front wall
+          ballVelocity.z = 0.2; // You can adjust the speed as needed
+        }
+      };
 
       // Register a function that will be called on every frame
       scene.registerBeforeRender(function () {
         // Move the ball based on its velocity
         ball.position.addInPlace(ballVelocity);
 
-        // Check for collisions with the walls
-        if (ball.intersectsMesh(frontWall, true) || ball.intersectsMesh(backWall, true)) {
-          // Reverse the velocity to simulate bouncing off the front and back walls
-          ballVelocity.z = -ballVelocity.z;
-        }
+        // Slow down the ball over time (friction)
+        ballVelocity.scaleInPlace(0.99);
 
         // Keep the ball within the front and back walls
         ball.position.z = Math.min(Math.max(ball.position.z, -courtLength / 2 + 1), courtLength / 2 - 1);
