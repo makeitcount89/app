@@ -75,14 +75,17 @@
       });
 
       // Enable touch controls
-      canvas.addEventListener("pointerdown", function (evt) {
-        var pickInfo = scene.pick(evt.clientX, evt.clientY);
-        if (pickInfo.hit && pickInfo.pickedMesh === ball) {
-          var forceDirection = pickInfo.pickedPoint.subtract(ball.position).normalize();
-          var forceMagnitude = 10; // Adjust the force as needed
-          ball.physicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition());
-        }
-      });
+canvas.addEventListener("touchstart", function (evt) {
+  if (evt.touches.length > 0) {
+    var pickInfo = scene.pick(evt.touches[0].clientX, evt.touches[0].clientY);
+    if (pickInfo.hit && pickInfo.pickedMesh === ball) {
+      var forceDirection = pickInfo.pickedPoint.subtract(ball.position).normalize();
+      var forceMagnitude = 10; // Adjust the force as needed
+      ball.physicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition());
+    }
+  }
+});
+      
 
       return scene;
     }
