@@ -26,6 +26,8 @@
       camera.detachControl(canvas, true); // Enable camera movement
       camera.lowerRadiusLimit = 10;
       camera.upperRadiusLimit = 30;
+      camera.lowerBetaLimit = 0.1; // Limit camera from going below the floor
+
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
       var courtLength = 32;
@@ -65,12 +67,31 @@
       ball.physicsImpostor = ballPhysicsImpostor;
 
       // Create the squash racket with physics
-      var racket = BABYLON.MeshBuilder.CreateBox("racket", { width: 3, height: 1, depth: 0.5 }, scene);
-      racket.position.y = 0.5;
+      var racket = BABYLON.MeshBuilder.CreateBox("racket", { width: 2, height: 0.5, depth: 0.1 }, scene);
+      racket.position.y = 0.25;
 
       // Enable physics on the racket
       var racketPhysicsImpostor = new BABYLON.PhysicsImpostor(racket, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
       racket.physicsImpostor = racketPhysicsImpostor;
+
+      // Make the racket easier to click
+      racket.actionManager = new BABYLON.ActionManager(scene);
+      racket.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPointerOverTrigger,
+          function (evt) {
+            canvas.style.cursor = "pointer";
+          }
+        )
+      );
+      racket.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPointerOutTrigger,
+          function (evt) {
+            canvas.style.cursor = "";
+          }
+        )
+      );
 
       // Define the onPointerDown function
       scene.onPointerDown = function (evt, pickResult) {
@@ -120,6 +141,15 @@
         canvas.removeEventListener("pointermove", pointerMove);
         canvas.removeEventListener("pointerup", pointerUp);
       };
+
+      // ... (your existing code) ...
+
+      return scene;
+    }
+  </script>
+</body>
+</html>
+
 
       // Animation to rotate the camera 180 degrees and zoom out further
       scene.registerBeforeRender(function () {
