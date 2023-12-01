@@ -43,8 +43,6 @@
     var engine = new BABYLON.Engine(canvas, true);
 
     var winnerBars = {}, errorBars = {};
-    var ball;
-    var isBallMoving = false;
 
     // Counter and Undo
     var counters = {
@@ -165,64 +163,9 @@ frontWall.material = frontWallMaterial;
   winnerBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
   errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
 
- // Create the ball
-      ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
-      ball.position.y = 1; // Adjust the initial height of the ball
-
-      // Set the ball's initial velocity and position
-      var ballVelocity = new BABYLON.Vector3(0, 0, 0);
-      ball.position.z = 0; // Initial position of the ball
-
-      // Add a pointer down event listener to detect taps on the canvas
-      scene.onPointerDown = function (event, pickResult) {
-        // Check if the pointer hit the ball and the ball is not already moving
-        if (pickResult.hit && pickResult.pickedMesh === ball && !isBallMoving) {
-          hitBall();
-        }
-      };
-
-      // Register a function that will be called on every frame
-      scene.registerBeforeRender(function () {
-        if (isBallMoving) {
-          // Apply gravity
-          ballVelocity.y -= 0.005;
-
-          // Move the ball based on its velocity
-          ball.position.addInPlace(ballVelocity);
-
-          // Check for collisions with the front wall and ground
-          if (ball.intersectsMesh(frontWall, true)) {
-            // Reverse the velocity to simulate bouncing off the front wall
-            ballVelocity.z = -ballVelocity.z * 0.8; // Some velocity loss due to impact
-          }
-
-          if (ball.position.y < 1) {
-            // Bounce off the ground
-            ball.position.y = 1;
-            ballVelocity.y = -ballVelocity.y * 0.8; // Some velocity loss due to impact
-          }
-
-          // Slow down the ball over time (friction)
-          ballVelocity.scaleInPlace(0.99);
-        }
-      });
-      // Add a pointer down event listener to detect taps on the canvas
-canvas.addEventListener("pointerdown", function (event) {
-  var pickResult = scene.pick(scene.pointerX, scene.pointerY);
-  // Check if the pointer hit the ball and the ball is not already moving
-  if (pickResult.hit && pickResult.pickedMesh === ball && !isBallMoving) {
-    hitBall();
-  }
-});
-      
-      
   return scene;
     };
-function hitBall() {
-      // Set the initial velocity when the ball is hit
-      ballVelocity = new BABYLON.Vector3(0, 0.2, 0.2);
-      isBallMoving = true;
-    }
+
    // Function to update bars
     function updateBars() {
       for (var corner in winnerBars) {
