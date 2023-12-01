@@ -233,6 +233,10 @@ scene.onPointerDown = function (event, pickResult) {
     engine.runRenderLoop(function () {
       scene.render();
     });
+    canvas.addEventListener("pointerdown", function (evt) {
+  scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
+});
+    
 
     // Google Charts
     google.charts.load('current', { 'packages': ['corechart'] });
