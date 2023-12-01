@@ -75,11 +75,11 @@
 
       // Animation to rotate the camera 250 degrees and zoom out further
       scene.registerBeforeRender(function () {
-        if (camera.alpha <= 2.5 * Math.PI) {
+        if (camera.alpha <= 1.5 * Math.PI) {
           camera.alpha += 0.01; // Rotate 250 degrees
         }
-        if (camera.radius > 24) {
-          camera.radius -= 0.2; // Zoom out 15%
+        if (camera.radius > 20) {
+          camera.radius -= 0.3; // Zoom out 15%
         }
       });
 
