@@ -69,29 +69,9 @@
       // Handle swipe interaction
       var startingPoint;
       var currentMesh;
-
-      // Define the onPointerDown function
-      scene.onPointerDown = function (evt, pickResult) {
-        if (pickResult.hit && (evt.pointerType === "touch" || evt.pointerType === "mouse")) {
-          // Store the starting point and the picked mesh
-          startingPoint = pickResult.pickedPoint;
-          currentMesh = pickResult.pickedMesh;
-
-          // Disconnect camera control during dragging
-          camera.detachControl(canvas);
-
-          // Enable the onPointerMove and onPointerUp functions
-          canvas.addEventListener("pointermove", pointerMove);
-          canvas.addEventListener("pointerup", pointerUp);
-        }
-      };
-// Remove the pointerMove function
-var pointerMove = function (evt) {
-    // No need for dragging logic
-};
-
-// Remove the onPointerDown function
-scene.onPointerDown = function (evt, pickResult) {
+      
+// Attach the onPointerDown event directly to the ball
+ball.onPointerDown = function (evt, pickResult) {
     if (pickResult.hit && (evt.pointerType === "touch" || evt.pointerType === "mouse")) {
         // Calculate the direction towards the front wall
         var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
@@ -101,22 +81,6 @@ scene.onPointerDown = function (evt, pickResult) {
         ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
     }
 };
-
-// Remove the onPointerUp function
-var pointerUp = function () {
-    // No need for dragging logic
-};
-
-// Animation to rotate the camera 180 degrees and zoom out further
-scene.registerBeforeRender(function () {
-    if (camera.alpha <= 1.5 * Math.PI) {
-        camera.alpha += 0.01; // Rotate 180 degrees
-    }
-    if (camera.radius > 20) {
-        camera.radius -= 0.3; // Zoom out 15%
-    }
-});
-
       // Animation to rotate the camera 180 degrees and zoom out further
       scene.registerBeforeRender(function () {
         if (camera.alpha <= 1.5 * Math.PI) {
