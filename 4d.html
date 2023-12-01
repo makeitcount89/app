@@ -64,23 +64,30 @@
       var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
       ball.physicsImpostor = ballPhysicsImpostor;
 
-      // Define variables to track the drag state
-      var startingPoint;
-      var currentMesh;
+      // Create the squash racket with physics
+      var racket = BABYLON.MeshBuilder.CreateBox("racket", { width: 3, height: 1, depth: 0.5 }, scene);
+      racket.position.y = 0.5;
 
-      // Modify the onPointerDown function
+      // Enable physics on the racket
+      var racketPhysicsImpostor = new BABYLON.PhysicsImpostor(racket, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+      racket.physicsImpostor = racketPhysicsImpostor;
+
+      // Define the onPointerDown function
       scene.onPointerDown = function (evt, pickResult) {
         if (pickResult.hit && (evt.pointerType === "touch" || evt.pointerType === "mouse")) {
-          // Store the starting point and the picked mesh
-          startingPoint = pickResult.pickedPoint;
-          currentMesh = pickResult.pickedMesh;
+          // Check if the picked mesh is the racket
+          if (pickResult.pickedMesh === racket) {
+            // Store the starting point and the picked mesh
+            startingPoint = pickResult.pickedPoint;
+            currentMesh = pickResult.pickedMesh;
 
-          // Disconnect camera control during dragging
-          camera.detachControl(canvas);
+            // Disconnect camera control during dragging
+            camera.detachControl(canvas);
 
-          // Enable the onPointerMove and onPointerUp functions
-          canvas.addEventListener("pointermove", pointerMove);
-          canvas.addEventListener("pointerup", pointerUp);
+            // Enable the onPointerMove and onPointerUp functions
+            canvas.addEventListener("pointermove", pointerMove);
+            canvas.addEventListener("pointerup", pointerUp);
+          }
         }
       };
 
@@ -94,8 +101,11 @@
         // Calculate the difference between the current and starting points
         var diff = current.pickedPoint.subtract(startingPoint);
 
-        // Move the ball based on the difference
+        // Move the racket based on the difference
         currentMesh.position.addInPlace(diff);
+
+        // Move the ball with the racket (optional, adjust as needed)
+        ball.position.addInPlace(diff);
 
         // Update the starting point for the next move
         startingPoint = current.pickedPoint;
