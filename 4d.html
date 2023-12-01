@@ -104,19 +104,22 @@
       };
 
       // Define the onPointerUp function
-      var pointerUp = function () {
-        // Reconnect camera control after releasing the drag
-        camera.attachControl(canvas, true);
+var pointerUp = function () {
+    // Reconnect camera control after releasing the drag
+    camera.attachControl(canvas, true);
 
-        // Remove the event listeners for pointer move and pointer up
-        canvas.removeEventListener("pointermove", pointerMove);
-        canvas.removeEventListener("pointerup", pointerUp);
+    // Remove the event listeners for pointer move and pointer up
+    canvas.removeEventListener("pointermove", pointerMove);
+    canvas.removeEventListener("pointerup", pointerUp);
 
-        // Swipe the ball based on the swipe gesture
-        var swipeDirection = startingPoint.subtract(currentMesh.position).normalize();
-        var swipeForce = 10; // Adjust the force as needed
-        ballPhysicsImpostor.applyImpulse(swipeDirection.scale(swipeForce), ball.getAbsolutePosition());
-      };
+    // Calculate the direction towards the front wall
+    var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
+
+    // Apply impulse towards the front wall
+    var impulseForce = 10; // Adjust the force as needed
+    ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
+};
+
       // Animation to rotate the camera 180 degrees and zoom out further
       scene.registerBeforeRender(function () {
         if (camera.alpha <= 1.5 * Math.PI) {
