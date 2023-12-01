@@ -22,7 +22,7 @@
     function createScene() {
       var scene = new BABYLON.Scene(engine);
       var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
-      camera.attachControl(canvas, false); // Disable camera movement
+      camera.detachControl(canvas, true); // Disable camera movement
       camera.lowerRadiusLimit = 10;
       camera.upperRadiusLimit = 30;
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
@@ -76,7 +76,7 @@
       // Animation to rotate the camera 250 degrees and zoom out further
       scene.registerBeforeRender(function () {
         if (camera.alpha <= 1.5 * Math.PI) {
-          camera.alpha += 0.01; // Rotate 250 degrees
+          camera.alpha += 0.01; // Rotate 180 degrees
         }
         if (camera.radius > 20) {
           camera.radius -= 0.3; // Zoom out 15%
