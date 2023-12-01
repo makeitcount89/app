@@ -73,15 +73,13 @@
       var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
       ball.physicsImpostor = ballPhysicsImpostor;
 
-      // Animation to rotate the camera 180 degrees
+      // Animation to rotate the camera 250 degrees and zoom out further
       scene.registerBeforeRender(function () {
-        if (camera.alpha <= Math.PI) {
-          camera.alpha += 0.01; // Rotate 180 degrees
-        } else if (camera.alpha <= 1.5 * Math.PI) {
-          camera.alpha += 0.01; // Additional 90 degrees rotation
+        if (camera.alpha <= 2.5 * Math.PI) {
+          camera.alpha += 0.01; // Rotate 250 degrees
         }
-        if (camera.radius > 18) {
-          camera.radius -= 0.2; // Zoom out 10%
+        if (camera.radius > 24) {
+          camera.radius -= 0.2; // Zoom out 15%
         }
       });
 
