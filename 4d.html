@@ -84,19 +84,13 @@
       });
 
       // Enable touch controls
-      scene.getEngine().inputManager.touchEnabled = true;
-
-      canvas.addEventListener("pointerdown", function (evt) {
-        scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
-      });
-
-      scene.onPointerDown = function (evt, pickResult) {
-        if (pickResult.hit && evt.pointerType === "touch") {
-          var forceDirection = pickResult.pickedPoint.subtract(camera.position).normalize();
+      scene.onPointerObservable.add((eventData) => {
+        if (eventData.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+          var forceDirection = eventData.pickInfo.pickedPoint.subtract(camera.position).normalize();
           var forceMagnitude = 10; // Adjust the force as needed
-          ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), pickResult.pickedPoint);
+          ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), eventData.pickInfo.pickedPoint);
         }
-      };
+      });
 
       return scene;
     }
