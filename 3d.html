@@ -42,8 +42,51 @@
 
   <script>
     var canvas = document.getElementById("renderCanvas");
-    var engine = new BABYLON.Engine(canvas, true);
+var engine = new BABYLON.Engine(canvas, true);
+var scene = createScene();
+var startingPoint;
+var currentMesh;
 
+engine.runRenderLoop(function () {
+  scene.render();
+});
+
+canvas.addEventListener("pointerdown", function (evt) {
+  if (evt.pointerType === "touch" && evt.pointers.length === 1) {
+    startingPoint = getGroundPosition(evt);
+    currentMesh = null;
+  }
+});
+
+canvas.addEventListener("pointerup", function () {
+  if (startingPoint && evt.pointerType === "touch" && evt.pointers.length === 1) {
+    var endingPoint = getGroundPosition(evt);
+    var direction = endingPoint.subtract(startingPoint);
+    ball.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(direction.x * 5, 0, direction.z * 5));
+    startingPoint = null;
+  }
+});
+
+canvas.addEventListener("pointermove", function (evt) {
+  if (startingPoint && evt.pointerType === "touch" && evt.pointers.length === 1) {
+    // Your logic for single-finger dragging if needed
+  } else if (evt.pointerType === "touch" && evt.pointers.length === 2) {
+    // Your logic for double-finger dragging, e.g., camera movement
+  }
+});
+
+function getGroundPosition(evt) {
+  var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) {
+    return mesh == court;
+  });
+
+  if (pickInfo.hit) {
+    return pickInfo.pickedPoint;
+  }
+
+  return null;
+}
+    
     var winnerBars = {}, errorBars = {};
 
     // Counter and Undo
@@ -52,8 +95,6 @@
       error: 0
     };
     var actionsHistory = [];
-
-    var scene = createScene();
 
     engine.runRenderLoop(function () {
       scene.render();
