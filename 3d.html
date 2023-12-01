@@ -44,6 +44,7 @@
 
     var winnerBars = {}, errorBars = {};
     var ball;
+    var isBallMoving = false;
 
     // Counter and Undo
     var counters = {
@@ -168,34 +169,51 @@ frontWall.material = frontWallMaterial;
       ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
       ball.position.y = 1; // Adjust the initial height of the ball
 
-      // Set the ball's initial velocity
+      // Set the ball's initial velocity and position
       var ballVelocity = new BABYLON.Vector3(0, 0, 0);
+      ball.position.z = 0; // Initial position of the ball
 
       // Add a pointer down event listener to detect taps on the canvas
       scene.onPointerDown = function (event, pickResult) {
-        // Check if the pointer hit the ball
-        if (pickResult.hit && pickResult.pickedMesh === ball) {
-          // Tap the ball towards the front wall
-          ballVelocity.z = 0.2; // You can adjust the speed as needed
+        // Check if the pointer hit the ball and the ball is not already moving
+        if (pickResult.hit && pickResult.pickedMesh === ball && !isBallMoving) {
+          hitBall();
         }
       };
 
       // Register a function that will be called on every frame
       scene.registerBeforeRender(function () {
-        // Move the ball based on its velocity
-        ball.position.addInPlace(ballVelocity);
+        if (isBallMoving) {
+          // Apply gravity
+          ballVelocity.y -= 0.005;
 
-        // Slow down the ball over time (friction)
-        ballVelocity.scaleInPlace(0.99);
+          // Move the ball based on its velocity
+          ball.position.addInPlace(ballVelocity);
 
-        // Keep the ball within the front and back walls
-        ball.position.z = Math.min(Math.max(ball.position.z, -courtLength / 2 + 1), courtLength / 2 - 1);
+          // Check for collisions with the front wall and ground
+          if (ball.intersectsMesh(frontWall, true)) {
+            // Reverse the velocity to simulate bouncing off the front wall
+            ballVelocity.z = -ballVelocity.z * 0.8; // Some velocity loss due to impact
+          }
+
+          if (ball.position.y < 1) {
+            // Bounce off the ground
+            ball.position.y = 1;
+            ballVelocity.y = -ballVelocity.y * 0.8; // Some velocity loss due to impact
+          }
+
+          // Slow down the ball over time (friction)
+          ballVelocity.scaleInPlace(0.99);
+        }
       });
-
-
+      
   return scene;
     };
-
+function hitBall() {
+      // Set the initial velocity when the ball is hit
+      ballVelocity = new BABYLON.Vector3(0, 0.2, 0.2);
+      isBallMoving = true;
+    }
    // Function to update bars
     function updateBars() {
       for (var corner in winnerBars) {
