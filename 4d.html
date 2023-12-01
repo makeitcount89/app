@@ -74,24 +74,23 @@
         }
       });
 
-      // Enable touch controls
-canvas.addEventListener("touchstart", function (evt) {
-  if (evt.touches.length > 0) {
-    var pickResult = scene.pick(evt.touches[0].clientX, evt.touches[0].clientY);
-    if (pickResult.hit && pickResult.pickedMesh === ball) {
-      var forceDirection = pickResult.pickedPoint.subtract(ball.position).normalize();
-      var forceMagnitude = 10; // Adjust the force as needed
-      ball.physicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition());
-    } else {
-      alert("Ball not picked. PickResult: " + JSON.stringify(pickResult));
-    }
-  }
+// Enable touch controls
+scene.getEngine().inputManager.touchEnabled = true;
+
+// Update pointer events to include touch
+canvas.addEventListener("pointerdown", function (evt) {
+  scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
 });
 
+scene.onPointerDown = function (evt, pickResult) {
+  if (pickResult.hit && (evt.pointerType === "touch" || evt.pointerType === "mouse")) {
+    // Handle both touch and mouse events
+    var forceDirection = pickResult.pickedPoint.subtract(camera.position).normalize();
+    var forceMagnitude = 10; // Adjust the force as needed
+    ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), pickResult.pickedPoint);
+  }
+};
 
-
-
-      
 
       return scene;
     }
