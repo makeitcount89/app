@@ -59,13 +59,18 @@ canvas.addEventListener("pointerdown", function (evt) {
 });
 
 canvas.addEventListener("pointerup", function () {
-  if (startingPoint && evt.pointerType === "touch" && evt.pointers.length === 1) {
-    var endingPoint = getGroundPosition(evt);
-    var direction = endingPoint.subtract(startingPoint);
-    ball.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(direction.x * 5, 0, direction.z * 5));
-    startingPoint = null;
-  }
+    if (startingPoint) {
+        // Get the ending point and calculate the direction
+        var endingPoint = getGroundPosition(evt);  // <-- Add the evt parameter here
+        var direction = endingPoint.subtract(startingPoint);
+
+        // Set the ball's velocity based on the touch direction
+        ball.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(direction.x * 5, 0, direction.z * 5)); // Adjust speed as needed
+
+        startingPoint = null;
+    }
 });
+
 
 canvas.addEventListener("pointermove", function (evt) {
   if (startingPoint && evt.pointerType === "touch" && evt.pointers.length === 1) {
