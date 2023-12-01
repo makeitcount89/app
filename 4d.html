@@ -77,7 +77,6 @@
 // Enable touch controls
 scene.getEngine().inputManager.touchEnabled = true;
 
-// Update pointer events to include touch
 canvas.addEventListener("pointerdown", function (evt) {
   scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
 });
