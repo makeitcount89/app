@@ -77,16 +77,17 @@
       // Enable touch controls
 canvas.addEventListener("touchstart", function (evt) {
   if (evt.touches.length > 0) {
-    var pickInfo = scene.pick(evt.touches[0].clientX, evt.touches[0].clientY);
-    if (pickInfo.hit && pickInfo.pickedMesh === ball) {
-      var forceDirection = pickInfo.pickedPoint.subtract(ball.position).normalize();
+    var pickResult = scene.pick(evt.touches[0].clientX, evt.touches[0].clientY);
+    if (pickResult.hit && pickResult.pickedMesh === ball) {
+      var forceDirection = pickResult.pickedPoint.subtract(ball.position).normalize();
       var forceMagnitude = 10; // Adjust the force as needed
       ball.physicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition());
     } else {
-      alert("Ball not picked. PickInfo: " + JSON.stringify(pickInfo));
+      alert("Ball not picked. PickResult: " + JSON.stringify(pickResult));
     }
   }
 });
+
 
 
 
