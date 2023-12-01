@@ -85,40 +85,37 @@
           canvas.addEventListener("pointerup", pointerUp);
         }
       };
-
-      // Define the onPointerMove function
-      var pointerMove = function (evt) {
-        var current = scene.pick(evt.clientX, evt.clientY);
-        if (!current.hit || current.pickedMesh !== currentMesh) {
-          return;
-        }
-
-        // Calculate the difference between the current and starting points
-        var diff = current.pickedPoint.subtract(startingPoint);
-
-        // Move the ball based on the difference
-        currentMesh.position.addInPlace(diff);
-
-        // Update the starting point for the next move
-        startingPoint = current.pickedPoint;
-      };
-
-      // Define the onPointerUp function
-var pointerUp = function () {
-    // Reconnect camera control after releasing the drag
-    camera.attachControl(canvas, true);
-
-    // Remove the event listeners for pointer move and pointer up
-    canvas.removeEventListener("pointermove", pointerMove);
-    canvas.removeEventListener("pointerup", pointerUp);
-
-    // Calculate the direction towards the front wall
-    var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
-
-    // Apply impulse towards the front wall
-    var impulseForce = 10; // Adjust the force as needed
-    ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
+// Remove the pointerMove function
+var pointerMove = function (evt) {
+    // No need for dragging logic
 };
+
+// Remove the onPointerDown function
+scene.onPointerDown = function (evt, pickResult) {
+    if (pickResult.hit && (evt.pointerType === "touch" || evt.pointerType === "mouse")) {
+        // Calculate the direction towards the front wall
+        var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
+
+        // Apply impulse towards the front wall
+        var impulseForce = 10; // Adjust the force as needed
+        ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
+    }
+};
+
+// Remove the onPointerUp function
+var pointerUp = function () {
+    // No need for dragging logic
+};
+
+// Animation to rotate the camera 180 degrees and zoom out further
+scene.registerBeforeRender(function () {
+    if (camera.alpha <= 1.5 * Math.PI) {
+        camera.alpha += 0.01; // Rotate 180 degrees
+    }
+    if (camera.radius > 20) {
+        camera.radius -= 0.3; // Zoom out 15%
+    }
+});
 
       // Animation to rotate the camera 180 degrees and zoom out further
       scene.registerBeforeRender(function () {
