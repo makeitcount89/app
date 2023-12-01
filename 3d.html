@@ -163,7 +163,10 @@ frontWall.material = frontWallMaterial;
 
   winnerBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
   errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
- ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
+
+
+      // Create the ball
+      ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
       ball.position.y = 1; // Adjust the initial height of the ball
 
       // Set the ball's initial velocity
@@ -175,12 +178,15 @@ frontWall.material = frontWallMaterial;
         ball.position.addInPlace(ballVelocity);
 
         // Check for collisions with the walls
-        if (ball.intersectsMesh(frontWall, true) || ball.intersectsMesh(backWall, true) ||
-            ball.intersectsMesh(court, true) || ball.intersectsMesh(tin, true)) {
-          // Reverse the velocity to simulate bouncing off the walls
-          ballVelocity = ballVelocity.negate();
+        if (ball.intersectsMesh(frontWall, true) || ball.intersectsMesh(backWall, true)) {
+          // Reverse the velocity to simulate bouncing off the front and back walls
+          ballVelocity.z = -ballVelocity.z;
         }
+
+        // Keep the ball within the front and back walls
+        ball.position.z = Math.min(Math.max(ball.position.z, -courtLength / 2 + 1), courtLength / 2 - 1);
       });
+
 
   return scene;
     };
