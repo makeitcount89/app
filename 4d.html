@@ -67,6 +67,13 @@
       var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
       ball.physicsImpostor = ballPhysicsImpostor;
 
+      // Animation to rotate the camera 180 degrees
+      scene.registerBeforeRender(function () {
+        if (camera.alpha <= Math.PI) {
+          camera.alpha += 0.01; // Rotate 180 degrees
+        }
+      });
+
       return scene;
     }
 
