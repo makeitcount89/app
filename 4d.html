@@ -22,7 +22,7 @@
     function createScene() {
       var scene = new BABYLON.Scene(engine);
       var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
-      camera.detachControl(canvas);
+      camera.attachControl(canvas, true, true); // Enable camera rotation with two fingers
       camera.lowerRadiusLimit = 10;
       camera.upperRadiusLimit = 30;
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
@@ -52,6 +52,12 @@
       frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/c894a01088bc336ec52808193a55c1e94c2af44e/squash%20error%20tracker-min%20(1).png", scene); // Replace with your front wall texture URL
       frontWall.material = frontWallMaterial;
 
+      // Create back wall (transparent)
+      var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: courtHeightBack, depth: 0.2 }, scene);
+      backWall.position.z = -courtLength / 2 + 0.1;
+      backWall.position.y = courtHeightBack / 2;
+      backWall.visibility = 0.5; // Make back wall transparent
+
       // Create tin (transparent panel)
       var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
       tin.position.z = courtLength / 2 - 0.1;
@@ -76,18 +82,6 @@
 
       return scene;
     }
-
-    canvas.addEventListener("pointerdown", function (evt) {
-      scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
-    });
-
-    scene.onPointerDown = function (evt, pickResult) {
-      if (pickResult.hit && evt.pointerType === "touch") {
-        var forceDirection = pickResult.pickedPoint.subtract(camera.position).normalize();
-        var forceMagnitude = 10;
-        ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), pickResult.pickedPoint);
-      }
-    };
   </script>
 </body>
 </html>
