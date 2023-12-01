@@ -77,10 +77,7 @@
 // Enable touch controls
 scene.getEngine().inputManager.touchEnabled = true;
 
-canvas.addEventListener("pointerdown", function (evt) {
-  scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
-});
-
+// Define the onPointerDown function outside of createScene
 scene.onPointerDown = function (evt, pickResult) {
   if (pickResult.hit && (evt.pointerType === "touch" || evt.pointerType === "mouse")) {
     // Handle both touch and mouse events
@@ -90,6 +87,10 @@ scene.onPointerDown = function (evt, pickResult) {
   }
 };
 
+// Update pointer events to include touch
+canvas.addEventListener("pointerdown", function (evt) {
+  scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
+});
 
       return scene;
     }
