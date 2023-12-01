@@ -64,26 +64,14 @@
       tin.position.y = tinLineHeight / 2;
 
       // Create the squash ball with physics
-      var ball = BABYLON.Mesh.CreateSphere("ball", 16, 1, scene);
-      ball.position.y = 1;
-      var ballMaterial = new BABYLON.StandardMaterial("ballMaterial", scene);
-      ballMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0);
-      ball.material = ballMaterial;
+var ball = BABYLON.Mesh.CreateSphere("ball", 16, 1, scene);
+ball.position.y = 1;
 
-      var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-      ball.physicsImpostor = ballPhysicsImpostor;
+// Enable physics on the ball
+var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
+ball.physicsImpostor = ballPhysicsImpostor;
 
-      // Animation to rotate the camera 180 degrees and zoom out further
-      scene.registerBeforeRender(function () {
-        if (camera.alpha <= 1.5 * Math.PI) {
-          camera.alpha += 0.01; // Rotate 180 degrees
-        }
-        if (camera.radius > 20) {
-          camera.radius -= 0.3; // Zoom out 15%
-        }
-      });
-
-      // Enable touch controls
+// Enable touch controls
 scene.onPointerObservable.add((eventData) => {
   if (eventData.type === BABYLON.PointerEventTypes.POINTERDOWN) {
     var pickInfo = eventData.pickInfo;
@@ -93,6 +81,8 @@ scene.onPointerObservable.add((eventData) => {
       ball.physicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition());
     }
   }
+});
+
 });
 
 
