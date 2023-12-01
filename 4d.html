@@ -69,18 +69,16 @@
       // Handle swipe interaction
       var startingPoint;
       var currentMesh;
-      
-// Attach the onPointerDown event directly to the ball
-ball.onPointerDown = function (evt, pickResult) {
-    if (pickResult.hit && (evt.pointerType === "touch" || evt.pointerType === "mouse")) {
-        // Calculate the direction towards the front wall
-        var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
 
-        // Apply impulse towards the front wall
-        var impulseForce = 10; // Adjust the force as needed
+// Attach the onPointerDown event to the scene
+scene.onPointerDown = function (evt, pickResult) {
+    if (pickResult.hit && pickResult.pickedMesh === ball && (evt.pointerType === "touch" || evt.pointerType === "mouse")) {
+        var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
+        var impulseForce = 10;
         ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
     }
 };
+
       // Animation to rotate the camera 180 degrees and zoom out further
       scene.registerBeforeRender(function () {
         if (camera.alpha <= 1.5 * Math.PI) {
