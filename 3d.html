@@ -206,6 +206,15 @@ frontWall.material = frontWallMaterial;
           ballVelocity.scaleInPlace(0.99);
         }
       });
+      // Add a pointer down event listener to detect taps on the canvas
+canvas.addEventListener("pointerdown", function (event) {
+  var pickResult = scene.pick(scene.pointerX, scene.pointerY);
+  // Check if the pointer hit the ball and the ball is not already moving
+  if (pickResult.hit && pickResult.pickedMesh === ball && !isBallMoving) {
+    hitBall();
+  }
+});
+      
       
   return scene;
     };
