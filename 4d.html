@@ -83,10 +83,11 @@ canvas.addEventListener("touchstart", function (evt) {
       var forceMagnitude = 10; // Adjust the force as needed
       ball.physicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition());
     } else {
-      alert("Ball not picked.");
+      alert("Ball not picked. PickInfo: " + JSON.stringify(pickInfo));
     }
   }
 });
+
 
 
       
