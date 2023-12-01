@@ -183,6 +183,40 @@ scene.registerBeforeRender(function () {
         ball.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, 5)); // Adjust velocity as needed
     }
 });
+
+      var startingPoint;
+var currentMesh;
+
+canvas.addEventListener("pointerdown", function (evt) {
+    startingPoint = getGroundPosition(evt);
+    currentMesh = null;
+});
+
+canvas.addEventListener("pointerup", function () {
+    if (startingPoint) {
+        // Get the ending point and calculate the direction
+        var endingPoint = getGroundPosition(evt);
+        var direction = endingPoint.subtract(startingPoint);
+        
+        // Set the ball's velocity based on the touch direction
+        ball.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(direction.x * 5, 0, direction.z * 5)); // Adjust speed as needed
+
+        startingPoint = null;
+    }
+});
+
+function getGroundPosition(evt) {
+    // Use a ray to get the ground position where the user clicked
+    var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) {
+        return mesh == court; // Check if the mesh is the court
+    });
+
+    if (pickInfo.hit) {
+        return pickInfo.pickedPoint;
+    }
+
+    return null;
+                                                                   }
       
 
       
