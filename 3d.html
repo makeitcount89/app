@@ -161,28 +161,30 @@ frontWall.material = frontWallMaterial;
 
   winnerBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
   errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
-// Create the squash ball with physics
-      var ball = BABYLON.Mesh.CreateSphere("ball", 16, 1, scene);
-      ball.position.y = 1; // Adjust the initial height
-      var ballMaterial = new BABYLON.StandardMaterial("ballMaterial", scene);
-      ballMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0); // Yellow color
-      ball.material = ballMaterial;
 
-      var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-
-      // Enable touch controls
-  scene.getEngine().inputManager.touchEnabled = true;
-
-  // Handle touch events to apply force to the ball
-  scene.onPointerDown = function (event, pickResult) {
-    if (pickResult.hit) {
-      var forceDirection = pickResult.pickedPoint.subtract(camera.position).normalize();
-      var forceMagnitude = 10; // Adjust the force as needed
-      ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), pickResult.pickedPoint);
-    }
-  };
   return scene;
     };
+// Create the squash ball with physics
+var ball = BABYLON.Mesh.CreateSphere("ball", 16, 1, scene);
+ball.position.y = 1; // Adjust the initial height
+var ballMaterial = new BABYLON.StandardMaterial("ballMaterial", scene);
+ballMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0); // Yellow color
+ball.material = ballMaterial;
+
+var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
+ball.physicsImpostor = ballPhysicsImpostor; // Add this line to assign the physics impostor to the mesh
+
+// Enable touch controls
+scene.getEngine().inputManager.touchEnabled = true;
+
+// Handle touch events to apply force to the ball
+scene.onPointerDown = function (event, pickResult) {
+  if (pickResult.hit) {
+    var forceDirection = pickResult.pickedPoint.subtract(camera.position).normalize();
+    var forceMagnitude = 10; // Adjust the force as needed
+    ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), pickResult.pickedPoint);
+  }
+};
 
    // Function to update bars
     function updateBars() {
