@@ -177,14 +177,18 @@ ball.physicsImpostor = ballPhysicsImpostor; // Add this line to assign the physi
 // Enable touch controls
 scene.getEngine().inputManager.touchEnabled = true;
 
-// Handle touch events to apply force to the ball
-scene.onPointerDown = function (event, pickResult) {
-  if (pickResult.hit) {
+canvas.addEventListener("pointerdown", function (evt) {
+  scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
+});
+
+scene.onPointerDown = function (evt, pickResult) {
+  if (pickResult.hit && evt.pointerType === "touch") {
     var forceDirection = pickResult.pickedPoint.subtract(camera.position).normalize();
     var forceMagnitude = 10; // Adjust the force as needed
     ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), pickResult.pickedPoint);
   }
 };
+
 
    // Function to update bars
     function updateBars() {
