@@ -58,7 +58,7 @@ canvas.addEventListener("pointerdown", function (evt) {
   }
 });
 
-canvas.addEventListener("pointerup", function () {
+canvas.addEventListener("pointerup", function (evt) {
     if (startingPoint) {
         // Get the ending point and calculate the direction
         var endingPoint = getGroundPosition(evt);  // <-- Add the evt parameter here
