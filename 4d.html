@@ -67,8 +67,8 @@
       ball.physicsImpostor = ballPhysicsImpostor;
 
       // Create the squash racket with physics
-      var racket = BABYLON.MeshBuilder.CreateBox("racket", { width: 2, height: 0.5, depth: 0.1 }, scene);
-      racket.position.y = 0.25;
+      var racket = BABYLON.MeshBuilder.CreateBox("racket", { width: 2, height: 0.2, depth: 0.1 }, scene);
+      racket.position.y = 0.2;
 
       // Enable physics on the racket
       var racketPhysicsImpostor = new BABYLON.PhysicsImpostor(racket, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
@@ -125,9 +125,6 @@
         // Move the racket based on the difference
         currentMesh.position.addInPlace(diff);
 
-        // Move the ball with the racket (optional, adjust as needed)
-        ball.position.addInPlace(diff);
-
         // Update the starting point for the next move
         startingPoint = current.pickedPoint;
       };
@@ -142,8 +139,29 @@
         canvas.removeEventListener("pointerup", pointerUp);
       };
 
-      // ... (your existing code) ...
+      // Enable physics collisions with the ground and walls for the ball
+      scene.registerBeforeRender(function () {
+        if (ball.position.y < 1) {
+          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 5, 0)); // Bounce off the ground
+        }
+        if (Math.abs(ball.position.z) > courtLength / 2 - 1) {
+          ballPhysicsImpostor.setLinearVelocity(ballPhysicsImpostor.getLinearVelocity().negate().scale(0.9)); // Bounce off the walls
+        }
+        if (Math.abs(ball.position.x) > courtWidth / 2 - 1) {
+          ballPhysicsImpostor.setLinearVelocity(ballPhysicsImpostor.getLinearVelocity().negate().scale(0.9)); // Bounce off the walls
+        }
+      });
 
+      // Enable physics collisions with the racket for the ball
+      scene.onBeforeRenderObservable.add(function () {
+        if (ball.intersectsMesh(racket)) {
+          var velocity = ballPhysicsImpostor.getLinearVelocity();
+          var racketVelocity = racketPhysicsImpostor.getLinearVelocity();
+          var combinedVelocity = velocity.add(racketVelocity.scale(0.2)); // Adjust the factor for desired bounce effect
+          ballPhysicsImpostor.setLinearVelocity(combinedVelocity);
+        }
+      });
+      
       // Animation to rotate the camera 180 degrees and zoom out further
       scene.registerBeforeRender(function () {
         if (camera.alpha <= 1.5 * Math.PI) {
