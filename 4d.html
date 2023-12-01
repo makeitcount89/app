@@ -22,7 +22,7 @@
     function createScene() {
       var scene = new BABYLON.Scene(engine);
       var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
-      camera.attachControl(canvas, true, true); // Enable camera rotation with two fingers
+      camera.attachControl(canvas, false); // Disable camera movement
       camera.lowerRadiusLimit = 10;
       camera.upperRadiusLimit = 30;
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
@@ -77,6 +77,11 @@
       scene.registerBeforeRender(function () {
         if (camera.alpha <= Math.PI) {
           camera.alpha += 0.01; // Rotate 180 degrees
+        } else if (camera.alpha <= 1.5 * Math.PI) {
+          camera.alpha += 0.01; // Additional 90 degrees rotation
+        }
+        if (camera.radius > 18) {
+          camera.radius -= 0.2; // Zoom out 10%
         }
       });
 
