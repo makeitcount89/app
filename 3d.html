@@ -43,6 +43,7 @@
     var engine = new BABYLON.Engine(canvas, true);
 
     var winnerBars = {}, errorBars = {};
+    var ball;
 
     // Counter and Undo
     var counters = {
@@ -162,6 +163,24 @@ frontWall.material = frontWallMaterial;
 
   winnerBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
   errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
+ ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
+      ball.position.y = 1; // Adjust the initial height of the ball
+
+      // Set the ball's initial velocity
+      var ballVelocity = new BABYLON.Vector3(0.5, 0, 0.2);
+
+      // Register a function that will be called on every frame
+      scene.registerBeforeRender(function () {
+        // Move the ball based on its velocity
+        ball.position.addInPlace(ballVelocity);
+
+        // Check for collisions with the walls
+        if (ball.intersectsMesh(frontWall, true) || ball.intersectsMesh(backWall, true) ||
+            ball.intersectsMesh(court, true) || ball.intersectsMesh(tin, true)) {
+          // Reverse the velocity to simulate bouncing off the walls
+          ballVelocity = ballVelocity.negate();
+        }
+      });
 
   return scene;
     };
