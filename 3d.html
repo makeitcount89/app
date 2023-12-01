@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Realistic Singles Squash Court</title>
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/pe/babylon.physicsEngine.min.js"></script>
   <script src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 <body>
@@ -52,6 +53,12 @@
     var actionsHistory = [];
 
     var scene = createScene();
+    scene.enablePhysics();
+      // Create a squash ball
+    var squashBall = BABYLON.MeshBuilder.CreateSphere("squashBall", { diameter: 1 }, scene);
+    squashBall.position = new BABYLON.Vector3(0, 1, 0); // Initial position
+    squashBall.physicsImpostor = new BABYLON.PhysicsImpostor(squashBall, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.8 }, scene);
+
 
     engine.runRenderLoop(function () {
       scene.render();
