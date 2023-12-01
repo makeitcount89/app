@@ -190,15 +190,6 @@ frontWall.material = frontWallMaterial;
 
       var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
 
-      // Handle touch events to apply force to the ball
-      scene.onPointerDown = function (event, pickResult) {
-        if (pickResult.hit) {
-          var forceDirection = pickResult.pickedPoint.subtract(camera.position).normalize();
-          var forceMagnitude = 10; // Adjust the force as needed
-          ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), pickResult.pickedPoint);
-        }
-      };
-
       // Enable touch controls
   scene.getEngine().inputManager.touchEnabled = true;
 
