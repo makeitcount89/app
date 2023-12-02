@@ -69,20 +69,22 @@
       // Handle swipe interaction
       var startingPoint;
       var currentMesh;
+      
+    // Create a FreeCamera to control the detached camera
+    var freeCamera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 0, 0), scene);
+    freeCamera.attachControl(canvas, true);
 
-// Use onPointerObservable to handle touch event on the ball
-scene.onPointerObservable.add((pointerInfo) => {
-    if (pointerInfo.pickInfo.pickedMesh === ball) {
+    // Use onPointerObservable to handle touch event on the ball
+    scene.onPointerObservable.add((pointerInfo) => {
+      if (pointerInfo.pickInfo.pickedMesh === ball) {
         if (pointerInfo.event.type === "pointerdown") {
-            var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
-            var impulseForce = 10;
-            ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
+          var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
+          var impulseForce = 10;
+          ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
         }
-    }
-});
+      }
+    });
       
-      
-
       // Animation to rotate the camera 180 degrees and zoom out further
       scene.registerBeforeRender(function () {
         if (camera.alpha <= 1.5 * Math.PI) {
