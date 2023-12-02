@@ -63,6 +63,14 @@
       var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
       ball.physicsImpostor = ballPhysicsImpostor;
 
+      // Create the beach ball
+      var beachBall = BABYLON.Mesh.CreateSphere("beachBall", 16, 1.5, scene);
+      beachBall.position.y = 1.5;
+
+      // Enable physics on the beach ball
+      var beachBallPhysicsImpostor = new BABYLON.PhysicsImpostor(beachBall, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
+      beachBall.physicsImpostor = beachBallPhysicsImpostor;
+
       // Create ground plane
       var ground = BABYLON.MeshBuilder.CreateBox("ground", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
       ground.position.y = -0.05;
@@ -86,14 +94,23 @@
       wallPhysicsImpostor = new BABYLON.PhysicsImpostor(rightWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
       rightWall.physicsImpostor = wallPhysicsImpostor;
 
-      // Handle touch interaction
+      // Handle swipe interaction on the beach ball
+      var startingPoint;
+      var currentMesh;
+
       scene.onPointerObservable.add((pointerInfo) => {
-        if (pointerInfo.pickInfo.pickedMesh === ball) {
+        if (pointerInfo.pickInfo.pickedMesh === beachBall) {
           if (pointerInfo.event.type === "pointerdown") {
-            var force = pointerInfo.event.pressure || 1; // Use touch pressure as force, default to 1 if not available
-            var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
-            var impulseForce = 10 * force; // Adjust the force based on touch pressure
-            ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
+            startingPoint = pointerInfo.pickInfo.pickedPoint;
+            currentMesh = pointerInfo.pickInfo.pickedMesh;
+          } else if (pointerInfo.event.type === "pointerup" && startingPoint) {
+            var endingPoint = pointerInfo.pickInfo.pickedPoint;
+            var direction = endingPoint.subtract(startingPoint);
+            direction = new BABYLON.Vector3(direction.x, 0, direction.z).normalize();
+            var force = direction.scale(10);
+            beachBallPhysicsImpostor.applyImpulse(force, beachBall.getAbsolutePosition());
+            startingPoint = null;
+            currentMesh = null;
           }
         }
       });
