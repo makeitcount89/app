@@ -113,9 +113,12 @@
     ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(-Math.abs(ballPhysicsImpostor.getLinearVelocity().x) * 10, 0, ballPhysicsImpostor.getLinearVelocity().z));
     ball.position.x = rightWall.position.x - rightWall.scaling.x / 2 - ball.scaling.x / 2; // Adjust the ball's position to prevent going through the wall
   }
+          }
+});
+      
 
       return scene;
-    });
+    }
   </script>
 </body>
 </html>
