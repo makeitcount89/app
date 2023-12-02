@@ -70,18 +70,17 @@
       var startingPoint;
       var currentMesh;
 
-// Attach the onPointerDown event to the ball using actionManager
-ball.actionManager = new BABYLON.ActionManager(scene);
-ball.actionManager.registerAction(
-    new BABYLON.ExecuteCodeAction(
-        BABYLON.ActionManager.OnPickTrigger,
-        function (evt) {
+// Use onPointerObservable to handle touch event on the ball
+scene.onPointerObservable.add((pointerInfo) => {
+    if (pointerInfo.pickInfo.pickedMesh === ball) {
+        if (pointerInfo.event.type === "pointerdown") {
             var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
             var impulseForce = 10;
             ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
         }
-    )
-);
+    }
+});
+      
       
 
       // Animation to rotate the camera 180 degrees and zoom out further
