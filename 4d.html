@@ -95,6 +95,17 @@
 
           startingX = pointerInfo.event.clientX;
           startingY = pointerInfo.event.clientY;
+
+          // Bounce off walls
+          if (ball.position.x - ballRadius < leftWall.position.x + leftWall.scaling.x / 2 ||
+              ball.position.x + ballRadius > rightWall.position.x - rightWall.scaling.x / 2) {
+            ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(-ballPhysicsImpostor.getLinearVelocity().x, 0, ballPhysicsImpostor.getLinearVelocity().z));
+          }
+
+          if (ball.position.z - ballRadius < frontWall.position.z + frontWall.scaling.z / 2 ||
+              ball.position.z + ballRadius > ground.position.z - ground.scaling.z / 2) {
+            ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(ballPhysicsImpostor.getLinearVelocity().x, 0, -ballPhysicsImpostor.getLinearVelocity().z));
+          }
         } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
           startingX = undefined;
           startingY = undefined;
