@@ -80,34 +80,29 @@
 
       // Handle touch interaction
       var startingX;
+      var startingY;
 
       scene.onPointerObservable.add((pointerInfo) => {
         if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
           startingX = pointerInfo.event.clientX;
-        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined) {
-          var delta = startingX - pointerInfo.event.clientX;
-          ball.position.x -= delta * 0.1; // Adjust the multiplier based on sensitivity
+          startingY = pointerInfo.event.clientY;
+        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
+          var deltaX = startingX - pointerInfo.event.clientX;
+          var deltaY = startingY - pointerInfo.event.clientY;
+
+          ball.position.x -= deltaX * 0.1; // Adjust the multiplier based on sensitivity
+          ball.position.z += deltaY * 0.1;
+
           startingX = pointerInfo.event.clientX;
+          startingY = pointerInfo.event.clientY;
         } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
           startingX = undefined;
-        }
-      });
+          startingY = undefined;
 
-      // Bounce the ball off the walls
-      scene.registerBeforeRender(function () {
-        var ballPosition = ball.position;
-        var ballRadius = 1;
-
-        if (ballPosition.x - ballRadius < -courtWidth / 2) {
-          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.abs(ballPhysicsImpostor.getLinearVelocity().x) * 10, 0, ballPhysicsImpostor.getLinearVelocity().z));
-        } else if (ballPosition.x + ballRadius > courtWidth / 2) {
-          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(-Math.abs(ballPhysicsImpostor.getLinearVelocity().x) * 10, 0, ballPhysicsImpostor.getLinearVelocity().z));
-        }
-
-        if (ballPosition.z - ballRadius < -courtLength / 2) {
-          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(ballPhysicsImpostor.getLinearVelocity().x, 0, Math.abs(ballPhysicsImpostor.getLinearVelocity().z) * 10));
-        } else if (ballPosition.z + ballRadius > courtLength / 2) {
-          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(ballPhysicsImpostor.getLinearVelocity().x, 0, -Math.abs(ballPhysicsImpostor.getLinearVelocity().z) * 10));
+          // Bounce off front wall
+          if (ball.position.z - ballRadius < frontWall.position.z + frontWall.scaling.z / 2) {
+            ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(ballPhysicsImpostor.getLinearVelocity().x, 0, Math.abs(ballPhysicsImpostor.getLinearVelocity().z) * 10));
+          }
         }
       });
 
