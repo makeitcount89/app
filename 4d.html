@@ -24,11 +24,12 @@
       var scene = new BABYLON.Scene(engine);
       
       // Create a FreeCamera for controlling both camera movement and detached camera
-      var freeCamera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 0, 0), scene);
-      freeCamera.attachControl(canvas, true);
-      freeCamera.lowerRadiusLimit = 10;
-      freeCamera.upperRadiusLimit = 30;
-      freeCamera.lowerBetaLimit = 0.1; // Limit camera from going below the floor
+var freeCamera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 15, -30), scene);
+freeCamera.setTarget(BABYLON.Vector3.Zero());
+freeCamera.attachControl(canvas, true);
+freeCamera.lowerRadiusLimit = 10;
+freeCamera.upperRadiusLimit = 30;
+freeCamera.lowerBetaLimit = 0.1;
 
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
