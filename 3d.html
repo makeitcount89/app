@@ -1,272 +1,181 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Realistic Singles Squash Court</title>
-  <script src="https://cdn.babylonjs.com/babylon.js"></script>
-  <script src="https://cdn.babylonjs.com/cannon.js"></script>
-  <script src="https://www.gstatic.com/charts/loader.js"></script>
-  <meta name="babylonjs:enablePointerEvents" content="true" />
-  
+    <meta charset="utf-8" />
+    <title>Gamedev Canvas Workshop - lesson 10: finishing up</title>
+    <style>* { padding: 0; margin: 0; } canvas { background: #eee; display: block; margin: 0 auto; }</style>
 </head>
 <body>
-  <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
 
-  <div style="position: absolute; top: 10px; left: 10px;">
-   <button id="errorTopLeft" onclick="increaseCounter('error', 'topLeft')">Top Left Error</button>
-<button id="winnerTopLeft" onclick="increaseCounter('winner', 'topLeft')">Top Left Winner</button>
-<!-- Repeat similar changes for other buttons -->
+<canvas id="myCanvas" width="480" height="320"></canvas>
 
-    <div id="counterTopLeft" style="color: green;">Winner: <span id="winnerCountTopLeft">0</span>, Error: <span id="errorCountTopLeft">0</span></div>
-  </div>
-  <div style="position: absolute; top: 10px; right: 10px;">
-    <button id="errorTopRight" onclick="increaseCounter('error', 'topRight')">Top Right Error</button>
-    <button id="winnerTopRight" onclick="increaseCounter('winner', 'topRight')">Top Right Winner</button>
-    <div id="counterTopRight" style="color: green;">Winner: <span id="winnerCountTopRight">0</span>, Error: <span id="errorCountTopRight">0</span></div>
-  </div>
-  <div style="position: absolute; bottom: 10px; left: 10px;">
-    <button id="errorBottomLeft" onclick="increaseCounter('error', 'bottomLeft')">Bottom Left Error</button>
-    <button id="winnerBottomLeft" onclick="increaseCounter('winner', 'bottomLeft')">Bottom Left Winner</button>
-    <div id="counterBottomLeft" style="color: green;">Winner: <span id="winnerCountBottomLeft">0</span>, Error: <span id="errorCountBottomLeft">0</span></div>
-  </div>
-  <div style="position: absolute; bottom: 10px; right: 10px;">
-    <button id="errorBottomRight" onclick="increaseCounter('error', 'bottomRight')">Bottom Right Error</button>
-    <button id="winnerBottomRight" onclick="increaseCounter('winner', 'bottomRight')">Bottom Right Winner</button>
-    <div id="counterBottomRight" style="color: green;">Winner: <span id="winnerCountBottomRight">0</span>, Error: <span id="errorCountBottomRight">0</span></div>
-  </div>
+<script>
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    var ballRadius = 10;
+    var x = canvas.width/2;
+    var y = canvas.height-30;
+    var dx = 2;
+    var dy = -2;
+    var paddleHeight = 10;
+    var paddleWidth = 75;
+    var paddleX = (canvas.width-paddleWidth)/2;
+    var rightPressed = false;
+    var leftPressed = false;
+    var brickRowCount = 5;
+    var brickColumnCount = 3;
+    var brickWidth = 75;
+    var brickHeight = 20;
+    var brickPadding = 10;
+    var brickOffsetTop = 30;
+    var brickOffsetLeft = 30;
+    var score = 0;
+    var lives = 3;
 
-  <button onclick="undo()" style="position: absolute; top: 50%; left: 50%;">Undo</button>
-
-  <p style="position: absolute; top: 70px; left: 10px;">Total Winners: <span id="winnerCount">0</span></p>
-  <p style="position: absolute; top: 100px; left: 10px;">Total Errors: <span id="errorCount">0</span></p>
-
-
-  <script>
-    var canvas = document.getElementById("renderCanvas");
-    var engine = new BABYLON.Engine(canvas, true);
-    var winnerBars = {}, errorBars = {};
-    var counters = { winner: 0, error: 0 };
-    var actionsHistory = [];
-    var scene = createScene();
-
-    engine.runRenderLoop(function () {
-      scene.render();
-    });
-
-    function createScene() {
-      var scene = new BABYLON.Scene(engine);
-      var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
-      // Disable camera controls
-      camera.detachControl(canvas);
-      
-      camera.lowerRadiusLimit = 10; // Set the minimum zoom level
-      camera.upperRadiusLimit = 30; // Set the maximum zoom level
-      var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-
-      // Animation
-      scene.registerBeforeRender(function () {
-        if (camera.alpha <= Math.PI) {
-          camera.alpha += 0.01; // Rotate 180 degrees
-        } else if (camera.alpha <= 1.5 * Math.PI) {
-          camera.alpha += 0.01; // Additional 90 degrees rotation
+    var bricks = [];
+    for(var c=0; c<brickColumnCount; c++) {
+        bricks[c] = [];
+        for(var r=0; r<brickRowCount; r++) {
+            bricks[c][r] = { x: 0, y: 0, status: 1 };
         }
-        if (camera.radius > 18) {
-          camera.radius -= 0.2; // Zoom out 10%
+    }
+
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+    document.addEventListener("mousemove", mouseMoveHandler, false);
+
+    function keyDownHandler(e) {
+        if(e.code  == "ArrowRight") {
+            rightPressed = true;
         }
-      });
-
-     // Create the realistic Singles Squash Court
-      var courtLength = 32; // in feet
-      var courtWidth = 21; // in feet
-
-      var courtHeightBack = 7; // in feet
-
-      var frontWallMinHeight = 18.5; // in feet
-      var frontWallHeight = 15; // in feet
-      var serviceLineHeight = 5.84; // in feet
-      var tinLineHeight = 19 / 12; // 19 inches converted to feet
-
-      var serviceBoxWidth = 63 / 12; // 63 inches converted to feet
-      var serviceBoxDepth = 63 / 12; // 63 inches converted to feet
-      var shortLineDistance = 17.85; // in feet
-
-      // Create the squash court
-      var court = BABYLON.MeshBuilder.CreateBox("court", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
-      court.position.y = -0.05; // Adjust the position based on your scene
-
-      var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
-var floorTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/fd0ec3dbc2595d2fa30781bb1a2ec680b1b4df7c/IMG_20231201_090546.png", scene);
-floorMaterial.diffuseTexture = floorTexture;
-court.material = floorMaterial;
-      
-      
-
-      // Create front wall
-      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
-      frontWall.position.z = courtLength / 2 - 0.1;
-      frontWall.position.y = frontWallHeight / 2;
-
-      var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
-frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/c894a01088bc336ec52808193a55c1e94c2af44e/squash%20error%20tracker-min%20(1).png", scene);
-frontWall.material = frontWallMaterial;
-
-      
-
-      // Create back wall (transparent)
-      var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: courtHeightBack, depth: 0.2 }, scene);
-      backWall.position.z = -courtLength / 2 + 0.1;
-      backWall.position.y = courtHeightBack / 2;
-      backWall.visibility = 0.5; // Make back wall transparent
-
-      // Red lines for floor and wall markings
-      var createLine = function (points, color) {
-        var line = BABYLON.MeshBuilder.CreateLines("line", { points: points, updatable: true }, scene);
-        var material = new BABYLON.StandardMaterial("material", scene);
-        material.emissiveColor = color; // Red color
-        line.material = material;
-        return line;
-      };
-
-      // Red lines for floor and wall markings
-      createLine([new BABYLON.Vector3(-courtWidth / 2, frontWallHeight, courtLength / 2), new BABYLON.Vector3(courtWidth / 2, frontWallHeight, courtLength / 2)], new BABYLON.Color3(1, 0, 0));
-      createLine([new BABYLON.Vector3(-courtWidth / 2, courtHeightBack, -courtLength / 2), new BABYLON.Vector3(courtWidth / 2, courtHeightBack, -courtLength / 2)], new BABYLON.Color3(1, 0, 0));
-
-      // Create tin (transparent panel)
-      var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
-      tin.position.z = courtLength / 2 - 0.1;
-      tin.position.y = tinLineHeight / 2;
-
-    
-     
-    // Function to create individual bars
-    function createBar(position, height, color, id) {
-      var bar = BABYLON.MeshBuilder.CreateBox(id, { width: 1, height: height, depth: 1 }, scene);
-      bar.position = position;
-      var material = new BABYLON.StandardMaterial("barMaterial", scene);
-      material.diffuseColor = color;
-      bar.material = material;
-      return bar;
+        else if(e.code == 'ArrowLeft') {
+            leftPressed = true;
+        }
+    }
+    function keyUpHandler(e) {
+        if(e.code == 'ArrowRight') {
+            rightPressed = false;
+        }
+        else if(e.code == 'ArrowLeft') {
+            leftPressed = false;
+        }
+    }
+    function mouseMoveHandler(e) {
+        var relativeX = e.clientX - canvas.offsetLeft;
+        if(relativeX > 0 && relativeX < canvas.width) {
+            paddleX = relativeX - paddleWidth/2;
+        }
+    }
+    function collisionDetection() {
+        for(var c=0; c<brickColumnCount; c++) {
+            for(var r=0; r<brickRowCount; r++) {
+                var b = bricks[c][r];
+                if(b.status == 1) {
+                    if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+                        dy = -dy;
+                        b.status = 0;
+                        score++;
+                        if(score == brickRowCount*brickColumnCount) {
+                            alert("YOU WIN, CONGRATS!");
+                            document.location.reload();
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    // Create bars for each button
-    winnerBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopLeft');
-  errorBars.topLeft = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopLeft');
-
-  winnerBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerTopRight');
-  errorBars.topRight = createBar(new BABYLON.Vector3(courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorTopRight');
-
-  winnerBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomLeft');
-  errorBars.bottomLeft = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomLeft');
-
-  winnerBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(0, 1, 0), 'winnerBottomRight');
-  errorBars.bottomRight = createBar(new BABYLON.Vector3(-courtWidth / 2, 0.5, -courtLength / 2), 1, new BABYLON.Color3(1, 0, 0), 'errorBottomRight');
-
-  return scene;
-    };
-// Create the squash ball with physics
-var ball = BABYLON.Mesh.CreateSphere("ball", 16, 1, scene);
-ball.position.y = 1; // Adjust the initial height
-var ballMaterial = new BABYLON.StandardMaterial("ballMaterial", scene);
-ballMaterial.diffuseColor = new BABYLON.Color3(1, 1, 0); // Yellow color
-ball.material = ballMaterial;
-
-var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-ball.physicsImpostor = ballPhysicsImpostor; // Add this line to assign the physics impostor to the mesh
-
-// Enable touch controls
-scene.getEngine().inputManager.touchEnabled = true;
-
-canvas.addEventListener("pointerdown", function (evt) {
-  scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
-});
-
-scene.onPointerDown = function (evt, pickResult) {
-  if (pickResult.hit && evt.pointerType === "touch") {
-    var forceDirection = pickResult.pickedPoint.subtract(camera.position).normalize();
-    var forceMagnitude = 10; // Adjust the force as needed
-    ballPhysicsImpostor.applyImpulse(forceDirection.scale(forceMagnitude), pickResult.pickedPoint);
-  }
-};
-
-
-   // Function to update bars
-    function updateBars() {
-      for (var corner in winnerBars) {
-        winnerBars[corner].scaling.y = counters.winner;
-        errorBars[corner].scaling.y = counters.error;
-      }
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
+    function drawPaddle() {
+        ctx.beginPath();
+        ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
+    function drawBricks() {
+        for(var c=0; c<brickColumnCount; c++) {
+            for(var r=0; r<brickRowCount; r++) {
+                if(bricks[c][r].status == 1) {
+                    var brickX = (r*(brickWidth+brickPadding))+brickOffsetLeft;
+                    var brickY = (c*(brickHeight+brickPadding))+brickOffsetTop;
+                    bricks[c][r].x = brickX;
+                    bricks[c][r].y = brickY;
+                    ctx.beginPath();
+                    ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                    ctx.fillStyle = "#0095DD";
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+        }
+    }
+    function drawScore() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.fillText("Score: "+score, 8, 20);
+    }
+    function drawLives() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.fillText("Lives: "+lives, canvas.width-65, 20);
     }
 
-    // Function to update click count for each corner
-    function updateCornerClickCount(type, corner) {
-      document.getElementById(`${type}Count${corner}`).innerText = counters[type];
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBricks();
+        drawBall();
+        drawPaddle();
+        drawScore();
+        drawLives();
+        collisionDetection();
+
+        if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+            dx = -dx;
+        }
+        if(y + dy < ballRadius) {
+            dy = -dy;
+        }
+        else if(y + dy > canvas.height-ballRadius) {
+            if(x > paddleX && x < paddleX + paddleWidth) {
+                dy = -dy;
+            }
+            else {
+                lives--;
+                if(!lives) {
+                    alert("GAME OVER");
+                    document.location.reload();
+                }
+                else {
+                    x = canvas.width/2;
+                    y = canvas.height-30;
+                    dx = 2;
+                    dy = -2;
+                    paddleX = (canvas.width-paddleWidth)/2;
+                }
+            }
+        }
+
+        if(rightPressed && paddleX < canvas.width-paddleWidth) {
+            paddleX += 7;
+        }
+        else if(leftPressed && paddleX > 0) {
+            paddleX -= 7;
+        }
+
+        x += dx;
+        y += dy;
+        requestAnimationFrame(draw);
     }
 
-    // Function to update click count
-    function updateClickCount(type) {
-      if (type === 'winner') {
-        document.getElementById('winnerCount').innerText = counters.winner;
-      } else if (type === 'error') {
-        document.getElementById('errorCount').innerText = counters.error;
-      }
-    }
+    draw();
+</script>
 
-     // Function to increase counter
-    function increaseCounter(type, corner) {
-      actionsHistory.push({ ...counters });
-      counters[type]++;
-      updateCharts();
-      updateBars();
-      updateClickCount(type);
-      updateCornerClickCount(type, corner);
-    }
-
-
-
-    function undo() {
-      if (actionsHistory.length > 0) {
-        counters = actionsHistory.pop();
-        updateCharts();
-        updateBars();
-        updateClickCount();
-      }
-    }
-
-    var scene = createScene();
-    engine.runRenderLoop(function () {
-      scene.render();
-    });
-    canvas.addEventListener("pointerdown", function (evt) {
-  scene.onPointerDown(evt, scene.pick(evt.clientX, evt.clientY));
-});
-    
-
-    // Google Charts
-    google.charts.load('current', { 'packages': ['corechart'] });
-    google.charts.setOnLoadCallback(drawCharts);
-
-    function drawCharts() {
-      updateCharts();
-    }
-
-    function updateCharts() {
-      var data = google.visualization.arrayToDataTable([
-        ['Type', 'Count'],
-        ['Winner', counters.winner],
-        ['Error', counters.error]
-      ]);
-
-      var options = {
-        title: 'Squash Error Tracking',
-        pieHole: 0.4,
-      };
-
-      var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-      chart.draw(data, options);
-    }
-  </script>
-
-  <div id="chart_div" style="width: 300px; height: 300px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
 </body>
 </html>
