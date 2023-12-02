@@ -82,14 +82,20 @@
       var startingX;
 
       scene.onPointerObservable.add((pointerInfo) => {
-        if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
-          startingX = pointerInfo.event.clientX;
-        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined) {
-          var delta = startingX - pointerInfo.event.clientX;
-          ball.position.x -= delta * 0.01; // Adjust the multiplier based on sensitivity
-          startingX = pointerInfo.event.clientX;
-        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
-          startingX = undefined;
+        var pickedMesh = pointerInfo.pickInfo.pickedMesh;
+
+        if (pickedMesh === ball) {
+          if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+            startingX = pointerInfo.event.clientX;
+          } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined) {
+            var delta = startingX - pointerInfo.event.clientX;
+            var force = delta * 0.05; // Adjust the force based on sensitivity
+            var forceDirection = new BABYLON.Vector3(force, 0, 0);
+            ballPhysicsImpostor.applyImpulse(forceDirection, ball.getAbsolutePosition());
+            startingX = pointerInfo.event.clientX;
+          } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
+            startingX = undefined;
+          }
         }
       });
 
