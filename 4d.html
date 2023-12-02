@@ -98,12 +98,16 @@
         var ballPosition = ball.position;
         var ballRadius = 1;
 
-        if (ballPosition.x - ballRadius < -courtWidth / 2 || ballPosition.x + ballRadius > courtWidth / 2) {
-          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(-ballPhysicsImpostor.getLinearVelocity().x, 0, 0));
+        if (ballPosition.x - ballRadius < -courtWidth / 2) {
+          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.abs(ballPhysicsImpostor.getLinearVelocity().x), 0, ballPhysicsImpostor.getLinearVelocity().z));
+        } else if (ballPosition.x + ballRadius > courtWidth / 2) {
+          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(-Math.abs(ballPhysicsImpostor.getLinearVelocity().x), 0, ballPhysicsImpostor.getLinearVelocity().z));
         }
 
-        if (ballPosition.z - ballRadius < -courtLength / 2 || ballPosition.z + ballRadius > courtLength / 2) {
-          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, -ballPhysicsImpostor.getLinearVelocity().z));
+        if (ballPosition.z - ballRadius < -courtLength / 2) {
+          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(ballPhysicsImpostor.getLinearVelocity().x, 0, Math.abs(ballPhysicsImpostor.getLinearVelocity().z)));
+        } else if (ballPosition.z + ballRadius > courtLength / 2) {
+          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(ballPhysicsImpostor.getLinearVelocity().x, 0, -Math.abs(ballPhysicsImpostor.getLinearVelocity().z)));
         }
       });
 
