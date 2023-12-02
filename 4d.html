@@ -64,23 +64,27 @@
       ball.physicsImpostor = ballPhysicsImpostor;
 
       // Create ground plane
-      var ground = BABYLON.Mesh.CreateBox("ground", 1, scene);
-      ground.scaling = new BABYLON.Vector3(courtWidth, 0.1, courtLength);
+      var ground = BABYLON.MeshBuilder.CreateBox("ground", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
       ground.position.y = -0.05;
-      ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+      var groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
+      groundMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/fd0ec3dbc2595d2fa30781bb1a2ec680b1b4df7c/IMG_20231201_090546.png", scene);
+      ground.material = groundMaterial;
 
       // Create side walls
-      var leftWall = BABYLON.Mesh.CreateBox("leftWall", 1, scene);
-      leftWall.scaling = new BABYLON.Vector3(0.1, frontWallHeight, courtLength);
+      var leftWall = BABYLON.Mesh.CreateBox("leftWall", { width: 0.1, height: frontWallHeight, depth: courtLength }, scene);
       leftWall.position.x = -courtWidth / 2 + 0.05;
       leftWall.position.y = frontWallHeight / 2;
-      leftWall.physicsImpostor = new BABYLON.PhysicsImpostor(leftWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
 
-      var rightWall = BABYLON.Mesh.CreateBox("rightWall", 1, scene);
-      rightWall.scaling = new BABYLON.Vector3(0.1, frontWallHeight, courtLength);
+      var rightWall = BABYLON.Mesh.CreateBox("rightWall", { width: 0.1, height: frontWallHeight, depth: courtLength }, scene);
       rightWall.position.x = courtWidth / 2 - 0.05;
       rightWall.position.y = frontWallHeight / 2;
-      rightWall.physicsImpostor = new BABYLON.PhysicsImpostor(rightWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+
+      // Enable physics on the walls
+      var wallPhysicsImpostor = new BABYLON.PhysicsImpostor(leftWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+      leftWall.physicsImpostor = wallPhysicsImpostor;
+
+      wallPhysicsImpostor = new BABYLON.PhysicsImpostor(rightWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+      rightWall.physicsImpostor = wallPhysicsImpostor;
 
       // Handle touch interaction
       scene.onPointerObservable.add((pointerInfo) => {
