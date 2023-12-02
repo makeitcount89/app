@@ -63,6 +63,25 @@
       var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
       ball.physicsImpostor = ballPhysicsImpostor;
 
+      // Create ground plane
+      var ground = BABYLON.Mesh.CreateBox("ground", 1, scene);
+      ground.scaling = new BABYLON.Vector3(courtWidth, 0.1, courtLength);
+      ground.position.y = -0.05;
+      ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+
+      // Create side walls
+      var leftWall = BABYLON.Mesh.CreateBox("leftWall", 1, scene);
+      leftWall.scaling = new BABYLON.Vector3(0.1, frontWallHeight, courtLength);
+      leftWall.position.x = -courtWidth / 2 + 0.05;
+      leftWall.position.y = frontWallHeight / 2;
+      leftWall.physicsImpostor = new BABYLON.PhysicsImpostor(leftWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+
+      var rightWall = BABYLON.Mesh.CreateBox("rightWall", 1, scene);
+      rightWall.scaling = new BABYLON.Vector3(0.1, frontWallHeight, courtLength);
+      rightWall.position.x = courtWidth / 2 - 0.05;
+      rightWall.position.y = frontWallHeight / 2;
+      rightWall.physicsImpostor = new BABYLON.PhysicsImpostor(rightWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+
       // Handle touch interaction
       scene.onPointerObservable.add((pointerInfo) => {
         if (pointerInfo.pickInfo.pickedMesh === ball) {
