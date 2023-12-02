@@ -22,11 +22,13 @@
 
     function createScene() {
       var scene = new BABYLON.Scene(engine);
-      var camera = new BABYLON.ArcRotateCamera("Camera", 1.57, 1.2, 20, new BABYLON.Vector3(0, 0, 0), scene);
-      camera.detachControl(canvas, true); // Enable camera movement
-      camera.lowerRadiusLimit = 10;
-      camera.upperRadiusLimit = 30;
-      camera.lowerBetaLimit = 0.1; // Limit camera from going below the floor
+      
+      // Create a FreeCamera for controlling both camera movement and detached camera
+      var freeCamera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 0, 0), scene);
+      freeCamera.attachControl(canvas, true);
+      freeCamera.lowerRadiusLimit = 10;
+      freeCamera.upperRadiusLimit = 30;
+      freeCamera.lowerBetaLimit = 0.1; // Limit camera from going below the floor
 
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
@@ -66,32 +68,24 @@
       var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
       ball.physicsImpostor = ballPhysicsImpostor;
 
-      // Handle swipe interaction
-      var startingPoint;
-      var currentMesh;
-      
-    // Create a FreeCamera to control the detached camera
-    var freeCamera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 0, 0), scene);
-    freeCamera.attachControl(canvas, true);
-
-    // Use onPointerObservable to handle touch event on the ball
-    scene.onPointerObservable.add((pointerInfo) => {
-      if (pointerInfo.pickInfo.pickedMesh === ball) {
-        if (pointerInfo.event.type === "pointerdown") {
-          var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
-          var impulseForce = 10;
-          ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
+      // Use onPointerObservable to handle touch event on the ball
+      scene.onPointerObservable.add((pointerInfo) => {
+        if (pointerInfo.pickInfo.pickedMesh === ball) {
+          if (pointerInfo.event.type === "pointerdown") {
+            var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
+            var impulseForce = 10;
+            ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
+          }
         }
-      }
-    });
-      
+      });
+
       // Animation to rotate the camera 180 degrees and zoom out further
       scene.registerBeforeRender(function () {
-        if (camera.alpha <= 1.5 * Math.PI) {
-          camera.alpha += 0.01; // Rotate 180 degrees
+        if (freeCamera.alpha <= 1.5 * Math.PI) {
+          freeCamera.alpha += 0.01; // Rotate 180 degrees
         }
-        if (camera.radius > 20) {
-          camera.radius -= 0.3; // Zoom out 15%
+        if (freeCamera.radius > 20) {
+          freeCamera.radius -= 0.3; // Zoom out 15%
         }
       });
 
