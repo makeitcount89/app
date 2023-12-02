@@ -62,7 +62,7 @@
       ball.position.y = 1;
 
       // Enable physics on the ball
-      var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
+      var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9, friction: 0.1 }, scene);
       ball.physicsImpostor = ballPhysicsImpostor;
 
       // Enable physics on the walls
