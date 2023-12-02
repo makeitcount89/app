@@ -24,12 +24,12 @@
       var scene = new BABYLON.Scene(engine);
       
       // Create a FreeCamera for controlling both camera movement and detached camera
-var freeCamera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 15, -30), scene);
-freeCamera.setTarget(BABYLON.Vector3.Zero());
-freeCamera.attachControl(canvas, true);
-freeCamera.lowerRadiusLimit = 10;
-freeCamera.upperRadiusLimit = 30;
-freeCamera.lowerBetaLimit = 0.1;
+var UniversalCamera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 15, -30), scene);
+UniversalCamera.setTarget(BABYLON.Vector3.Zero());
+UniversalCamera.attachControl(canvas, true);
+UniversalCamera.lowerRadiusLimit = 10;
+UniversalCamera.upperRadiusLimit = 30;
+UniversalCamera.lowerBetaLimit = 0.1;
 
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
@@ -82,11 +82,11 @@ freeCamera.lowerBetaLimit = 0.1;
 
       // Animation to rotate the camera 180 degrees and zoom out further
       scene.registerBeforeRender(function () {
-        if (freeCamera.alpha <= 1.5 * Math.PI) {
-          freeCamera.alpha += 0.01; // Rotate 180 degrees
+        if (UniversalCamera.alpha <= 1.5 * Math.PI) {
+          UniversalCamera.alpha += 0.01; // Rotate 180 degrees
         }
-        if (freeCamera.radius > 20) {
-          freeCamera.radius -= 0.3; // Zoom out 15%
+        if (UniversalCamera.radius > 20) {
+          UniversalCamera.radius -= 0.3; // Zoom out 15%
         }
       });
 
