@@ -22,20 +22,14 @@
 
     function createScene() {
       var scene = new BABYLON.Scene(engine);
-      
-      // Create a FreeCamera for controlling both camera movement and detached camera
-var UniversalCamera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 15, -30), scene);
-UniversalCamera.setTarget(BABYLON.Vector3.Zero());
-UniversalCamera.attachControl(canvas, true);
-UniversalCamera.lowerRadiusLimit = 10;
-UniversalCamera.upperRadiusLimit = 30;
-UniversalCamera.lowerBetaLimit = 0.1;
+      var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 5, -15), scene);
+      camera.setTarget(BABYLON.Vector3.Zero());
+      camera.attachControl(canvas, true);
 
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
       var courtLength = 32;
       var courtWidth = 21;
-
       var frontWallHeight = 15;
       var tinLineHeight = 19 / 12;
 
@@ -44,7 +38,7 @@ UniversalCamera.lowerBetaLimit = 0.1;
       court.position.y = -0.05;
 
       var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
-      floorMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/fd0ec3dbc2595d2fa30781bb1a2ec680b1b4df7c/IMG_20231201_090546.png", scene); // Replace with your floor texture URL
+      floorMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/fd0ec3dbc2595d2fa30781bb1a2ec680b1b4df7c/IMG_20231201_090546.png", scene);
       court.material = floorMaterial;
 
       // Create front wall
@@ -53,7 +47,7 @@ UniversalCamera.lowerBetaLimit = 0.1;
       frontWall.position.y = frontWallHeight / 2;
 
       var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
-      frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/c894a01088bc336ec52808193a55c1e94c2af44e/squash%20error%20tracker-min%20(1).png", scene); // Replace with your front wall texture URL
+      frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/c894a01088bc336ec52808193a55c1e94c2af44e/squash%20error%20tracker-min%20(1).png", scene);
       frontWall.material = frontWallMaterial;
 
       // Create tin (transparent panel)
@@ -69,24 +63,15 @@ UniversalCamera.lowerBetaLimit = 0.1;
       var ballPhysicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
       ball.physicsImpostor = ballPhysicsImpostor;
 
-      // Use onPointerObservable to handle touch event on the ball
+      // Handle touch interaction
       scene.onPointerObservable.add((pointerInfo) => {
         if (pointerInfo.pickInfo.pickedMesh === ball) {
           if (pointerInfo.event.type === "pointerdown") {
+            var force = pointerInfo.event.pressure || 1; // Use touch pressure as force, default to 1 if not available
             var frontWallDirection = new BABYLON.Vector3(0, 0, -1);
-            var impulseForce = 10;
+            var impulseForce = 10 * force; // Adjust the force based on touch pressure
             ballPhysicsImpostor.applyImpulse(frontWallDirection.scale(impulseForce), ball.getAbsolutePosition());
           }
-        }
-      });
-
-      // Animation to rotate the camera 180 degrees and zoom out further
-      scene.registerBeforeRender(function () {
-        if (UniversalCamera.alpha <= 1.5 * Math.PI) {
-          UniversalCamera.alpha += 0.01; // Rotate 180 degrees
-        }
-        if (UniversalCamera.radius > 20) {
-          UniversalCamera.radius -= 0.3; // Zoom out 15%
         }
       });
 
