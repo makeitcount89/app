@@ -101,17 +101,17 @@
 
           // Bounce off front wall
   if (ball.position.z - ball.scaling.z / 2 < frontWall.position.z + frontWall.scaling.z / 2) {
-    ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(ballPhysicsImpostor.getLinearVelocity().x, 0, Math.abs(ballPhysicsImpostor.getLinearVelocity().z) * 10));
-    ball.position.z = frontWall.position.z + frontWall.scaling.z / 2 + ball.scaling.z / 2; // Adjust the ball's position to prevent going through the wall
+    ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(ballPhysicsImpostor.getLinearVelocity().x, 0, -Math.abs(ballPhysicsImpostor.getLinearVelocity().z)));
+    ball.position.z = frontWall.position.z + frontWall.scaling.z / 2 + ball.scaling.z / 2;
   }
 
   // Bounce off side walls
   if (ball.position.x - ball.scaling.x / 2 < leftWall.position.x + leftWall.scaling.x / 2) {
-    ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.abs(ballPhysicsImpostor.getLinearVelocity().x) * 10, 0, ballPhysicsImpostor.getLinearVelocity().z));
-    ball.position.x = leftWall.position.x + leftWall.scaling.x / 2 + ball.scaling.x / 2; // Adjust the ball's position to prevent going through the wall
+    ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(-Math.abs(ballPhysicsImpostor.getLinearVelocity().x), 0, ballPhysicsImpostor.getLinearVelocity().z));
+    ball.position.x = leftWall.position.x + leftWall.scaling.x / 2 + ball.scaling.x / 2;
   } else if (ball.position.x + ball.scaling.x / 2 > rightWall.position.x - rightWall.scaling.x / 2) {
-    ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(-Math.abs(ballPhysicsImpostor.getLinearVelocity().x) * 10, 0, ballPhysicsImpostor.getLinearVelocity().z));
-    ball.position.x = rightWall.position.x - rightWall.scaling.x / 2 - ball.scaling.x / 2; // Adjust the ball's position to prevent going through the wall
+    ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.abs(ballPhysicsImpostor.getLinearVelocity().x), 0, ballPhysicsImpostor.getLinearVelocity().z));
+    ball.position.x = rightWall.position.x - rightWall.scaling.x / 2 - ball.scaling.x / 2;
   }
           }
 });
