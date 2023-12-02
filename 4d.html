@@ -31,6 +31,7 @@
       var courtLength = 32;
       var courtWidth = 21;
       var frontWallHeight = 15;
+      var tinLineHeight = 19 / 12;
 
       // Create the squash court
       var court = BABYLON.MeshBuilder.CreateBox("court", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
@@ -52,7 +53,7 @@
       // Create tin (transparent panel)
       var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
       tin.position.z = courtLength / 2 - 0.1;
-      tin.position.y = 19 / 12 / 2;
+      tin.position.y = tinLineHeight / 2;
 
       // Create the squash ball with physics
       var ball = BABYLON.Mesh.CreateSphere("ball", 16, 1, scene);
@@ -80,23 +81,31 @@
       // Handle touch interaction
       var startingX;
 
-      scene.onPointerDown = function (evt, pickResult) {
-        startingX = evt.clientX;
-      };
-
-      scene.onPointerMove = function (evt, pickResult) {
-        if (startingX !== undefined) {
-          var delta = startingX - evt.clientX;
-          var force = delta * 0.05; // Adjust the force based on sensitivity
-          var forceDirection = new BABYLON.Vector3(force, 0, 0);
-          ballPhysicsImpostor.applyImpulse(forceDirection, ball.getAbsolutePosition());
-          startingX = evt.clientX;
+      scene.onPointerObservable.add((pointerInfo) => {
+        if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+          startingX = pointerInfo.event.clientX;
+        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined) {
+          var delta = startingX - pointerInfo.event.clientX;
+          ball.position.x -= delta * 0.01; // Adjust the multiplier based on sensitivity
+          startingX = pointerInfo.event.clientX;
+        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
+          startingX = undefined;
         }
-      };
+      });
 
-      scene.onPointerUp = function (evt, pickResult) {
-        startingX = undefined;
-      };
+      // Bounce the ball off the walls
+      scene.registerBeforeRender(function () {
+        var ballPosition = ball.position;
+        var ballRadius = 1;
+
+        if (ballPosition.x - ballRadius < -courtWidth / 2 || ballPosition.x + ballRadius > courtWidth / 2) {
+          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(-ballPhysicsImpostor.getLinearVelocity().x, 0, 0));
+        }
+
+        if (ballPosition.z - ballRadius < -courtLength / 2 || ballPosition.z + ballRadius > courtLength / 2) {
+          ballPhysicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, -ballPhysicsImpostor.getLinearVelocity().z));
+        }
+      });
 
       return scene;
     }
