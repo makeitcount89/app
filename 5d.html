@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Babylon.js Swipe Propelled Ball</title>
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <style>
+    canvas {
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var canvas = document.createElement('canvas');
+      document.body.appendChild(canvas);
+
+      var engine = new BABYLON.Engine(canvas, true);
+
+      var createScene = function () {
+        var scene = new BABYLON.Scene(engine);
+
+        var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
+        camera.setTarget(BABYLON.Vector3.Zero());
+        camera.attachControl(canvas, true);
+
+        var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        light.intensity = 0.7;
+
+        var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
+        sphere.position.y = 4;
+
+        var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 }, scene);
+
+        var hk = new BABYLON.HavokPlugin();
+        scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
+
+        var sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.75 }, scene);
+        var groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+        return scene;
+      };
+
+      var scene = createScene();
+
+      var startingPoint;
+
+      var getGroundPosition = function () {
+        var pickinfo = scene.pick(scene.pointerX, scene.pointerY);
+        if (pickinfo.hit) {
+          return pickinfo.pickedPoint;
+        }
+
+        return null;
+      };
+
+      var onPointerDown = function (evt) {
+        if (evt.button !== 0) return;
+
+        var pickInfo = scene.pick(scene.pointerX, scene.pointerY);
+        if (pickInfo.hit) {
+          startingPoint = getGroundPosition(evt);
+
+          if (startingPoint) {
+            // Disable camera controls while swiping
+            scene.camera.detachControl(canvas);
+          }
+        }
+      };
+
+      var onPointerUp = function () {
+        if (startingPoint) {
+          // Re-enable camera controls after swipe
+          scene.camera.attachControl(canvas, true);
+
+          startingPoint = null;
+        }
+      };
+
+      var onPointerMove = function (evt) {
+        if (!startingPoint) return;
+
+        var current = getGroundPosition(evt);
+
+        if (!current) return;
+
+        var delta = current.subtract(startingPoint);
+        sphere.applyImpulse(delta.scale(5), sphere.getAbsolutePosition());
+
+        startingPoint = current;
+      };
+
+      canvas.addEventListener("pointerdown", onPointerDown, false);
+      canvas.addEventListener("pointerup", onPointerUp, false);
+      canvas.addEventListener("pointermove", onPointerMove, false);
+
+      engine.runRenderLoop(function () {
+        scene.render();
+      });
+
+      window.addEventListener("resize", function () {
+        engine.resize();
+      });
+    });
+  </script>
+</body>
+</html>
