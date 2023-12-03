@@ -83,9 +83,9 @@
 
       // Create the ball
       var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 2, segments: 32 }, scene);
-      ball.position.y = 1; // Adjust the height as needed
+      ball.position.y = 5; // Adjust the height as needed
 
-      // Initialize Havok Physics for the ball
+      // Initialize Havok Physics for the ball with restitution
       var ballImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.75 }, scene);
       ball.physicsImpostor = ballImpostor;
 
