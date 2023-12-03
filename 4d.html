@@ -82,28 +82,48 @@
       rightWall.physicsImpostor = new BABYLON.PhysicsImpostor(rightWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
 
       // Create the ball
-      var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 2, segments: 32 }, scene);
-      ball.position.y = 10; // Adjust the starting height as needed
+var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 2, segments: 32 }, scene);
+ball.position.y = 10; // Adjust the starting height as needed
 
-      // Initialize Havok Physics for the ball with restitution
-      var ballImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.75 }, scene);
-      ball.physicsImpostor = ballImpostor; // Add this line to set the physics impostor for the ball
+// Initialize Havok Physics for the ball with restitution
+const ballAggregate = new BABYLON.PhysicsAggregate(ball, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.75 }, scene);
 
-      // Apply an initial force to make the ball drop
-      ballImpostor.applyImpulse(new BABYLON.Vector3(0, -10, 0), ball.getAbsolutePosition());
+// Apply an initial force to make the ball drop
+ballAggregate.body.applyImpulse(new BABYLON.Vector3(0, -10, 0), ball.getAbsolutePosition());
 
-      // Handle touch interaction for the ball
-      var startingX;
-      var startingY;
+// Handle touch interaction for the ball
+var startingX;
+var startingY;
 
-      scene.onPointerObservable.add((pointerInfo) => {
-        if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
-          startingX = pointerInfo.event.clientX;
-          startingY = pointerInfo.event.clientY;
-        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
-          var deltaX = startingX - pointerInfo.event.clientX;
-          var deltaY = startingY - pointerInfo.event.clientY;
+scene.onPointerObservable.add((pointerInfo) => {
+  if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+    startingX = pointerInfo.event.clientX;
+    startingY = pointerInfo.event.clientY;
+  } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
+    var deltaX = startingX - pointerInfo.event.clientX;
+    var deltaY = startingY - pointerInfo.event.clientY;
 
+    ball.position.x -= deltaX * 0.1;
+    ball.position.z += deltaY * 0.1;
+
+    startingX = pointerInfo.event.clientX;
+    startingY = pointerInfo.event.clientY;
+  } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
+    startingX = undefined;
+    startingY = undefined;
+
+    // Apply an impulse for a more natural swipe effect
+    const swipeImpulse = new BABYLON.Vector3(deltaX * 0.05, 0, deltaY * 0.05);
+    ballAggregate.body.applyImpulse(swipeImpulse, ball.getAbsolutePosition());
+
+    // Adjust linear damping for more realistic gradual slowing down
+    ballAggregate.body.setLinearDamping(0.1);
+
+    // Reset delta values
+    deltaX = 0;
+    deltaY = 0;
+  }
+});
           ball.position.x -= deltaX * 0.1;
           ball.position.z += deltaY * 0.1;
 
