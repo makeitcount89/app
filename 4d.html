@@ -8,18 +8,25 @@
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <!-- Load the Havok Physics Engine -->
   <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
-  <script>
-    // Function to initialize Havok and enable physics in the Babylon.js scene
-    async function initializeHavok(scene) {
-      const havokInstance = await HavokPhysics();
-      const havokPlugin = new BABYLON.HavokPlugin(true, havokInstance);
-      scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), havokPlugin);
+  <style>
+    html,
+    body {
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
     }
-  </script>
+
+    #renderCanvas {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
 </head>
 
 <body>
-  <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+  <canvas id="renderCanvas"></canvas>
 
   <script>
     var canvas = document.getElementById("renderCanvas");
@@ -83,7 +90,6 @@
       rightWall.position.x = courtWidth / 2 - 0.05;
       rightWall.position.y = frontWallHeight / 2;
       rightWall.physicsImpostor = new BABYLON.PhysicsImpostor(rightWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
-      
 
       // Create the ball
       var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 2, segments: 32 }, scene);
@@ -135,5 +141,3 @@
 </body>
 
 </html>
-
-
