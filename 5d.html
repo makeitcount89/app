@@ -1,143 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Babylon.js using Havok</title>
+    <!-- Babylon.js and Havok Physics -->
+    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <style>
+      html,
+      body {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #renderCanvas {
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+      #canvasZone {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+    <script>
+      const canvas = document.getElementById("renderCanvas");
+      const engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, disableWebGL2Support: false });
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Squash Court</title>
-  <script src="https://cdn.babylonjs.com/babylon.js"></script>
-  <script src="https://cdn.babylonjs.com/hk.2.0.js
-</head>
+      const createScene = async function () {
+        const scene = new BABYLON.Scene(engine);
+        const camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
+        camera.setTarget(BABYLON.Vector3.Zero());
+        camera.attachControl(canvas, true);
+        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        light.intensity = 0.7;
+        const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
+        sphere.position.y = 4;
+        const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 }, scene);
 
-<body>
-  <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+        // Initialize Havok Physics
+        const havokInstance = await HavokPhysics();
+        const hk = new BABYLON.HavokPlugin(true, havokInstance);
+        scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
 
-  <script>
-    var canvas = document.getElementById("renderCanvas");
-    var engine = new BABYLON.Engine(canvas, true);
-    var scene = createScene();
+        // Create a sphere shape and the associated body.
+        const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.75 }, scene);
 
-    engine.runRenderLoop(function () {
-      scene.render();
-    });
+        // Create a static box shape.
+        const groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
 
-    function createScene() {
-      var scene = new BABYLON.Scene(engine);
-      var deltaX;
-      var deltaY;
+        return scene;
+      };
 
-      // Initialize physics
-      var hk = new BABYLON.HavokPlugin();
-      scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
-
-      var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 5, -15), scene);
-      camera.setTarget(BABYLON.Vector3.Zero());
-      camera.attachControl(canvas, true);
-
-      var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-
-      var courtLength = 32;
-      var courtWidth = 21;
-      var frontWallHeight = 15;
-      var tinLineHeight = 19 / 12;
-
-      // Create the squash court
-      var court = BABYLON.MeshBuilder.CreateBox("court", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
-      court.position.y = -0.05;
-
-      // Floor material setup (you can replace the URL with your own texture)
-      var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
-      floorMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/fd0ec3dbc2595d2fa30781bb1a2ec680b1b4df7c/IMG_20231201_090546.png", scene);
-      court.material = floorMaterial;
-
-      // Create front wall
-      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
-      frontWall.position.z = courtLength / 2 - 0.1;
-      frontWall.position.y = frontWallHeight / 2;
-
-      // Front wall material setup (you can replace the URL with your own texture)
-      var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
-      frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/c894a01088bc336ec52808193a55c1e94c2af44e/squash%20error%20tracker-min%20(1).png", scene);
-      frontWall.material = frontWallMaterial;
-
-      // Create tin (transparent panel)
-      var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
-      tin.position.z = courtLength / 2 - 0.1;
-      tin.position.y = tinLineHeight / 2;
-
-      // Create the squash ball with physics using Havok
-      var ball = BABYLON.Mesh.CreateSphere("ball", 16, 1, scene);
-      ball.position.y = 1;
-
-      // Enable physics on the ball using PhysicsAggregate
-      var ballAggregate = new BABYLON.PhysicsAggregate(ball, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.9 }, scene);
-
-      // Enable physics on the walls (similar to the second code)
-      var ground = BABYLON.MeshBuilder.CreateBox("ground", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
-      ground.position.y = -0.05;
-      ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
-
-      var leftWall = BABYLON.MeshBuilder.CreateBox("leftWall", { width: 0.1, height: frontWallHeight, depth: courtLength }, scene);
-      leftWall.position.x = -courtWidth / 2 + 0.05;
-      leftWall.position.y = frontWallHeight / 2;
-      leftWall.physicsImpostor = new BABYLON.PhysicsImpostor(leftWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
-
-      var rightWall = BABYLON.MeshBuilder.CreateBox("rightWall", { width: 0.1, height: frontWallHeight, depth: courtLength }, scene);
-      rightWall.position.x = courtWidth / 2 - 0.05;
-      rightWall.position.y = frontWallHeight / 2;
-      rightWall.physicsImpostor = new BABYLON.PhysicsImpostor(rightWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
-
-      // Handle touch interaction
-      scene.onPointerObservable.add((pointerInfo) => {
-        if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
-          deltaX = 0;
-          deltaY = 0;
-        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE) {
-          if (deltaX === undefined || deltaY === undefined) {
-            deltaX = 0;
-            deltaY = 0;
-          } else {
-            deltaX += startingX - pointerInfo.event.clientX;
-            deltaY += startingY - pointerInfo.event.clientY;
+      createScene().then((scene) => {
+        engine.runRenderLoop(() => {
+          if (scene) {
+            scene.render();
           }
-
-          startingX = pointerInfo.event.clientX;
-          startingY = pointerInfo.event.clientY;
-        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
-          startingX = undefined;
-          startingY = undefined;
-
-          // Apply an impulse for a more natural swipe effect
-          var swipeImpulse = new BABYLON.Vector3(deltaX * 0.05, 0, deltaY * 0.05);
-          ballAggregate.body.applyImpulse(swipeImpulse, ball.getAbsolutePosition());
-
-          // Adjust linear damping for more realistic gradual slowing down
-          ballAggregate.body.setLinearDamping(0.1);
-
-          // Reset delta values
-          deltaX = 0;
-          deltaY = 0;
-
-          // Bounce off front wall (similar to the second code)
-          if (ball.position.z - ball.scaling.z / 2 < frontWall.position.z + frontWall.scaling.z / 2) {
-            ballAggregate.body.setLinearVelocity(new BABYLON.Vector3(ballAggregate.body.getLinearVelocity().x, 0, -Math.abs(ballAggregate.body.getLinearVelocity().z)));
-            ball.position.z = frontWall.position.z + frontWall.scaling.z / 2 + ball.scaling.z / 2;
-          }
-
-          // Bounce off side walls (similar to the second code)
-          if (ball.position.x - ball.scaling.x / 2 < leftWall.position.x + leftWall.scaling.x / 2) {
-            ballAggregate.body.setLinearVelocity(new BABYLON.Vector3(-Math.abs(ballAggregate.body.getLinearVelocity().x), 0, ballAggregate.body.getLinearVelocity().z));
-            ball.position.x = leftWall.position.x + leftWall.scaling.x / 2 + ball.scaling.x / 2;
-          } else if (ball.position.x + ball.scaling.x / 2 > rightWall.position.x - rightWall.scaling.x / 2) {
-            ballAggregate.body.setLinearVelocity(new BABYLON.Vector3(Math.abs(ballAggregate.body.getLinearVelocity().x), 0, ballAggregate.body.getLinearVelocity().z));
-            ball.position.x = rightWall.position.x - rightWall.scaling.x / 2 - ball.scaling.x / 2;
-          }
-        }
+        });
       });
 
-      return scene;
-    }
-  </script>
-</body>
-
+      // Resize
+      window.addEventListener("resize", () => {
+        engine.resize();
+      });
+    </script>
+  </body>
 </html>
