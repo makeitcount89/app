@@ -83,11 +83,14 @@
 
       // Create the ball
       var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 2, segments: 32 }, scene);
-      ball.position.y = 5; // Adjust the height as needed
+      ball.position.y = 10; // Adjust the starting height as needed
 
       // Initialize Havok Physics for the ball with restitution
       var ballImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.75 }, scene);
       ball.physicsImpostor = ballImpostor;
+
+      // Apply an initial force to make the ball drop
+      ballImpostor.applyImpulse(new BABYLON.Vector3(0, -5, 0), ball.getAbsolutePosition());
 
       // Handle touch interaction for the ball
       var startingX;
