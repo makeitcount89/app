@@ -32,8 +32,32 @@
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
       // Create the squash court (floor)
-      var court = BABYLON.MeshBuilder.CreateBox("court", { width: 20, height: 0.1, depth: 30 }, scene);
+      var court = BABYLON.MeshBuilder.CreateBox("court", { width: 21, height: 0.1, depth: 32 }, scene);
       court.position.y = -0.05;
+
+      // Apply texture to the floor
+      var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
+      floorMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/fd0ec3dbc2595d2fa30781bb1a2ec680b1b4df7c/IMG_20231201_090546.png", scene);
+      court.material = floorMaterial;
+
+      // Create front wall
+      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: 21, height: 15, depth: 0.2 }, scene);
+      frontWall.position.z = 16;
+      frontWall.position.y = 7.5;
+
+      // Apply texture to the front wall
+      var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
+      frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/c894a01088bc336ec52808193a55c1e94c2af44e/squash%20error%20tracker-min%20(1).png", scene);
+      frontWall.material = frontWallMaterial;
+
+      // Create side walls
+      var leftWall = BABYLON.MeshBuilder.CreateBox("leftWall", { width: 0.2, height: 15, depth: 32 }, scene);
+      leftWall.position.x = -10.6;
+      leftWall.position.y = 7.5;
+
+      var rightWall = BABYLON.MeshBuilder.CreateBox("rightWall", { width: 0.2, height: 15, depth: 32 }, scene);
+      rightWall.position.x = 10.6;
+      rightWall.position.y = 7.5;
 
       // Create the squash ball
       var ball = BABYLON.Mesh.CreateSphere("ball", 16, 1, scene);
@@ -46,14 +70,16 @@
       // Handle touch interaction
       var startingX;
       var startingY;
+      var deltaX = 0;
+      var deltaY = 0;
 
       scene.onPointerObservable.add((pointerInfo) => {
         if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
           startingX = pointerInfo.event.clientX;
           startingY = pointerInfo.event.clientY;
         } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
-          var deltaX = startingX - pointerInfo.event.clientX;
-          var deltaY = startingY - pointerInfo.event.clientY;
+          deltaX = startingX - pointerInfo.event.clientX;
+          deltaY = startingY - pointerInfo.event.clientY;
 
           ball.position.x -= deltaX * 0.01; // Adjust the multiplier based on sensitivity
           ball.position.z += deltaY * 0.01;
@@ -65,7 +91,7 @@
           startingY = undefined;
 
           // Apply an impulse for a more natural swipe effect
-          var swipeImpulse = new BABYLON.Vector3(deltaX * 0.05, 0, deltaY * 0.05);
+          var swipeImpulse = new BABYLON.Vector3(deltaX * 0.1, 0, deltaY * 0.1);
           ballPhysicsImpostor.applyImpulse(swipeImpulse, ball.getAbsolutePosition());
 
           // Adjust linear damping for more realistic gradual slowing down
