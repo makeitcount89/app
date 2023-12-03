@@ -1,77 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Babylon.js Physics Example</title>
-  <script defer src="https://cdn.babylonjs.com/babylon.js"></script>
-  <script defer src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-  <script defer src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-  <script defer src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
-  <script defer src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
-  <script defer src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-  <script defer src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
-  <script defer src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babylon.js Ball with Cannon Physics</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
 </head>
 <body>
-  <canvas id="renderCanvas" touch-action="none"></canvas>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        // Babylon.js Scene
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+        var scene = new BABYLON.Scene(engine);
 
-  <script type="module">
-    import { Scene, Engine, HemisphericLight, FreeCamera, Vector3, MeshBuilder, PhysicsImpostor } from "https://cdn.babylonjs.com/babylon.js";
-    import { CannonJSPlugin } from "https://cdn.babylonjs.com/physicsEnginePlugins/babylonjs.physicsEngine.js";
+        // Cannon.js Physics
+        var physicsEngine = new BABYLON.CannonJSPlugin();
+        scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), physicsEngine);
 
-    class PhysicsImpostors {
-      scene;
-      engine;
+        // Ball
+        var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
+        ball.physicsImpostor = new BABYLON.PhysicsImpostor(
+            ball, 
+            BABYLON.PhysicsImpostor.SphereImpostor, 
+            { mass: 1, restitution: 0.9 }, 
+            scene
+        );
 
-      constructor(canvas) {
-        this.engine = new Engine(canvas, true);
-        this.scene = this.CreateScene();
-        this.CreateImpostors();
+        // Gravity
+        scene.gravity = new BABYLON.Vector3(0, -9.8, 0);
 
-        this.engine.runRenderLoop(() => {
-          this.scene.render();
+        // Swipe-based Propulsion
+        var startingPoint;
+        var currentMesh;
+
+        scene.onPointerDown = function (evt, pickResult) {
+            if (pickResult.hit) {
+                currentMesh = pickResult.pickedMesh;
+                startingPoint = getGroundPosition(evt);
+                if (startingPoint) {
+                    // Initiating swipe gesture
+                }
+            }
+        };
+
+        scene.onPointerMove = function (evt) {
+            if (!startingPoint) return;
+
+            var current = getGroundPosition(evt);
+
+            if (!current) return;
+
+            var delta = current.subtract(startingPoint);
+            currentMesh.physicsImpostor.applyImpulse(delta.scale(10), currentMesh.getAbsolutePosition());
+
+            startingPoint = current;
+        };
+
+        scene.onPointerUp = function () {
+            if (startingPoint) {
+                startingPoint = null;
+            }
+        };
+
+        function getGroundPosition(evt) {
+            var pickinfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh == ball; });
+            if (pickinfo.hit) {
+                return pickinfo.pickedPoint;
+            }
+
+            return null;
+        }
+
+        // Run the scene
+        engine.runRenderLoop(function () {
+            scene.render();
         });
-      }
 
-      CreateScene() {
-        const scene = new Scene(this.engine);
-        new HemisphericLight("hemi", new Vector3(0, 1, 0), scene);
-        const camera = new FreeCamera("camera", new Vector3(0, 10, -20), scene);
-        camera.setTarget(Vector3.Zero());
-        camera.attachControl();
-        camera.minZ = 0.5;
-
-        scene.enablePhysics(new Vector3(0, -9.81, 0), new CannonJSPlugin(true, 10));
-
-        return scene;
-      }
-
-      CreateImpostors() {
-        const ground = MeshBuilder.CreateGround("ground", { width: 40, height: 40 });
-        ground.isVisible = false;
-        ground.physicsImpostor = new PhysicsImpostor(ground, PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.5 });
-
-        const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 3 });
-        sphere.position = new Vector3(0, 6, 0);
-        sphere.physicsImpostor = new PhysicsImpostor(sphere, PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.8 });
-      }
-    }
-
-    let physicsExample;
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const canvas = document.getElementById('renderCanvas');
-      physicsExample = new PhysicsImpostors(canvas);
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === ' ') {
-        // Spacebar press to propel the ball
-        const sphere = physicsExample.scene.getMeshByName('sphere');
-        sphere.physicsImpostor.applyImpulse(new Vector3(0, 5, 10), sphere.getAbsolutePosition());
-      }
-    });
-  </script>
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
 </body>
 </html>
