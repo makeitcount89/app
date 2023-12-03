@@ -58,19 +58,41 @@
         frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/c894a01088bc336ec52808193a55c1e94c2af44e/squash%20error%20tracker-min%20(1).png", scene);
         frontWall.material = frontWallMaterial;
 
+        // Side Walls (White)
+        const sideWallHeight = 5; // Adjust this based on your needs
+        const sideWallDepth = 0.2; // Adjust this based on your needs
+
+        var leftWall = BABYLON.MeshBuilder.CreateBox("leftWall", { width: sideWallDepth, height: sideWallHeight, depth: courtLength + 2 * sideWallDepth }, scene);
+        leftWall.position.x = -courtWidth / 2 - sideWallDepth / 2;
+        leftWall.position.y = sideWallHeight / 2;
+
+        var rightWall = BABYLON.MeshBuilder.CreateBox("rightWall", { width: sideWallDepth, height: sideWallHeight, depth: courtLength + 2 * sideWallDepth }, scene);
+        rightWall.position.x = courtWidth / 2 + sideWallDepth / 2;
+        rightWall.position.y = sideWallHeight / 2;
+
+        // Set white material for side walls
+        var sideWallMaterial = new BABYLON.StandardMaterial("sideWallMaterial", scene);
+        sideWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+        leftWall.material = sideWallMaterial;
+        rightWall.material = sideWallMaterial;
+
         // Initialize Havok Physics
         const havokInstance = await HavokPhysics();
         const hk = new BABYLON.HavokPlugin(true, havokInstance);
         scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
 
         // Create a sphere shape and the associated body.
-        const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: .8 }, scene);
+        const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.8 }, scene);
 
         // Create a static box shape for the ground.
         const groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
 
         // Create a static box shape for the front wall.
         const frontWallAggregate = new BABYLON.PhysicsAggregate(frontWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+        // Create static box shapes for the side walls.
+        const leftWallAggregate = new BABYLON.PhysicsAggregate(leftWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+        const rightWallAggregate = new BABYLON.PhysicsAggregate(rightWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
 
         // Variables for touch interaction
         let startingX;
