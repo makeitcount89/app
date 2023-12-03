@@ -24,34 +24,46 @@
       #canvasZone {
         width: 100%;
         height: 100%;
+        position: relative;
+      }
+      #counterDisplay {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-size: 20px;
       }
     </style>
   </head>
   <body>
-    <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+    <div id="canvasZone">
+      <canvas id="renderCanvas"></canvas>
+      <div id="counterDisplay">Hits: 0</div>
+    </div>
     <script>
       const canvas = document.getElementById("renderCanvas");
       const engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, disableWebGL2Support: false });
+
+      // Counter variable
+      let hitCounter = 0;
 
       const createScene = async function () {
         const scene = new BABYLON.Scene(engine);
         const camera = new BABYLON.UniversalCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
         camera.setTarget(BABYLON.Vector3.Zero());
-
-        // Zoom out the camera by 25%
-        camera.radius *= 1.25;
-        camera.attachControl(canvas, false); // Disable camera control
+        camera.attachControl(canvas, true);
 
         const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
         light.intensity = 0.7;
-        const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: .5, segments: 32 }, scene);
+        const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 0.5, segments: 32 }, scene);
         sphere.position.y = 4;
         const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 }, scene);
 
         // Front Wall
-        const courtWidth = 10; // Adjust this based on your needs
-        const frontWallHeight = 5; // Adjust this based on your needs
-        const courtLength = 10; // Adjust this based on your needs
+        const courtWidth = 10;
+        const frontWallHeight = 5;
+        const courtLength = 10;
 
         var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
         frontWall.position.z = courtLength / 2 - 0.1;
@@ -62,8 +74,8 @@
         frontWall.material = frontWallMaterial;
 
         // Side Walls (White)
-        const sideWallHeight = 5; // Adjust this based on your needs
-        const sideWallDepth = 0.2; // Adjust this based on your needs
+        const sideWallHeight = 5;
+        const sideWallDepth = 0.2;
 
         var leftWall = BABYLON.MeshBuilder.CreateBox("leftWall", { width: sideWallDepth, height: sideWallHeight, depth: courtLength + 2 * sideWallDepth }, scene);
         leftWall.position.x = -courtWidth / 2 - sideWallDepth / 2;
@@ -73,7 +85,6 @@
         rightWall.position.x = courtWidth / 2 + sideWallDepth / 2;
         rightWall.position.y = sideWallHeight / 2;
 
-        // Set white material for side walls
         var sideWallMaterial = new BABYLON.StandardMaterial("sideWallMaterial", scene);
         sideWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
         leftWall.material = sideWallMaterial;
@@ -97,9 +108,6 @@
         const leftWallAggregate = new BABYLON.PhysicsAggregate(leftWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
         const rightWallAggregate = new BABYLON.PhysicsAggregate(rightWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
 
-        // Counter for hits against the front wall
-        let hitCounter = 0;
-
         // Variables for touch interaction
         let startingX;
         let startingY;
@@ -115,7 +123,7 @@
             deltaX = startingX - pointerInfo.event.clientX;
             deltaY = startingY - pointerInfo.event.clientY;
 
-            sphere.position.x -= deltaX * 0.1; // Adjust the multiplier based on sensitivity
+            sphere.position.x -= deltaX * 0.1;
             sphere.position.z += deltaY * 0.1;
 
             startingX = pointerInfo.event.clientX;
@@ -124,28 +132,32 @@
             startingX = undefined;
             startingY = undefined;
 
-            // Apply an impulse for a more natural swipe effect
+            // Check if the ball hits the front wall
+            if (sphere.intersectsMesh(frontWall, false)) {
+              hitCounter++;
+              // Update the counter display
+              updateCounterDisplay();
+            }
+
             const swipeImpulse = new BABYLON.Vector3(deltaX * 0.05, 0, deltaY * 0.05);
             sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
-
-            // Adjust linear damping for more realistic gradual slowing down
             sphereAggregate.body.setLinearDamping(0.1);
 
-            // Reset delta values
             deltaX = 0;
             deltaY = 0;
-
-            // Check if the sphere hit the front wall
-            const frontWallPositionZ = frontWall.position.z - frontWall.scaling.z / 2;
-            if (sphere.position.z > frontWallPositionZ) {
-              hitCounter++;
-              console.log("Hits against front wall: " + hitCounter);
-            }
           }
         });
 
         return scene;
       };
+
+      // Function to update the counter display
+      function updateCounterDisplay() {
+        const counterDisplay = document.getElementById("counterDisplay");
+        if (counterDisplay) {
+          counterDisplay.innerHTML = `Hits: ${hitCounter}`;
+        }
+      }
 
       createScene().then((scene) => {
         engine.runRenderLoop(() => {
