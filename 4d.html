@@ -34,6 +34,18 @@
         color: white;
         font-size: 20px;
       }
+
+      @media screen and (orientation: landscape) {
+        body {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        #canvasZone {
+          width: 100vw;
+          height: 100vh;
+        }
+      }
     </style>
   </head>
   <body>
@@ -47,6 +59,9 @@
 
       // Counter variable
       let hitCounter = 0;
+
+      
+
 
       const createScene = async function () {
         const scene = new BABYLON.Scene(engine);
