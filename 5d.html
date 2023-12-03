@@ -2,79 +2,88 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Babylon.js Ball with Cannon Physics</title>
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <title>Babylon.js Scene</title>
+    <script defer src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script defer src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 </head>
 <body>
     <canvas id="renderCanvas"></canvas>
     <script>
-        // Babylon.js Scene
         var canvas = document.getElementById("renderCanvas");
         var engine = new BABYLON.Engine(canvas, true);
-        var scene = new BABYLON.Scene(engine);
 
-        // Cannon.js Physics
-        var physicsEngine = new BABYLON.CannonJSPlugin();
-        scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), physicsEngine);
+        var createScene = function () {
+            // This creates a basic Babylon Scene object (non-mesh)
+            var scene = new BABYLON.Scene(engine);
 
-        // Ball
-        var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 1 }, scene);
-        ball.physicsImpostor = new BABYLON.PhysicsImpostor(
-            ball, 
-            BABYLON.PhysicsImpostor.SphereImpostor, 
-            { mass: 1, restitution: 0.9 }, 
-            scene
-        );
+            // This creates and positions a free camera (non-mesh)
+            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
 
-        // Gravity
-        scene.gravity = new BABYLON.Vector3(0, -9.8, 0);
+            // This targets the camera to scene origin
+            camera.setTarget(BABYLON.Vector3.Zero());
 
-        // Swipe-based Propulsion
-        var startingPoint;
-        var currentMesh;
+            // This attaches the camera to the canvas
+            camera.attachControl(canvas, true);
 
-        scene.onPointerDown = function (evt, pickResult) {
-            if (pickResult.hit) {
-                currentMesh = pickResult.pickedMesh;
-                startingPoint = getGroundPosition(evt);
-                if (startingPoint) {
-                    // Initiating swipe gesture
+            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+
+            // Default intensity is 1. Let's dim the light a small amount
+            light.intensity = 0.7;
+
+            // Our built-in 'sphere' shape.
+            var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
+
+            // Move the sphere upward at 4 units
+            sphere.position.y = 4;
+
+            // Our built-in 'ground' shape.
+            var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 }, scene);
+
+            // initialize plugin
+            var hk = new BABYLON.HavokPlugin();
+            // enable physics in the scene with gravity
+            scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
+
+            // Create a sphere shape and the associated body. Size will be determined automatically.
+            var sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.75 }, scene);
+
+            // Create a static box shape.
+            var groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+            //When clicking the display, sphere will jump.
+            scene.onPointerDown = function () {
+                sphereAggregate.body.applyImpulse(
+                    new BABYLON.Vector3(0, 10, 0),
+                    sphere.absolutePosition
+                );
+            }
+
+            // Create a second sphere for sliding
+            var slidingSphere = BABYLON.MeshBuilder.CreateSphere("slidingSphere", { diameter: 2, segments: 32 }, scene);
+            slidingSphere.position.y = 6;
+
+            // Enable physics for the sliding sphere
+            var slidingSphereAggregate = new BABYLON.PhysicsAggregate(slidingSphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.5 }, scene);
+
+            // Add a listener for pointer events to move the sliding sphere
+            scene.onPointerMove = function (evt) {
+                if (evt.pickInfo.hit && evt.pickInfo.pickedMesh === slidingSphere) {
+                    var delta = evt.pickInfo.delta;
+                    slidingSphereAggregate.body.applyImpulse(
+                        new BABYLON.Vector3(delta.x * 5, 0, delta.y * 5),
+                        slidingSphere.absolutePosition
+                    );
                 }
-            }
+            };
+
+            return scene;
         };
 
-        scene.onPointerMove = function (evt) {
-            if (!startingPoint) return;
+        var scene = createScene();
 
-            var current = getGroundPosition(evt);
-
-            if (!current) return;
-
-            var delta = current.subtract(startingPoint);
-            currentMesh.physicsImpostor.applyImpulse(delta.scale(10), currentMesh.getAbsolutePosition());
-
-            startingPoint = current;
-        };
-
-        scene.onPointerUp = function () {
-            if (startingPoint) {
-                startingPoint = null;
-            }
-        };
-
-        function getGroundPosition(evt) {
-            var pickinfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh == ball; });
-            if (pickinfo.hit) {
-                return pickinfo.pickedPoint;
-            }
-
-            return null;
-        }
-
-        // Run the scene
         engine.runRenderLoop(function () {
             scene.render();
         });
