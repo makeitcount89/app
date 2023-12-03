@@ -90,18 +90,19 @@ const ballAggregate = new BABYLON.PhysicsAggregate(ball, BABYLON.PhysicsShapeTyp
 
 // Apply an initial force to make the ball drop
 ballAggregate.body.applyImpulse(new BABYLON.Vector3(0, -10, 0), ball.getAbsolutePosition());
-
 // Handle touch interaction for the ball
 var startingX;
 var startingY;
+var deltaX = 0; // Declare deltaX outside the event handler
+var deltaY = 0; // Declare deltaY outside the event handler
 
 scene.onPointerObservable.add((pointerInfo) => {
   if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
     startingX = pointerInfo.event.clientX;
     startingY = pointerInfo.event.clientY;
   } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
-    var deltaX = startingX - pointerInfo.event.clientX;
-    var deltaY = startingY - pointerInfo.event.clientY;
+    deltaX = startingX - pointerInfo.event.clientX;
+    deltaY = startingY - pointerInfo.event.clientY;
 
     ball.position.x -= deltaX * 0.1;
     ball.position.z += deltaY * 0.1;
@@ -124,6 +125,7 @@ scene.onPointerObservable.add((pointerInfo) => {
     deltaY = 0;
   }
 });
+
 
       return scene;
     }
