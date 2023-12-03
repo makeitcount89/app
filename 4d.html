@@ -88,8 +88,6 @@ ball.position.y = 10; // Adjust the starting height as needed
 // Initialize Havok Physics for the ball with restitution
 const ballAggregate = new BABYLON.PhysicsAggregate(ball, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.75 }, scene);
 
-// Apply an initial force to make the ball drop
-ballAggregate.body.applyImpulse(new BABYLON.Vector3(0, -10, 0), ball.getAbsolutePosition());
 // Handle touch interaction for the ball
 var startingX;
 var startingY;
@@ -125,6 +123,7 @@ scene.onPointerObservable.add((pointerInfo) => {
     deltaY = 0;
   }
 });
+
 
 
       return scene;
