@@ -50,9 +50,41 @@
 
       const createScene = async function () {
         const scene = new BABYLON.Scene(engine);
+
+        // Camera setup
         const camera = new BABYLON.UniversalCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
         camera.setTarget(BABYLON.Vector3.Zero());
         camera.attachControl(canvas, true);
+
+        // Zoom out animation
+        const zoomOutAnimation = new BABYLON.Animation(
+          "zoomOutAnimation",
+          "position",
+          60,
+          BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+          BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+
+        // Animation keyframes
+        const zoomOutKeyframes = [
+          {
+            frame: 0,
+            value: camera.position.clone(),
+          },
+          {
+            frame: 100,
+            value: camera.position.multiplyByFloats(1.25, 1.25, 1.25), // Zoom out by 25%
+          },
+        ];
+
+        // Assign keyframes to animation
+        zoomOutAnimation.setKeys(zoomOutKeyframes);
+
+        // Attach animation to the camera
+        camera.animations.push(zoomOutAnimation);
+
+        // Run the animation
+        scene.beginAnimation(camera, 0, 100, false);
 
         const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
         light.intensity = 0.7;
@@ -147,6 +179,7 @@
             deltaY = 0;
           }
         });
+        
 
         return scene;
       };
