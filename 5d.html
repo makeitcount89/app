@@ -70,8 +70,8 @@
             deltaX = startingX - pointerInfo.event.clientX;
             deltaY = startingY - pointerInfo.event.clientY;
 
-            sphere.position.x -= deltaX * 0.01; // Adjust the multiplier based on sensitivity
-            sphere.position.z += deltaY * 0.01;
+            sphere.position.x -= deltaX * 0.1; // Adjust the multiplier based on sensitivity
+            sphere.position.z += deltaY * 0.1;
 
             startingX = pointerInfo.event.clientX;
             startingY = pointerInfo.event.clientY;
