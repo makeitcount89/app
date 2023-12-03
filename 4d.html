@@ -82,15 +82,16 @@
       rightWall.physicsImpostor = new BABYLON.PhysicsImpostor(rightWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
 
       // Create the ball
-      var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 2, segments: 32 }, scene);
-      ball.position.y = 10; // Adjust the starting height as needed
+var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 2, segments: 32 }, scene);
+ball.position.y = 5; // Adjust the starting height closer to the ground
 
-      // Initialize Havok Physics for the ball with restitution
-      var ballImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.75 }, scene);
-      ball.physicsImpostor = ballImpostor; // Add this line to set the physics impostor for the ball
+// Initialize Havok Physics for the ball with restitution
+var ballImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.75 }, scene);
+ball.physicsImpostor = ballImpostor;
 
-      // Apply an initial force to make the ball drop
-      ballImpostor.applyImpulse(new BABYLON.Vector3(0, -10, 0), ball.getAbsolutePosition());
+// Apply an initial force to make the ball drop
+ballImpostor.applyImpulse(new BABYLON.Vector3(0, -20, 0), ball.getAbsolutePosition()); // Adjust the impulse magnitude
+
 
       // Handle touch interaction for the ball
       var startingX;
