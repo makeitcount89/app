@@ -22,6 +22,8 @@
 
     function createScene() {
       var scene = new BABYLON.Scene(engine);
+      var deltaX;
+      var deltaY;
 
       // Initialize physics
       var hk = new BABYLON.HavokPlugin();
@@ -85,19 +87,18 @@
       rightWall.physicsImpostor = new BABYLON.PhysicsImpostor(rightWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
 
       // Handle touch interaction
-      var startingX;
-      var startingY;
-
       scene.onPointerObservable.add((pointerInfo) => {
         if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
-          startingX = pointerInfo.event.clientX;
-          startingY = pointerInfo.event.clientY;
-        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
-          var deltaX = startingX - pointerInfo.event.clientX;
-          var deltaY = startingY - pointerInfo.event.clientY;
-
-          ball.position.x -= deltaX * 0.01; // Adjust the multiplier based on sensitivity
-          ball.position.z += deltaY * 0.01;
+          deltaX = 0;
+          deltaY = 0;
+        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE) {
+          if (deltaX === undefined || deltaY === undefined) {
+            deltaX = 0;
+            deltaY = 0;
+          } else {
+            deltaX += startingX - pointerInfo.event.clientX;
+            deltaY += startingY - pointerInfo.event.clientY;
+          }
 
           startingX = pointerInfo.event.clientX;
           startingY = pointerInfo.event.clientY;
@@ -111,6 +112,10 @@
 
           // Adjust linear damping for more realistic gradual slowing down
           ballAggregate.body.setLinearDamping(0.1);
+
+          // Reset delta values
+          deltaX = 0;
+          deltaY = 0;
 
           // Bounce off front wall (similar to the second code)
           if (ball.position.z - ball.scaling.z / 2 < frontWall.position.z + frontWall.scaling.z / 2) {
