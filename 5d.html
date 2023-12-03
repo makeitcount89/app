@@ -9,76 +9,27 @@
     <script defer src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 </head>
 <body>
-    <canvas id="renderCanvas"></canvas>
+    <canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none;"></canvas>
     <script>
         var canvas = document.getElementById("renderCanvas");
         var engine = new BABYLON.Engine(canvas, true);
 
         var createScene = function () {
-            // This creates a basic Babylon Scene object (non-mesh)
             var scene = new BABYLON.Scene(engine);
-
-            // This creates and positions a free camera (non-mesh)
             var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
-
-            // This targets the camera to scene origin
             camera.setTarget(BABYLON.Vector3.Zero());
-
-            // This attaches the camera to the canvas
             camera.attachControl(canvas, true);
-
-            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
             var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-
-            // Default intensity is 1. Let's dim the light a small amount
             light.intensity = 0.7;
-
-            // Our built-in 'sphere' shape.
             var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
-
-            // Move the sphere upward at 4 units
             sphere.position.y = 4;
-
-            // Our built-in 'ground' shape.
             var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 }, scene);
-
-            // initialize plugin
-            var hk = new BABYLON.HavokPlugin();
-            // enable physics in the scene with gravity
-            scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
-
-            // Create a sphere shape and the associated body. Size will be determined automatically.
+            scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), new BABYLON.HavokPlugin());
             var sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.75 }, scene);
-
-            // Create a static box shape.
             var groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-
-            //When clicking the display, sphere will jump.
             scene.onPointerDown = function () {
-                sphereAggregate.body.applyImpulse(
-                    new BABYLON.Vector3(0, 10, 0),
-                    sphere.absolutePosition
-                );
-            }
-
-            // Create a second sphere for sliding
-            var slidingSphere = BABYLON.MeshBuilder.CreateSphere("slidingSphere", { diameter: 2, segments: 32 }, scene);
-            slidingSphere.position.y = 6;
-
-            // Enable physics for the sliding sphere
-            var slidingSphereAggregate = new BABYLON.PhysicsAggregate(slidingSphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.5 }, scene);
-
-            // Add a listener for pointer events to move the sliding sphere
-            scene.onPointerMove = function (evt) {
-                if (evt.pickInfo.hit && evt.pickInfo.pickedMesh === slidingSphere) {
-                    var delta = evt.pickInfo.delta;
-                    slidingSphereAggregate.body.applyImpulse(
-                        new BABYLON.Vector3(delta.x * 5, 0, delta.y * 5),
-                        slidingSphere.absolutePosition
-                    );
-                }
+                sphereAggregate.body.applyImpulse(new BABYLON.Vector3(0, 10, 0), sphere.absolutePosition);
             };
-
             return scene;
         };
 
