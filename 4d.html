@@ -43,7 +43,43 @@
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
       // Create the squash court and other objects
-      // ... (unchanged)
+      var courtLength = 32;
+      var courtWidth = 21;
+      var frontWallHeight = 15;
+      var tinLineHeight = 19 / 12;
+
+      var court = BABYLON.MeshBuilder.CreateBox("court", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
+      court.position.y = -0.05;
+
+      var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
+      floorMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/fd0ec3dbc2595d2fa30781bb1a2ec680b1b4df7c/IMG_20231201_090546.png", scene);
+      court.material = floorMaterial;
+
+      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
+      frontWall.position.z = courtLength / 2 - 0.1;
+      frontWall.position.y = frontWallHeight / 2;
+
+      var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
+      frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/c894a01088bc336ec52808193a55c1e94c2af44e/squash%20error%20tracker-min%20(1).png", scene);
+      frontWall.material = frontWallMaterial;
+
+      var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
+      tin.position.z = courtLength / 2 - 0.1;
+      tin.position.y = tinLineHeight / 2;
+
+      var ground = BABYLON.MeshBuilder.CreateBox("ground", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
+      ground.position.y = -0.05;
+      ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+
+      var leftWall = BABYLON.MeshBuilder.CreateBox("leftWall", { width: 0.1, height: frontWallHeight, depth: courtLength }, scene);
+      leftWall.position.x = -courtWidth / 2 + 0.05;
+      leftWall.position.y = frontWallHeight / 2;
+      leftWall.physicsImpostor = new BABYLON.PhysicsImpostor(leftWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+
+      var rightWall = BABYLON.MeshBuilder.CreateBox("rightWall", { width: 0.1, height: frontWallHeight, depth: courtLength }, scene);
+      rightWall.position.x = courtWidth / 2 - 0.05;
+      rightWall.position.y = frontWallHeight / 2;
+      rightWall.physicsImpostor = new BABYLON.PhysicsImpostor(rightWall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
 
       // Create the ball
       var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 2, segments: 32 }, scene);
@@ -51,10 +87,10 @@
 
       // Initialize Havok Physics for the ball with restitution
       var ballImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.75 }, scene);
-      ball.physicsImpostor = ballImpostor;
+      ball.physicsImpostor = ballImpostor; // Add this line to set the physics impostor for the ball
 
-      // Apply an initial impulse in the direction of gravity
-      ballImpostor.applyImpulse(new BABYLON.Vector3(0, -20, 0), ball.getAbsolutePosition());
+      // Apply an initial force to make the ball drop
+      ballImpostor.applyImpulse(new BABYLON.Vector3(0, -10, 0), ball.getAbsolutePosition());
 
       // Handle touch interaction for the ball
       var startingX;
