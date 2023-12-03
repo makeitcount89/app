@@ -3,97 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Babylon.js Swipe Propelled Ball</title>
-  <script src="https://cdn.babylonjs.com/babylon.js"></script>
-  <style>
-    canvas {
-      touch-action: none;
-    }
-  </style>
-</head>
-<body>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var canvas = document.createElement('canvas');
-      document.body.appendChild(canvas);
+  <title>Babylon.js Physics Example</title>
+  <script type="module">
+    import { Scene, Engine, HemisphericLight, FreeCamera, Vector3, MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
+    import { CannonJSPlugin } from "@babylonjs/core/Physics/Plugins/cannonJSPlugin.js";
 
-      var engine = new BABYLON.Engine(canvas, true);
+    class PhysicsImpostors {
+      scene;
+      engine;
 
-      var createScene = function () {
-        var scene = new BABYLON.Scene(engine);
+      constructor(canvas) {
+        this.engine = new Engine(canvas, true);
+        this.scene = this.CreateScene();
+        this.CreateImpostors();
 
-        var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
-        camera.setTarget(BABYLON.Vector3.Zero());
-        camera.attachControl(canvas, true);
+        this.engine.runRenderLoop(() => {
+          this.scene.render();
+        });
+      }
 
-        var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-        light.intensity = 0.7;
+      CreateScene() {
+        const scene = new Scene(this.engine);
+        new HemisphericLight("hemi", new Vector3(0, 1, 0), scene);
+        const camera = new FreeCamera("camera", new Vector3(0, 10, -20), scene);
+        camera.setTarget(Vector3.Zero());
+        camera.attachControl();
+        camera.minZ = 0.5;
 
-        var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
-        sphere.position.y = 4;
-
-        var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 }, scene);
-
-        var hk = new BABYLON.HavokPlugin();
-        scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
-
-        var sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.75 }, scene);
-        var groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+        scene.enablePhysics(new Vector3(0, -9.81, 0), new CannonJSPlugin(true, 10));
 
         return scene;
-      };
+      }
 
-      var scene = createScene();
+      CreateImpostors() {
+        const ground = MeshBuilder.CreateGround("ground", { width: 40, height: 40 });
+        ground.isVisible = false;
+        ground.physicsImpostor = new PhysicsImpostor(ground, PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.5 });
 
-      var startingPoint;
+        const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 3 });
+        sphere.position = new Vector3(0, 6, 0);
+        sphere.physicsImpostor = new PhysicsImpostor(sphere, PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.8 });
+      }
+    }
 
-      var getGroundPosition = function () {
-        var pickinfo = scene.pick(scene.pointerX, scene.pointerY);
-        if (pickinfo.hit) {
-          return pickinfo.pickedPoint;
-        }
-        return null;
-      };
+    let physicsExample;
 
-      var onPointerDown = function (evt) {
-        if (evt.button !== 0) return;
-        var pickInfo = scene.pick(scene.pointerX, scene.pointerY);
-        if (pickInfo.hit) {
-          startingPoint = getGroundPosition(evt);
-          if (startingPoint) {
-            scene.camera.detachControl(canvas);
-          }
-        }
-      };
+    window.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('renderCanvas');
+      physicsExample = new PhysicsImpostors(canvas);
+    });
 
-      var onPointerUp = function () {
-        if (startingPoint) {
-          scene.camera.attachControl(canvas, true);
-          startingPoint = null;
-        }
-      };
-
-      var onPointerMove = function (evt) {
-        if (!startingPoint) return;
-        var current = getGroundPosition(evt);
-        if (!current) return;
-        var delta = current.subtract(startingPoint);
-        sphere.applyImpulse(delta.scale(5), sphere.getAbsolutePosition());
-        startingPoint = current;
-      };
-
-      canvas.addEventListener("pointerdown", onPointerDown, false);
-      canvas.addEventListener("pointerup", onPointerUp, false);
-      canvas.addEventListener("pointermove", onPointerMove, false);
-
-      engine.runRenderLoop(function () {
-        scene.render();
-      });
-
-      window.addEventListener("resize", function () {
-        engine.resize();
-      });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === ' ') {
+        // Spacebar press to propel the ball
+        const sphere = physicsExample.scene.getMeshByName('sphere');
+        sphere.physicsImpostor.applyImpulse(new Vector3(0, 5, 10), sphere.getAbsolutePosition());
+      }
     });
   </script>
+</head>
+<body>
+  <canvas id="renderCanvas" touch-action="none"></canvas>
 </body>
 </html>
