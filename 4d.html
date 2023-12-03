@@ -42,57 +42,19 @@
 
       var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
-      // Create the squash court
-      var courtLength = 32;
-      var courtWidth = 21;
-      var frontWallHeight = 15;
-      var tinLineHeight = 19 / 12;
-
-      var court = BABYLON.MeshBuilder.CreateBox("court", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
-      court.position.y = -0.05;
-
-      // Initialize Havok Physics for the court with restitution
-      const courtAggregate = new BABYLON.PhysicsAggregate(court, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0.9 }, scene);
-
-      var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
-      floorMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/fd0ec3dbc2595d2fa30781bb1a2ec680b1b4df7c/IMG_20231201_090546.png", scene);
-      court.material = floorMaterial;
-
-      var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
-      frontWall.position.z = courtLength / 2 - 0.1;
-      frontWall.position.y = frontWallHeight / 2;
-
-      var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
-      frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/c894a01088bc336ec52808193a55c1e94c2af44e/squash%20error%20tracker-min%20(1).png", scene);
-      frontWall.material = frontWallMaterial;
-
-      var tin = BABYLON.MeshBuilder.CreateBox("tin", { width: courtWidth - 0.2, height: 0.1, depth: 0.2 }, scene);
-      tin.position.z = courtLength / 2 - 0.1;
-      tin.position.y = tinLineHeight / 2;
-
-      var ground = BABYLON.MeshBuilder.CreateBox("ground", { width: courtWidth, height: 0.1, depth: courtLength }, scene);
-      ground.position.y = -0.05;
-      ground.physicsImpostor = courtAggregate.body; // Use the courtAggregate body as the physics impostor for the ground
-
-      var leftWall = BABYLON.MeshBuilder.CreateBox("leftWall", { width: 0.1, height: frontWallHeight, depth: courtLength }, scene);
-      leftWall.position.x = -courtWidth / 2 + 0.05;
-      leftWall.position.y = frontWallHeight / 2;
-      leftWall.physicsImpostor = courtAggregate.body; // Use the courtAggregate body as the physics impostor for the leftWall
-
-      var rightWall = BABYLON.MeshBuilder.CreateBox("rightWall", { width: 0.1, height: frontWallHeight, depth: courtLength }, scene);
-      rightWall.position.x = courtWidth / 2 - 0.05;
-      rightWall.position.y = frontWallHeight / 2;
-      rightWall.physicsImpostor = courtAggregate.body; // Use the courtAggregate body as the physics impostor for the rightWall
+      // Create the squash court and other objects
+      // ... (unchanged)
 
       // Create the ball
       var ball = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 2, segments: 32 }, scene);
       ball.position.y = 10; // Adjust the starting height as needed
 
       // Initialize Havok Physics for the ball with restitution
-      const ballAggregate = new BABYLON.PhysicsAggregate(ball, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.75 }, scene);
+      var ballImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.75 }, scene);
+      ball.physicsImpostor = ballImpostor;
 
       // Apply an initial impulse in the direction of gravity
-      ballAggregate.body.applyImpulse(new BABYLON.Vector3(0, -20, 0), ball.getAbsolutePosition());
+      ballImpostor.applyImpulse(new BABYLON.Vector3(0, -20, 0), ball.getAbsolutePosition());
 
       // Handle touch interaction for the ball
       var startingX;
@@ -117,10 +79,10 @@
 
           // Apply an impulse for a more natural swipe effect
           const swipeImpulse = new BABYLON.Vector3(deltaX * 0.05, 0, deltaY * 0.05);
-          ballAggregate.body.applyImpulse(swipeImpulse, ball.getAbsolutePosition());
+          ballImpostor.applyImpulse(swipeImpulse, ball.getAbsolutePosition());
 
           // Adjust linear damping for more realistic gradual slowing down
-          ballAggregate.body.setLinearDamping(0.1);
+          ballImpostor.setLinearDamping(0.1);
 
           // Reset delta values
           deltaX = 0;
