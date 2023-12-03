@@ -55,6 +55,43 @@
         // Create a static box shape.
         const groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
 
+        // Variables for touch interaction
+        let startingX;
+        let startingY;
+        let deltaX = 0;
+        let deltaY = 0;
+
+        // Handle touch interaction
+        scene.onPointerObservable.add((pointerInfo) => {
+          if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+            startingX = pointerInfo.event.clientX;
+            startingY = pointerInfo.event.clientY;
+          } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
+            deltaX = startingX - pointerInfo.event.clientX;
+            deltaY = startingY - pointerInfo.event.clientY;
+
+            sphere.position.x -= deltaX * 0.01; // Adjust the multiplier based on sensitivity
+            sphere.position.z += deltaY * 0.01;
+
+            startingX = pointerInfo.event.clientX;
+            startingY = pointerInfo.event.clientY;
+          } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
+            startingX = undefined;
+            startingY = undefined;
+
+            // Apply an impulse for a more natural swipe effect
+            const swipeImpulse = new BABYLON.Vector3(deltaX * 0.05, 0, deltaY * 0.05);
+            sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
+
+            // Adjust linear damping for more realistic gradual slowing down
+            sphereAggregate.body.setLinearDamping(0.1);
+
+            // Reset delta values
+            deltaX = 0;
+            deltaY = 0;
+          }
+        });
+
         return scene;
       };
 
