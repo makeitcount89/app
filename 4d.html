@@ -13,7 +13,7 @@
     async function initializeHavok(scene) {
       const havokInstance = await HavokPhysics();
       const havokPlugin = new BABYLON.HavokPlugin(true, havokInstance);
-      scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), havokPlugin); // Set gravity here
+      scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), havokPlugin);
     }
   </script>
 </head>
@@ -87,7 +87,7 @@
 
       // Initialize Havok Physics for the ball with restitution
       var ballImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.75 }, scene);
-      ball.physicsImpostor = ballImpostor;
+      ball.physicsImpostor = ballImpostor; // Add this line to set the physics impostor for the ball
 
       // Apply an initial force to make the ball drop
       ballImpostor.applyImpulse(new BABYLON.Vector3(0, -10, 0), ball.getAbsolutePosition());
