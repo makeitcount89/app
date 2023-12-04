@@ -67,7 +67,7 @@
         const scene = new BABYLON.Scene(engine);
 
         // Camera setup
-        const camera = new BABYLON.UniversalCamera("camera1", new BABYLON.Vector3(0, 5.25, -7.5), scene);
+        const camera = new BABYLON.UniversalCamera("camera1", new BABYLON.Vector3(0, 5.25, -7.8), scene);
         camera.setTarget(BABYLON.Vector3.Zero());
         camera.attachControl(canvas, true);
         camera.rotation.x = Math.PI / 8; // You can experiment with the angle
@@ -157,7 +157,7 @@
         scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
 
         // Create a sphere shape and the associated body.
-        const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.58 }, scene);
+        const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.57 }, scene);
 
         // Create a static box shape for the ground.
         const groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
@@ -203,7 +203,7 @@ scene.onPointerObservable.add((pointerInfo) => {
         const swipeVector = new BABYLON.Vector2(deltaX, deltaY);
         if (swipeVector.length() > 2) { // Adjust the threshold based on your needs
             // Apply an impulse based on the swipe direction and force
-            const swipeImpulse = new BABYLON.Vector3(-deltaX * 0.05, 0, deltaY * 0.09);
+            const swipeImpulse = new BABYLON.Vector3(-deltaX * 0.05, 0, deltaY * 0.08);
             sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
             sphereAggregate.body.setLinearDamping(0.1);
         }
