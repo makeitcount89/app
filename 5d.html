@@ -56,7 +56,7 @@
     <script>
 
       function flashFrontWall(frontWall) {
-  const originalEmissiveColor = frontWall.material.emissiveColor.clone();
+  const originalEmissiveColor = frontWall.material.diffuseColor.clone();
   frontWall.material.diffuseColor = new BABYLON.Color3(1, 0, 0); // Set to red or your desired flash color
 
   // Restore original emissive color after a delay
@@ -245,7 +245,7 @@ scene.onPointerObservable.add((pointerInfo) => {
             sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
             sphereAggregate.body.setLinearDamping(0.1);
           // Check if the ball hits the front wall
-const hitTolerance = 0.2; // Adjust this value based on your needs
+const hitTolerance = 0.5; // Adjust this value based on your needs
 if (sphere.position.z >= frontWall.position.z - hitTolerance &&
     sphere.position.z <= frontWall.position.z + hitTolerance &&
     sphere.position.y >= frontWall.position.y - frontWall.scaling.y / 2 &&
