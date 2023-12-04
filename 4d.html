@@ -199,6 +199,7 @@ scene.onPointerObservable.add((pointerInfo) => {
         deltaX = 0;
         deltaY = 0;
     }
+  });
   // Check if the ball hits the front wall
             if (sphere.intersectsMesh(frontWall, false)) {
               hitCounter++;
