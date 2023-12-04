@@ -70,6 +70,8 @@
         const camera = new BABYLON.UniversalCamera("camera1", new BABYLON.Vector3(0, 7, -8), scene);
         camera.setTarget(BABYLON.Vector3.Zero());
         camera.attachControl(canvas, true);
+        camera.rotation.x = Math.PI / 8; // You can experiment with the angle
+        
 
         // Zoom out animation
         const zoomOutAnimation = new BABYLON.Animation(
