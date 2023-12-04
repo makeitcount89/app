@@ -244,11 +244,7 @@ scene.onPointerObservable.add((pointerInfo) => {
             const swipeImpulse = new BABYLON.Vector3(-deltaX * scalingFactor, 0.006 * currentSpeed, deltaY * scalingFactor);
             sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
             sphereAggregate.body.setLinearDamping(0.1);
-        }
-
-        deltaX = 0;
-        deltaY = 0;
-// Check if the ball hits the front wall
+          // Check if the ball hits the front wall
 const hitTolerance = 0.2; // Adjust this value based on your needs
 if (sphere.position.z >= frontWall.position.z - hitTolerance &&
     sphere.position.z <= frontWall.position.z + hitTolerance &&
@@ -260,6 +256,10 @@ if (sphere.position.z >= frontWall.position.z - hitTolerance &&
   // Flash the front wall
   flashFrontWall(frontWall);
 }
+        }
+
+        deltaX = 0;
+        deltaY = 0;
       
     }
 });
