@@ -61,7 +61,7 @@
 
   // Restore original emissive color after a delay
   setTimeout(() => {
-    frontWall.material.emissiveColor = originalEmissiveColor;
+    frontWall.material.diffuseColor = originalEmissiveColor;
   }, 500); // Adjust the duration of the flash as needed
 }
 
@@ -190,7 +190,7 @@ shorterBackWall.material = shorterBackWallMaterial;
         scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
 
         // Create a sphere shape and the associated body.
-        const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.57 }, scene);
+        const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.59 }, scene);
 
         // Create a static box shape for the ground.
         const groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
