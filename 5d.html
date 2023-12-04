@@ -57,7 +57,7 @@
 
       function flashFrontWall(frontWall) {
   const originalEmissiveColor = frontWall.material.emissiveColor.clone();
-  frontWall.material.emissiveColor = new BABYLON.Color3(1, 0, 0); // Set to red or your desired flash color
+  frontWall.material.diffuseColor = new BABYLON.Color3(1, 0, 0); // Set to red or your desired flash color
 
   // Restore original emissive color after a delay
   setTimeout(() => {
