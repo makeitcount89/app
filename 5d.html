@@ -56,14 +56,15 @@
     <script>
 
       function flashFrontWall(frontWall) {
-  const originalColor = frontWall.material.diffuseColor.clone();
-  frontWall.material.diffuseColor = new BABYLON.Color3(1, 0, 0); // Set to red or your desired flash color
+  const originalEmissiveColor = frontWall.material.emissiveColor.clone();
+  frontWall.material.emissiveColor = new BABYLON.Color3(1, 0, 0); // Set to red or your desired flash color
 
-  // Restore original color after a delay
+  // Restore original emissive color after a delay
   setTimeout(() => {
-    frontWall.material.diffuseColor = originalColor;
+    frontWall.material.emissiveColor = originalEmissiveColor;
   }, 500); // Adjust the duration of the flash as needed
-      }
+}
+
 
       
       const canvas = document.getElementById("renderCanvas");
