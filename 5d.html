@@ -249,7 +249,11 @@ scene.onPointerObservable.add((pointerInfo) => {
         deltaX = 0;
         deltaY = 0;
 // Check if the ball hits the front wall
-if (sphere.intersectsMesh(frontWall, false)) {
+const hitTolerance = 0.2; // Adjust this value based on your needs
+if (sphere.position.z >= frontWall.position.z - hitTolerance &&
+    sphere.position.z <= frontWall.position.z + hitTolerance &&
+    sphere.position.y >= frontWall.position.y - frontWall.scaling.y / 2 &&
+    sphere.position.y <= frontWall.position.y + frontWall.scaling.y / 2) {
   hitCounter++;
   // Update the counter display
   updateCounterDisplay();
