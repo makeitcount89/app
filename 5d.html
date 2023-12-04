@@ -144,7 +144,7 @@ ground.material = floorMaterial;
   backWall.material = backWallMaterial;
 
         const shorterBackWallHeight = 0.6; // Adjust the height as needed
-const shorterBackWall = BABYLON.MeshBuilder.CreateBox("shorterBackWall", { width: courtWidth, height: shorterBackWallHeight, depth: 0.2 }, scene);
+const shorterBackWall = BABYLON.MeshBuilder.CreateBox("shorterBackWall", { width: courtWidth, height: shorterBackWallHeight, depth: 0.002 }, scene);
 shorterBackWall.position.z = -courtLength / 2 + 0.1; // Adjusted position for the back wall
 shorterBackWall.position.y = shorterBackWallHeight / 2;
 
