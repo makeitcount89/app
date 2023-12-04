@@ -121,6 +121,17 @@
         frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/c894a01088bc336ec52808193a55c1e94c2af44e/squash%20error%20tracker-min%20(1).png", scene);
         frontWall.material = frontWallMaterial;
 
+        const backWallHeight = 5;
+
+  var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: backWallHeight, depth: 0.2 }, scene);
+  backWall.position.z = -courtLength / 2 + 0.1; // Adjusted position for the back wall
+  backWall.position.y = backWallHeight / 2;
+
+  var backWallMaterial = new BABYLON.StandardMaterial("backWallMaterial", scene);
+  backWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // White color for the back wall
+  backWallMaterial.alpha = 0.5; // Adjust transparency as needed
+  backWall.material = backWallMaterial;
+        
         // Side Walls (White)
         const sideWallHeight = 5;
         const sideWallDepth = 0.2;
@@ -152,6 +163,8 @@
         // Create a static box shape for the front wall.
         const frontWallAggregate = new BABYLON.PhysicsAggregate(frontWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
 
+        const backWallAggregate = new BABYLON.PhysicsAggregate(backWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+        
         // Create static box shapes for the side walls.
         const leftWallAggregate = new BABYLON.PhysicsAggregate(leftWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
         const rightWallAggregate = new BABYLON.PhysicsAggregate(rightWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
