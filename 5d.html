@@ -142,6 +142,18 @@ ground.material = floorMaterial;
   backWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // White color for the back wall
   backWallMaterial.alpha = 0.1; // Adjust transparency as needed
   backWall.material = backWallMaterial;
+
+        const shorterBackWallHeight = 0.6; // Adjust the height as needed
+const shorterBackWall = BABYLON.MeshBuilder.CreateBox("shorterBackWall", { width: courtWidth, height: shorterBackWallHeight, depth: 0.2 }, scene);
+shorterBackWall.position.z = -courtLength / 2 + 0.1; // Adjusted position for the back wall
+shorterBackWall.position.y = shorterBackWallHeight / 2;
+
+var shorterBackWallMaterial = new BABYLON.StandardMaterial("shorterBackWallMaterial", scene);
+shorterBackWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+shorterBackWallMaterial.alpha = 0.5; // Adjust transparency as needed
+shorterBackWall.material = shorterBackWallMaterial;
+        
+        shorterBackWall.position = backWall.position.clone();
         
         // Side Walls (White)
         const sideWallHeight = 5.5;
@@ -175,6 +187,7 @@ ground.material = floorMaterial;
         const frontWallAggregate = new BABYLON.PhysicsAggregate(frontWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
 
         const backWallAggregate = new BABYLON.PhysicsAggregate(backWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+        const shorterBackWallAggregate = new BABYLON.PhysicsAggregate(shorterBackWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
         
         // Create static box shapes for the side walls.
         const leftWallAggregate = new BABYLON.PhysicsAggregate(leftWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
