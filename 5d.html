@@ -228,7 +228,7 @@ scene.onPointerObservable.add((pointerInfo) => {
             const scalingFactor = 0.01 * currentSpeed;
 
             // Apply an impulse based on the swipe direction, scaled force, and upward direction
-            const swipeImpulse = new BABYLON.Vector3(-deltaX * scalingFactor, 0.5 * currentSpeed, deltaY * scalingFactor);
+            const swipeImpulse = new BABYLON.Vector3(-deltaX * scalingFactor, 0.05 * currentSpeed, deltaY * scalingFactor);
             sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
             sphereAggregate.body.setLinearDamping(0.1);
         }
