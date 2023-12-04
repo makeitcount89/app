@@ -54,6 +54,18 @@
       <div id="counterDisplay">Hits: 0</div>
     </div>
     <script>
+
+      function flashFrontWall(frontWall) {
+  const originalColor = frontWall.material.diffuseColor.clone();
+  frontWall.material.diffuseColor = new BABYLON.Color3(1, 0, 0); // Set to red or your desired flash color
+
+  // Restore original color after a delay
+  setTimeout(() => {
+    frontWall.material.diffuseColor = originalColor;
+  }, 500); // Adjust the duration of the flash as needed
+      }
+
+      
       const canvas = document.getElementById("renderCanvas");
       const engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, disableWebGL2Support: false });
 
@@ -235,13 +247,15 @@ scene.onPointerObservable.add((pointerInfo) => {
 
         deltaX = 0;
         deltaY = 0;
-
-        // Check if the ball hits the front wall
-        if (sphere.intersectsMesh(frontWall, false)) {
-            hitCounter++;
-            // Update the counter display
-            updateCounterDisplay();
-        }
+// Check if the ball hits the front wall
+if (sphere.intersectsMesh(frontWall, false)) {
+  hitCounter++;
+  // Update the counter display
+  updateCounterDisplay();
+  // Flash the front wall
+  flashFrontWall(frontWall);
+}
+      
     }
 });
 
