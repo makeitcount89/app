@@ -162,24 +162,22 @@
         let deltaX = 0;
         let deltaY = 0;
 
-        // Handle touch interaction
-        scene.onPointerObservable.add((pointerInfo) => {
-          if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
-            startingX = pointerInfo.event.clientX;
-            startingY = pointerInfo.event.clientY;
-          } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
-            deltaX = startingX - pointerInfo.event.clientX;
-            deltaY = startingY - pointerInfo.event.clientY;
+        /// Handle touch interaction
+scene.onPointerObservable.add((pointerInfo) => {
+    if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+        startingX = pointerInfo.event.clientX;
+        startingY = pointerInfo.event.clientY;
+    } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
+        startingX = undefined;
+        startingY = undefined;
 
-            sphere.position.x -= deltaX * 0.1;
-            sphere.position.z += deltaY * 0.1;
-
-            startingX = pointerInfo.event.clientX;
-            startingY = pointerInfo.event.clientY;
-          } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
-            startingX = undefined;
-            startingY = undefined;
-
+        // Check if the sphere is on the ground
+        if (sphere.position.y <= 0.5) {
+            // Apply an impulse to make the sphere bounce
+            const bounceImpulse = new BABYLON.Vector3(0, 5, 0);
+            sphereAggregate.body.applyImpulse(bounceImpulse, sphere.getAbsolutePosition());
+        }
+ 
             // Check if the ball hits the front wall
             if (sphere.intersectsMesh(frontWall, false)) {
               hitCounter++;
