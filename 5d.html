@@ -108,7 +108,7 @@
         light.intensity = 0.7;
         const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 0.1, segments: 32 }, scene);
         sphere.position.y = 4;
-        const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 6.4, height: 11 }, scene);
+        const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 7.5, height: 12 }, scene);
 
 
 // Load the texture for the ground
@@ -120,9 +120,9 @@ ground.material = floorMaterial;
 
         
         // Front Wall
-        const courtWidth = 6.4;
-        const frontWallHeight = 4.8;
-        const courtLength = 11;
+        const courtWidth = 7.5;
+        const frontWallHeight = 5.5;
+        const courtLength = 12;
 
         var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
         frontWall.position.z = courtLength / 2 - 0.1;
