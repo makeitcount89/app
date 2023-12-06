@@ -132,7 +132,12 @@
         const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 0.1, segments: 32 }, scene);
         sphere.position.y = 4;
         const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 7.5, height: 12 }, scene);
+// Create a sphere shape and the associated body.
+const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.59 }, scene);
 
+// Make sure to set the physicsImpostor property for the sphere
+sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.59 }, scene);
+        
 
 // Load the texture for the ground
 var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
@@ -199,8 +204,11 @@ shorterBackWall.material = shorterBackWallMaterial;
         const hk = new BABYLON.HavokPlugin(true, havokInstance);
         scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
 
-        // Create a sphere shape and the associated body.
-        const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.59 }, scene);
+        As// Create a sphere shape and the associated body.
+const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.59 }, scene);
+
+// Make sure to set the physicsImpostor property for the sphere
+sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.59 }, scene);
 
         // Create a static box shape for the ground.
         const groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
