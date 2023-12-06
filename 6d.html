@@ -282,7 +282,7 @@ if (sphere.position.z >= frontWall.position.z - hitTolerance &&
       function updateCounterDisplay() {
         const counterDisplay = document.getElementById("counterDisplay");
         if (counterDisplay) {
-          counterDisplay.innerText = `Hits: ${hitCounter}`;
+          counterDisplay.innerHtml = `Hits: ${hitCounter}`;
         }
       }
 
@@ -343,15 +343,14 @@ if (sphere.position.z >= frontWall.position.z - hitTolerance &&
             );
             sphereAggregate.body.setLinearDamping(0.1);
 
-            const hitTolerance = 0.5;
-            if (
-              sphere.position.z >= frontWall.position.z - hitTolerance &&
-              sphere.position.z <= frontWall.position.z + hitTolerance &&
-              sphere.position.y >=
-                frontWall.position.y - frontWall.scaling.y / 2 &&
-              sphere.position.y <=
-                frontWall.position.y + frontWall.scaling.y / 2
-            ) {
+           const hitTolerance = 0.5 * frontWall.scaling.z;
+if (
+  sphere.position.z >= frontWall.position.z - hitTolerance &&
+  sphere.position.z <= frontWall.position.z + hitTolerance &&
+  sphere.position.y >= frontWall.position.y - frontWall.scaling.y / 2 &&
+  sphere.position.y <= frontWall.position.y + frontWall.scaling.y / 2
+) {
+ 
               hitCounter++;
               updateCounterDisplay();
               flashFrontWall(frontWall);
