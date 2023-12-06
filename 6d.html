@@ -249,7 +249,7 @@ shorterBackWall.material = shorterBackWallMaterial;
             );
             sphereAggregate.body.setLinearDamping(0.1);
 
-           const hitTolerance = 0.5 * frontWall.scaling.z;
+           const hitTolerance = 5 * frontWall.scaling.z;
 if (
   sphere.position.z >= frontWall.position.z - hitTolerance &&
   sphere.position.z <= frontWall.position.z + hitTolerance &&
