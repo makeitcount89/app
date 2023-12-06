@@ -204,9 +204,7 @@ shorterBackWall.material = shorterBackWallMaterial;
         const hk = new BABYLON.HavokPlugin(true, havokInstance);
         scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
 
-        As// Create a sphere shape and the associated body.
-const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.59 }, scene);
-
+        
 // Make sure to set the physicsImpostor property for the sphere
 sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.59 }, scene);
 
