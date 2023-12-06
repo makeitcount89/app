@@ -64,7 +64,6 @@
       // Counter variable
       let hitCounter = 0;
       let startingX, startingY, deltaX = 0, deltaY = 0;
-      let scene; 
 
       function flashFrontWall(frontWall) {
         const originalEmissiveColor = frontWall.material.diffuseColor.clone();
@@ -76,7 +75,7 @@
       }
 
       const createScene = async function () {
-        scene = new BABYLON.Scene(engine);
+        const scene = new BABYLON.Scene(engine);
 
         // Camera setup
         const camera = new BABYLON.UniversalCamera(
