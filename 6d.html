@@ -210,6 +210,8 @@ scene.onPointerObservable.add((pointerInfo) => {
             const bounceImpulse = new BABYLON.Vector3(0, 5, 0);
             sphereAggregate.body.applyImpulse(bounceImpulse, sphere.getAbsolutePosition());
         }
+          return scene;
+});
 
         // Check if swipe contacts the sphere
         const swipeVector = new BABYLON.Vector2(deltaX, deltaY);
