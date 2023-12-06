@@ -249,12 +249,13 @@ scene.onPointerObservable.add((pointerInfo) => {
         ) {
           const bounceImpulse = new BABYLON.Vector3(0, 5, 0);
           sphereAggregate.body.applyImpulse(bounceImpulse, sphere.getAbsolutePosition());
+              );
         }
       });
-
+    }
+  });
       return scene;
     };
-}
   
     const flashFrontWall = (frontWall) => {
       const originalEmissiveColor = frontWall.material.diffuseColor.clone();
