@@ -221,8 +221,8 @@ scene.onPointerObservable.add((pointerInfo) => {
             const swipeImpulse = new BABYLON.Vector3(-deltaX * scalingFactor, 0.006 * currentSpeed, deltaY * scalingFactor);
             sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
             sphereAggregate.body.setLinearDamping(0.1);
-        }
-    }
+        
+    
           // Check if the ball hits the front wall
 
       // Computer Racket
@@ -254,6 +254,8 @@ scene.onPointerObservable.add((pointerInfo) => {
 
       return scene;
     };
+    }
+}
 
     const flashFrontWall = (frontWall) => {
       const originalEmissiveColor = frontWall.material.diffuseColor.clone();
