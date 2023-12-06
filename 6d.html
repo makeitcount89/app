@@ -206,11 +206,6 @@ shorterBackWall.material = shorterBackWallMaterial;
         const leftWallAggregate = new BABYLON.PhysicsAggregate(leftWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
         const rightWallAggregate = new BABYLON.PhysicsAggregate(rightWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
 
-        // Variables for touch interaction
-        let startingX;
-        let startingY;
-        let deltaX = 0;
-        let deltaY = 0;
 
         // Handle touch interaction
 scene.onPointerObservable.add((pointerInfo) => {
@@ -291,7 +286,6 @@ if (sphere.position.z >= frontWall.position.z - hitTolerance &&
         }
       }
 
-      let deltaX = 0, deltaY = 0;
 
       createScene().then((scene) => {
         engine.runRenderLoop(() => {
