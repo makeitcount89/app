@@ -54,6 +54,10 @@
       <div id="counterDisplay">Hits: 0</div>
     </div>
     <script>
+      // Variables
+      let hitCounter = 0;
+      const canvas = document.getElementById("renderCanvas");
+      const engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, disableWebGL2Support: false });
       // Function to flash the front wall
       function flashFrontWall(frontWall) {
         const originalEmissiveColor = frontWall.material.diffuseColor.clone();
