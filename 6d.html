@@ -206,100 +206,6 @@ shorterBackWall.material = shorterBackWallMaterial;
         const leftWallAggregate = new BABYLON.PhysicsAggregate(leftWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
         const rightWallAggregate = new BABYLON.PhysicsAggregate(rightWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
 
-
-        // Handle touch interaction
-scene.onPointerObservable.add((pointerInfo) => {
-    if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
-        startingX = pointerInfo.event.clientX;
-        startingY = pointerInfo.event.clientY;
-    } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
-        deltaX = startingX - pointerInfo.event.clientX;
-        deltaY = startingY - pointerInfo.event.clientY;
-
-        startingX = pointerInfo.event.clientX;
-        startingY = pointerInfo.event.clientY;
-    } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
-        startingX = undefined;
-        startingY = undefined;
-
-        // Check if the sphere is on the ground
-        if (sphere.position.y <= 0.5) {
-            // Apply an impulse to make the sphere bounce
-            const bounceImpulse = new BABYLON.Vector3(0, 5, 0);
-            sphereAggregate.body.applyImpulse(bounceImpulse, sphere.getAbsolutePosition());
-        }
-
-      // Check if swipe contacts the sphere
-        const swipeVector = new BABYLON.Vector2(deltaX, deltaY);
-        if (swipeVector.length() > 2) { // Adjust the threshold based on your needs
-            // Calculate scaling factor based on current speed
-            const currentSpeed = sphereAggregate.body.getLinearVelocity().length();
-            const scalingFactor = 0.01 * currentSpeed;
-
-            // Apply an impulse based on the swipe direction, scaled force, and upward direction
-            const swipeImpulse = new BABYLON.Vector3(-deltaX * scalingFactor, 0.006 * currentSpeed, deltaY * scalingFactor);
-            sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
-            sphereAggregate.body.setLinearDamping(0.1);
-          // Check if the ball hits the front wall
-const hitTolerance = 0.5; // Adjust this value based on your needs
-if (sphere.position.z >= frontWall.position.z - hitTolerance &&
-    sphere.position.z <= frontWall.position.z + hitTolerance &&
-    sphere.position.y >= frontWall.position.y - frontWall.scaling.y / 2 &&
-    sphere.position.y <= frontWall.position.y + frontWall.scaling.y / 2) {
-  hitCounter++;
-  // Update the counter display
-  updateCounterDisplay();
-  // Flash the front wall
-  flashFrontWall(frontWall);
-}
-        }
-
-        deltaX = 0;
-        deltaY = 0;
-      
-    }
-});
-
-        // Computer player logic
-        setInterval(() => {
-          if (hitCounter % 2 === 1) {
-            const computerSwipeImpulse = new BABYLON.Vector3(
-              0,
-              0.006 * sphereAggregate.body.getLinearVelocity().length(),
-              0.1
-            );
-            sphereAggregate.body.applyImpulse(
-              computerSwipeImpulse,
-              sphere.getAbsolutePosition()
-            );
-            sphereAggregate.body.setLinearDamping(0.1);
-          }
-        }, 1000);
-
-        return scene;
-      };
-
-      function updateCounterDisplay() {
-        const counterDisplay = document.getElementById("counterDisplay");
-        if (counterDisplay) {
-          counterDisplay.innerHTML = `Hits: ${hitCounter}`;
-        }
-      }
-
-
-      createScene().then((scene) => {
-        engine.runRenderLoop(() => {
-          if (scene) {
-            scene.render();
-          }
-        });
-      });
-
-      // Resize
-      window.addEventListener("resize", () => {
-        engine.resize();
-      });
-
       // Handle touch interaction
       scene.onPointerObservable.add((pointerInfo) => {
         if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
@@ -361,6 +267,47 @@ if (
           deltaY = 0;
         }
       });
+
+        // Computer player logic
+        setInterval(() => {
+          if (hitCounter % 2 === 1) {
+            const computerSwipeImpulse = new BABYLON.Vector3(
+              0,
+              0.006 * sphereAggregate.body.getLinearVelocity().length(),
+              0.1
+            );
+            sphereAggregate.body.applyImpulse(
+              computerSwipeImpulse,
+              sphere.getAbsolutePosition()
+            );
+            sphereAggregate.body.setLinearDamping(0.1);
+          }
+        }, 1000);
+
+        return scene;
+      };
+
+      function updateCounterDisplay() {
+        const counterDisplay = document.getElementById("counterDisplay");
+        if (counterDisplay) {
+          counterDisplay.innerHTML = `Hits: ${hitCounter}`;
+        }
+      }
+
+
+      createScene().then((scene) => {
+        engine.runRenderLoop(() => {
+          if (scene) {
+            scene.render();
+          }
+        });
+      });
+
+      // Resize
+      window.addEventListener("resize", () => {
+        engine.resize();
+      });
+
     </script>
   </body>
 </html>
