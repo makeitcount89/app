@@ -282,7 +282,7 @@ if (sphere.position.z >= frontWall.position.z - hitTolerance &&
       function updateCounterDisplay() {
         const counterDisplay = document.getElementById("counterDisplay");
         if (counterDisplay) {
-          counterDisplay.innerHtml = `Hits: ${hitCounter}`;
+          counterDisplay.innerHTML = `Hits: ${hitCounter}`;
         }
       }
 
