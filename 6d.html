@@ -189,6 +189,7 @@ shorterBackWall.material = shorterBackWallMaterial;
         let deltaY = 0;
 
         // Handle touch interaction
+// Handle touch interaction
 scene.onPointerObservable.add((pointerInfo) => {
     if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
         startingX = pointerInfo.event.clientX;
@@ -199,61 +200,52 @@ scene.onPointerObservable.add((pointerInfo) => {
 
         startingX = pointerInfo.event.clientX;
         startingY = pointerInfo.event.clientY;
-} else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
-    startingX = undefined;
-    startingY = undefined;
+    } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
+        startingX = undefined;
+        startingY = undefined;
 
-    // Check if the sphere is on the ground
-    if (sphere.position.y <= 0.5) {
-        // Apply an impulse to make the sphere bounce
-        const bounceImpulse = new BABYLON.Vector3(0, 5, 0);
-        sphereAggregate.body.applyImpulse(bounceImpulse, sphere.getAbsolutePosition());
-    }
-
-    // Check if swipe contacts the sphere
-    const swipeVector = new BABYLON.Vector2(deltaX, deltaY);
-    if (swipeVector.length() > 2) { // Adjust the threshold based on your needs
-        // Calculate scaling factor based on current speed
-        const currentSpeed = sphereAggregate.body.getLinearVelocity().length();
-        const scalingFactor = 0.01 * currentSpeed;
-
-        // Apply an impulse based on the swipe direction, scaled force, and upward direction
-        const swipeImpulse = new BABYLON.Vector3(-deltaX * scalingFactor, 0.006 * currentSpeed, deltaY * scalingFactor);
-        sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
-        sphereAggregate.body.setLinearDamping(0.1);
-    }
-
-    // Check if the ball hits the front wall
-
-    // Computer Racket
-    const computerRacket = BABYLON.MeshBuilder.CreateBox("computerRacket", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
-    computerRacket.position.z = -courtLength / 2 + 0.1;
-    computerRacket.position.y = frontWallHeight / 2;
-
-    const computerRacketMaterial = new BABYLON.StandardMaterial("computerRacketMaterial", scene);
-    computerRacketMaterial.diffuseColor = new BABYLON.Color3(0, 0, 1);
-    computerRacket.material = computerRacketMaterial;
-
-    const computerRacketAggregate = new BABYLON.PhysicsAggregate(computerRacket, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-
-    scene.registerBeforeRender(() => {
-        updateComputerRacket();
-
-        const hitTolerance = 0.5;
-
-        if (
-            sphere.position.z >= computerRacket.position.z - hitTolerance &&
-            sphere.position.z <= computerRacket.position.z + hitTolerance &&
-            sphere.position.y >= computerRacket.position.y - computerRacket.scaling.y / 2 &&
-            sphere.position.y <= computerRacket.position.y + computerRacket.scaling.y / 2
-        ) {
+        // Check if the sphere is on the ground
+        if (sphere.position.y <= 0.5) {
+            // Apply an impulse to make the sphere bounce
             const bounceImpulse = new BABYLON.Vector3(0, 5, 0);
             sphereAggregate.body.applyImpulse(bounceImpulse, sphere.getAbsolutePosition());
         }
-    });
 
-    return scene;
-});
+        // Check if swipe contacts the sphere
+        const swipeVector = new BABYLON.Vector2(deltaX, deltaY);
+        if (swipeVector.length() > 2) { // Adjust the threshold based on your needs
+            // Calculate scaling factor based on current speed
+            const currentSpeed = sphereAggregate.body.getLinearVelocity().length();
+            const scalingFactor = 0.01 * currentSpeed;
+
+            // Apply an impulse based on the swipe direction, scaled force, and upward direction
+            const swipeImpulse = new BABYLON.Vector3(-deltaX * scalingFactor, 0.006 * currentSpeed, deltaY * scalingFactor);
+            sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
+            sphereAggregate.body.setLinearDamping(0.1);
+        }
+
+        // Check if the ball hits the front wall
+
+        // Computer Racket
+        const computerRacket = BABYLON.MeshBuilder.CreateBox("computerRacket", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
+        computerRacket.position.z = -courtLength / 2 + 0.1;
+        computerRacket.position.y = frontWallHeight / 2;
+
+        const computerRacketMaterial = new BABYLON.StandardMaterial("computerRacketMaterial", scene);
+        computerRacketMaterial.diffuseColor = new BABYLON.Color3(0, 0, 1);
+        computerRacket.material = computerRacketMaterial;
+
+        const computerRacketAggregate = new BABYLON.PhysicsAggregate(computerRacket, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+        scene.registerBeforeRender(() => {
+            updateComputerRacket();
+
+            const hitTolerance = 0.5;
+
+            if (
+                sphere.position.z >= computerRacket.position.z - hitTolerance &&
+                sphere.position.z <= computerRacket.position.z + hitTolerance &&
+
 
   
     const flashFrontWall = (frontWall) => {
