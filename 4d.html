@@ -3,23 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autoplay Videos</title>
+    <title>Lazy Autoplay</title>
 </head>
 <body>
 
-<!-- Replace 'VIDEO_ID' with the actual YouTube video IDs -->
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>
+<!-- Replace 'VIDEO_ID' with the actual YouTube video ID -->
+<iframe class="lazy-video" data-src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+<iframe class="lazy-video" data-src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+<iframe class="lazy-video" data-src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+<iframe class="lazy-video" data-src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+<iframe class="lazy-video" data-src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+<iframe class="lazy-video" data-src="https://www.youtube.com/embed/KG0YO29vm34?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
 
-<!-- Repeat this block for each additional video -->
+<script>
+    // Function to check if an element is in the viewport
+    function isElementInViewport(el) {
+        var rect = el.getBoundingClientRect();
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
+    }
+
+    // Function to handle lazy loading of videos
+    function lazyLoad() {
+        var lazyVideos = document.querySelectorAll('.lazy-video');
+
+        lazyVideos.forEach(function(video) {
+            if (isElementInViewport(video)) {
+                // Replace 'data-src' with 'src' to start loading and playing the video
+                video.setAttribute('src', video.getAttribute('data-src'));
+            }
+        });
+    }
+
+    // Intersection Observer to trigger lazy loading
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.setAttribute('src', entry.target.getAttribute('data-src'));
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 }); // Adjust the threshold as needed
+
+    // Observe lazy videos
+    var lazyVideos = document.querySelectorAll('.lazy-video');
+    lazyVideos.forEach(function(video) {
+        observer.observe(video);
+    });
+
+    // Listen for scroll events to check for lazy loading
+    document.addEventListener('scroll', lazyLoad);
+</script>
 
 </body>
 </html>
