@@ -38,9 +38,6 @@
 <body>
 
 <div id="container">
-    <!-- Add the countdown timer -->
-    <div id="countdown"></div>
-
     <!-- Control buttons -->
     <div id="control-buttons">
         <button onclick="startTimer()">Start Timer</button>
@@ -50,9 +47,11 @@
         <button onclick="decreaseTimer()">-1 Minute</button>
         <button onclick="newExercise()">New Exercise</button>
     </div>
+
+    <!-- Add the countdown timer -->
+    <div id="countdown"></div>
 </div>
 
-<!-- Replace 'VIDEO_ID' with the actual YouTube video ID -->
 <iframe class="lazy-video" data-src="https://www.youtube.com/embed/Zs04Xy4xErc?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
 <iframe class="lazy-video" data-src="https://www.youtube.com/embed/fPUERq1iWWE?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
 <iframe class="lazy-video" data-src="https://www.youtube.com/embed/8ZCBcT7R_LM?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
@@ -84,6 +83,7 @@
 <iframe class="lazy-video" data-src="https://www.youtube.com/embed/U_sMQoqTRdU?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
 <iframe class="lazy-video" data-src="https://www.youtube.com/embed/9kbh8lAdwBA?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
     
+
 <script>
     // Function to check if an element is in the viewport
     function isElementInViewport(el) {
@@ -175,6 +175,7 @@
     function newExercise() {
         // Reset the timer
         totalTime = 180;
+        updateCountdown(); // Update the display without starting the timer
 
         // Scroll to a random position on the screen
         var randomX = Math.floor(Math.random() * window.innerWidth);
@@ -186,4 +187,5 @@
 
 </body>
 </html>
+
     
