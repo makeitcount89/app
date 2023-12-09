@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lazy Autoplay</title>
     <style>
-        /* Add styles for the fixed timer */
-        #countdown {
+        /* Add styles for the fixed timer and buttons */
+        #countdown, #control-buttons {
             position: fixed;
             top: 0;
             left: 50%;
@@ -24,10 +24,16 @@
 <!-- Add the countdown timer -->
 <div id="countdown"></div>
 
-<!-- Start, Stop, and New Exercise buttons -->
-<button onclick="startTimer()">Start Timer</button>
-<button onclick="stopTimer()">Stop Timer</button>
-<button onclick="newExercise()">New Exercise</button>
+<!-- Control buttons -->
+<div id="control-buttons">
+    <button onclick="startTimer()">Start Timer</button>
+    <button onclick="stopTimer()">Stop Timer</button>
+    <button onclick="resetTimer()">Reset Timer</button>
+    <button onclick="increaseTimer()">+1 Minute</button>
+    <button onclick="decreaseTimer()">-1 Minute</button>
+    <button onclick="newExercise()">New Exercise</button>
+</div>
+
 <!-- Replace 'VIDEO_ID' with the actual YouTube video ID -->
 <iframe class="lazy-video" data-src="https://www.youtube.com/embed/Zs04Xy4xErc?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
 <iframe class="lazy-video" data-src="https://www.youtube.com/embed/fPUERq1iWWE?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
@@ -129,6 +135,24 @@
 
     function stopTimer() {
         clearInterval(countdownInterval);
+    }
+
+    function resetTimer() {
+        stopTimer();
+        totalTime = 180; // Reset to 3 minutes
+        updateCountdown();
+    }
+
+    function increaseTimer() {
+        totalTime += 60; // Increase by 1 minute
+        updateCountdown();
+    }
+
+    function decreaseTimer() {
+        if (totalTime >= 60) {
+            totalTime -= 60; // Decrease by 1 minute, but not below 0
+            updateCountdown();
+        }
     }
 
     function newExercise() {
