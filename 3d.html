@@ -7,23 +7,7 @@
     <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
-    
-      <style>
-           .buttonContainer {
-        position: absolute;
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        top: 10px;
-      }
-
-      .barGraph {
-        position: absolute;
-        bottom: 10px;
-        width: 50px;
-        height: 100px;
-        background-color: lightgray;
-      }
+    <style>
       html,
       body {
         overflow: hidden;
@@ -68,8 +52,10 @@
     <div id="canvasZone">
       <canvas id="renderCanvas"></canvas>
       <div id="counterDisplay">Hits: 0</div>
+      <div id="greenBars"></div>
     </div>
     <script>
+      
       const canvas = document.getElementById("renderCanvas");
       const engine = new BABYLON.Engine(canvas, true, {
         preserveDrawingBuffer: true,
@@ -302,14 +288,57 @@ if (
 
         return scene;
       };
+      
+      const greenBars = document.getElementById("greenBars");
 
-      function updateCounterDisplay() {
-        const counterDisplay = document.getElementById("counterDisplay");
-        if (counterDisplay) {
-          counterDisplay.innerHTML = `Hits: ${hitCounter}`;
+      // Create green bars in each corner
+      const createGreenBar = (position, rotation) => {
+        const greenBar = new BABYLON.GUI.Rectangle();
+        greenBar.width = "50px";
+        greenBar.height = "200px";
+        greenBar.cornerRadius = 20;
+        greenBar.color = "green";
+        greenBar.thickness = 0;
+
+        greenBar.rotation = rotation;
+        greenBar.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        greenBar.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+
+        greenBar.left = `${position.x}px`;
+        greenBar.top = `${position.y}px`;
+
+        greenBar.onPointerUpObservable.add(() => {
+          // Increment the corresponding counter and update display
+          hitCounters[position.name]++;
+          updateCounterDisplay();
+        });
+
+        greenBars.addControl(greenBar);
+      };
+
+      // Counter variables for each green bar
+      const hitCounters = {
+        topLeft: 0,
+        topRight: 0,
+        bottomLeft: 0,
+        bottomRight: 0,
+      };
+
+      // Create green bars in each corner
+      createGreenBar({ x: 0, y: 0, name: "topLeft" }, Math.PI / 2);
+      createGreenBar({ x: 0, y: window.innerHeight, name: "bottomLeft" }, -Math.PI / 2);
+      createGreenBar({ x: window.innerWidth, y: 0, name: "topRight" }, -Math.PI / 2);
+      createGreenBar({ x: window.innerWidth, y: window.innerHeight, name: "bottomRight" }, Math.PI / 2);
+
+      // Update the display for all green bars
+      const updateCounterDisplay = () => {
+        for (const [key, value] of Object.entries(hitCounters)) {
+          const counterElement = document.getElementById(`${key}Counter`);
+          if (counterElement) {
+            counterElement.textContent = `${key} Hits: ${value}`;
+          }
         }
-      }
-
+      };
 
       createScene().then((scene) => {
         engine.runRenderLoop(() => {
@@ -324,29 +353,6 @@ if (
         engine.resize();
       });
 
-        let errorCounter = 0;
-      let winnerCounter = 0;
-
-      function incrementCounter(type) {
-        if (type === 'error') {
-          errorCounter++;
-          updateBarGraph('error', errorCounter);
-        } else if (type === 'winner') {
-          winnerCounter++;
-          updateBarGraph('winner', winnerCounter);
-        }
-      }
-
-      function updateBarGraph(type, count) {
-        const barGraphId = type === 'error' ? 'errorBarGraph' : 'winnerBarGraph';
-        const barGraph = document.getElementById(barGraphId);
-
-        if (barGraph) {
-          barGraph.style.height = `${count * 10}px`; // Adjust the scaling as needed
-          barGraph.innerHTML = `${count}`;
-        }
-      }
-    
     </script>
   </body>
 </html>
