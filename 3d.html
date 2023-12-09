@@ -10,16 +10,6 @@
     <style>
       html,
       body {
-        <div id="canvasZone">
-      <canvas id="renderCanvas"></canvas>
-      <div id="counterDisplay">Hits: 0</div>
-      <div id="greenBars"></div>
-      <!-- Add HTML elements for counters -->
-      <div id="topLeftCounter"></div>
-      <div id="topRightCounter"></div>
-      <div id="bottomLeftCounter"></div>
-      <div id="bottomRightCounter"></div>
-    </div>
         overflow: hidden;
         width: 100%;
         height: 100%;
@@ -62,10 +52,8 @@
     <div id="canvasZone">
       <canvas id="renderCanvas"></canvas>
       <div id="counterDisplay">Hits: 0</div>
-      <div id="greenBars"></div>
     </div>
     <script>
-      
       const canvas = document.getElementById("renderCanvas");
       const engine = new BABYLON.Engine(canvas, true, {
         preserveDrawingBuffer: true,
@@ -298,57 +286,46 @@ if (
 
         return scene;
       };
-      
-      const greenBars = document.getElementById("greenBars");
 
-      // Create green bars in each corner
-      const createGreenBar = (position, rotation) => {
-        const greenBar = new BABYLON.GUI.Rectangle();
-        greenBar.width = "50px";
-        greenBar.height = "200px";
-        greenBar.cornerRadius = 20;
-        greenBar.color = "green";
-        greenBar.thickness = 0;
+      // Add the following lines after the creation of the scene
+const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-        greenBar.rotation = rotation;
-        greenBar.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        greenBar.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+const barGraph = new BABYLON.GUI.StackPanel();
+barGraph.width = "150px";
+barGraph.height = "400px";
+barGraph.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+barGraph.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+advancedTexture.addControl(barGraph);
 
-        greenBar.left = `${position.x}px`;
-        greenBar.top = `${position.y}px`;
+const bar = new BABYLON.GUI.Rectangle();
+bar.width = "20px";
+bar.height = "50px";
+bar.cornerRadius = 5;
+bar.color = "green";
+bar.thickness = 2;
+barGraph.addControl(bar);
 
-        greenBar.onPointerUpObservable.add(() => {
-          // Increment the corresponding counter and update display
-          hitCounters[position.name]++;
-          updateCounterDisplay();
-        });
+// Handle click event on the bar
+bar.onPointerDownObservable.add(() => {
+  // Increase the height of the bar on click
+  bar.heightInPixels += 10;
+});
 
-        greenBars.addControl(greenBar);
-      };
+// Function to update the bar graph height
+function updateBarGraphHeight() {
+  bar.heightInPixels = hitCounter * 10; // Adjust the multiplier as needed
+}
 
-      // Counter variables for each green bar
-      const hitCounters = {
-        topLeft: 0,
-        topRight: 0,
-        bottomLeft: 0,
-        bottomRight: 0,
-      };
+// Call the updateBarGraphHeight function whenever the hit counter is updated
+function updateCounterDisplay() {
+  const counterDisplay = document.getElementById("counterDisplay");
+  if (counterDisplay) {
+    counterDisplay.innerHTML = `Hits: ${hitCounter}`;
+    updateBarGraphHeight();
+  }
+}
 
-      // Create green bars in each corner
-      createGreenBar({ x: 0, y: 0, name: "topLeft" }, Math.PI / 2);
-      createGreenBar({ x: 0, y: window.innerHeight, name: "bottomLeft" }, -Math.PI / 2);
-      createGreenBar({ x: window.innerWidth, y: 0, name: "topRight" }, -Math.PI / 2);
-      createGreenBar({ x: window.innerWidth, y: window.innerHeight, name: "bottomRight" }, Math.PI / 2);
 
-      // Update the display for all green bars
-      const updateCounterDisplay = () => {
-        for (const [key, value] of Object.entries(hitCounters)) {
-          const counterElement = document.getElementById(`${key}Counter`);
-          if (counterElement) {
-            counterElement.textContent = `${key} Hits: ${value}`;
-          }
-        }
-      };
 
       createScene().then((scene) => {
         engine.runRenderLoop(() => {
