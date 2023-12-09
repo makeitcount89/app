@@ -4,9 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lazy Autoplay</title>
+    <style>
+        /* Add styles for the fixed timer */
+        #countdown {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            font-size: 18px;
+            z-index: 999;
+        }
+    </style>
 </head>
 <body>
 
+<!-- Add the countdown timer -->
+<div id="countdown"></div>
+
+<!-- Start, Stop, and New Exercise buttons -->
+<button onclick="startTimer()">Start Timer</button>
+<button onclick="stopTimer()">Stop Timer</button>
+<button onclick="newExercise()">New Exercise</button>
 <!-- Replace 'VIDEO_ID' with the actual YouTube video ID -->
 <iframe class="lazy-video" data-src="https://www.youtube.com/embed/Zs04Xy4xErc?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
 <iframe class="lazy-video" data-src="https://www.youtube.com/embed/fPUERq1iWWE?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
@@ -39,7 +60,8 @@
 <iframe class="lazy-video" data-src="https://www.youtube.com/embed/U_sMQoqTRdU?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
 <iframe class="lazy-video" data-src="https://www.youtube.com/embed/9kbh8lAdwBA?autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
     
-    <script>
+
+<script>
     // Function to check if an element is in the viewport
     function isElementInViewport(el) {
         var rect = el.getBoundingClientRect();
@@ -81,6 +103,44 @@
 
     // Listen for scroll events to check for lazy loading
     document.addEventListener('scroll', lazyLoad);
+
+    // Timer and buttons logic
+    var countdownElement = document.getElementById('countdown');
+    var totalTime = 180; // 3 minutes in seconds
+    var interval = 1000; // Update every second
+    var countdownInterval;
+
+    function updateCountdown() {
+        var minutes = Math.floor(totalTime / 60);
+        var seconds = totalTime % 60;
+
+        countdownElement.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+        if (totalTime > 0) {
+            totalTime--;
+        } else {
+            stopTimer();
+        }
+    }
+
+    function startTimer() {
+        countdownInterval = setInterval(updateCountdown, interval);
+    }
+
+    function stopTimer() {
+        clearInterval(countdownInterval);
+    }
+
+    function newExercise() {
+        // Reset the timer
+        totalTime = 180;
+
+        // Scroll to a random position on the screen
+        var randomX = Math.floor(Math.random() * window.innerWidth);
+        var randomY = Math.floor(Math.random() * window.innerHeight);
+        window.scrollTo(randomX, randomY);
+    }
+
 </script>
 
 </body>
