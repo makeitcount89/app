@@ -286,9 +286,12 @@ if (
         return scene;
       };
 
-      // Add the following lines after the creation of the scene
+      // ... Your existing code ...
+
+// Create advanced texture for GUI
 const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
+// Create a stack panel for the bar graph
 const barGraph = new BABYLON.GUI.StackPanel();
 barGraph.width = "150px";
 barGraph.height = "400px";
@@ -296,6 +299,7 @@ barGraph.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
 barGraph.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
 advancedTexture.addControl(barGraph);
 
+// Create a rectangle for the bar
 const bar = new BABYLON.GUI.Rectangle();
 bar.width = "20px";
 bar.height = "50px";
@@ -308,6 +312,8 @@ barGraph.addControl(bar);
 bar.onPointerDownObservable.add(() => {
   // Increase the height of the bar on click
   bar.heightInPixels += 10;
+  hitCounter++; // Update the hit counter
+  updateCounterDisplay(); // Update the counter display
 });
 
 // Function to update the bar graph height
@@ -323,6 +329,8 @@ function updateCounterDisplay() {
     updateBarGraphHeight();
   }
 }
+
+// ... The rest of your existing code ...
 
 
 
