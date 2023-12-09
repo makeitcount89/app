@@ -114,6 +114,12 @@
             if (entry.isIntersecting) {
                 entry.target.setAttribute('src', entry.target.getAttribute('data-src'));
                 observer.unobserve(entry.target);
+
+                // Add event listener to restart video when it ends
+                entry.target.addEventListener('ended', function() {
+                    entry.target.currentTime = 0;
+                    entry.target.play();
+                });
             }
         });
     }, { threshold: 0.5 }); // Adjust the threshold as needed
@@ -187,6 +193,7 @@
 
 </body>
 </html>
+
 
 
     
