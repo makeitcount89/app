@@ -210,11 +210,14 @@
     // Choose a random increment from the array
     var randomIncrement = increments[Math.floor(Math.random() * increments.length)];
 
+    // Choose a random direction (up or down)
+    var randomDirection = Math.random() < 0.5 ? -1 : 1;
+
     // Get the current scroll position
     var currentScrollPosition = window.scrollY;
 
     // Calculate the new scroll position
-    var newScrollPosition = currentScrollPosition + randomIncrement * 315; // Assuming video height is 315px
+    var newScrollPosition = currentScrollPosition + randomDirection * randomIncrement * 315; // Assuming video height is 315px
 
     // Scroll to the new position
     window.scrollTo({
@@ -222,6 +225,7 @@
         behavior: 'smooth'
     });
 }
+
 
 
 </script>
