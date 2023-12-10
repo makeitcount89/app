@@ -12,24 +12,26 @@
 
         #countdown {
     position: fixed;
-    top: 0; /* Align with the top of control buttons */
+    top: 50%; /* Center the timer vertically */
     right: 5%; /* Adjust the right positioning as needed */
     background-color: #333;
     color: #fff;
     padding: 20px;
     font-size: 108px; /* 1.5 times the original size */
     z-index: 999;
+    transform: translateY(-50%); /* Center the timer vertically */
 }
 
 #control-buttons {
     position: fixed;
-    top: 0;
+    top: 50%; /* Center the buttons vertically */
     left: 5%; /* Adjust the left positioning as needed */
     background-color: #333;
     color: #fff;
     padding: 5px;
     font-size: 24px; /* Adjust the font-size to make the buttons bigger */
     z-index: 999;
+    transform: translateY(-50%); /* Center the buttons vertically */
 }
 
 #control-buttons button {
@@ -52,7 +54,6 @@
 
 #control-buttons button.new-exercise {
     background-color: blue;
-
 }
 
 
