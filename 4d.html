@@ -88,14 +88,40 @@
     <div id="countdown"></div>
 </div>
 
-<!-- Video container -->
-<div id="video-container">
-    <iframe class="lazy-video" data-src="https://www.youtube.com/embed/Zs04Xy4xErc?autoplay=1&mute=1&loop=1&playlist=Zs04Xy4xErc" frameborder="0" allowfullscreen></iframe>
-    <iframe class="lazy-video" data-src="https://www.youtube.com/embed/fPUERq1iWWE?autoplay=1&mute=1&loop=1&playlist=fPUERq1iWWE" frameborder="0" allowfullscreen></iframe>
-    <iframe class="lazy-video" data-src="https://www.youtube.com/embed/8ZCBcT7R_LM?autoplay=1&mute=1&loop=1&playlist=8ZCBcT7R_LM" frameborder="0" allowfullscreen></iframe>
-</div>
-
-<script>
+    <script>
+        var videoLinks = [
+    "https://www.youtube.com/embed/Zs04Xy4xErc?autoplay=1&mute=1&loop=1&playlist=Zs04Xy4xErc",
+    "https://www.youtube.com/embed/fPUERq1iWWE?autoplay=1&mute=1&loop=1&playlist=fPUERq1iWWE",
+    "https://www.youtube.com/embed/8ZCBcT7R_LM?autoplay=1&mute=1&loop=1&playlist=8ZCBcT7R_LM",
+    "https://www.youtube.com/embed/4nfCs9uwito?autoplay=1&mute=1&loop=1&playlist=4nfCs9uwito",
+    "https://www.youtube.com/embed/Dq0SchBxPtM?autoplay=1&mute=1&loop=1&playlist=Dq0SchBxPtM",
+    "https://www.youtube.com/embed/wTapynjJUfM?autoplay=1&mute=1&loop=1&playlist=wTapynjJUfM",
+    "https://www.youtube.com/embed/yzyixgMXvvg?autoplay=1&mute=1&loop=1&playlist=yzyixgMXvvg",
+    "https://www.youtube.com/embed/_F6UxX7sEcY?autoplay=1&mute=1&loop=1&playlist=_F6UxX7sEcY",
+    "https://www.youtube.com/embed/hJJVLvNXTQk?autoplay=1&mute=1&loop=1&playlist=hJJVLvNXTQk",
+    "https://www.youtube.com/embed/HZsrcXfQ6X0?autoplay=1&mute=1&loop=1&playlist=HZsrcXfQ6X0",
+    "https://www.youtube.com/embed/J6D2U_aFpaU?autoplay=1&mute=1&loop=1&playlist=J6D2U_aFpaU",
+    "https://www.youtube.com/embed/Uffly4jZuH8?autoplay=1&mute=1&loop=1&playlist=Uffly4jZuH8",
+    "https://www.youtube.com/embed/OChldbfQxPI?autoplay=1&mute=1&loop=1&playlist=OChldbfQxPI",
+    "https://www.youtube.com/embed/fblho2oT94g?autoplay=1&mute=1&loop=1&playlist=fblho2oT94g",
+    "https://www.youtube.com/embed/hwyOum3wHDk?autoplay=1&mute=1&loop=1&playlist=hwyOum3wHDk",
+    "https://www.youtube.com/embed/WfF42AsLuRI?autoplay=1&mute=1&loop=1&playlist=WfF42AsLuRI",
+    "https://www.youtube.com/embed/5QSEmmXJ9qk?autoplay=1&mute=1&loop=1&playlist=5QSEmmXJ9qk",
+    "https://www.youtube.com/embed/YVglBqomMbQ?autoplay=1&mute=1&loop=1&playlist=YVglBqomMbQ",
+    "https://www.youtube.com/embed/0Rxd80pEqWY?autoplay=1&mute=1&loop=1&playlist=0Rxd80pEqWY",
+    "https://www.youtube.com/embed/fylBhNoYb78?autoplay=1&mute=1&loop=1&playlist=fylBhNoYb78",
+    "https://www.youtube.com/embed/grmf7xoysk8?autoplay=1&mute=1&loop=1&playlist=grmf7xoysk8",
+    "https://www.youtube.com/embed/vhnaN1cU7qc?autoplay=1&mute=1&loop=1&playlist=vhnaN1cU7qc",
+    "https://www.youtube.com/embed/rSeips6uGHQ?autoplay=1&mute=1&loop=1&playlist=rSeips6uGHQ",
+    "https://www.youtube.com/embed/aPLPNz4q-uY?autoplay=1&mute=1&loop=1&playlist=aPLPNz4q-uY",
+    "https://www.youtube.com/embed/IDD-eMfq7qk?autoplay=1&mute=1&loop=1&playlist=IDD-eMfq7qk",
+    "https://www.youtube.com/embed/ZxKGnDnVYgM?autoplay=1&mute=1&loop=1&playlist=ZxKGnDnVYgM",
+    "https://www.youtube.com/embed/eLrVT3YYToU?autoplay=1&mute=1&loop=1&playlist=eLrVT3YYToU",
+    "https://www.youtube.com/embed/UX7N7h8zJTM?autoplay=1&mute=1&loop=1&playlist=UX7N7h8zJTM",
+    "https://www.youtube.com/embed/U_sMQoqTRdU?autoplay=1&mute=1&loop=1&playlist=U_sMQoqTRdU",
+    "https://www.youtube.com/embed/9kbh8lAdwBA?autoplay=1&mute=1&loop=1&playlist=9kbh8lAdwBA"
+];
+        
     // Function to check if an element is in the viewport
     function isElementInViewport(el) {
         var rect = el.getBoundingClientRect();
@@ -191,52 +217,53 @@
 
     function newExercise() {
         // Reset the timer
-        totalTime = 180;
-        updateCountdown(); // Update the display without starting the timer
+        resetTimer();
 
-        // Randomly select three new videos
-        var videoLinks = [
-    "https://www.youtube.com/embed/Zs04Xy4xErc?autoplay=1&mute=1&loop=1&playlist=Zs04Xy4xErc",
-    "https://www.youtube.com/embed/fPUERq1iWWE?autoplay=1&mute=1&loop=1&playlist=fPUERq1iWWE",
-    "https://www.youtube.com/embed/8ZCBcT7R_LM?autoplay=1&mute=1&loop=1&playlist=8ZCBcT7R_LM",
-    "https://www.youtube.com/embed/4nfCs9uwito?autoplay=1&mute=1&loop=1&playlist=4nfCs9uwito",
-    "https://www.youtube.com/embed/Dq0SchBxPtM?autoplay=1&mute=1&loop=1&playlist=Dq0SchBxPtM",
-    "https://www.youtube.com/embed/wTapynjJUfM?autoplay=1&mute=1&loop=1&playlist=wTapynjJUfM",
-    "https://www.youtube.com/embed/yzyixgMXvvg?autoplay=1&mute=1&loop=1&playlist=yzyixgMXvvg",
-    "https://www.youtube.com/embed/_F6UxX7sEcY?autoplay=1&mute=1&loop=1&playlist=_F6UxX7sEcY",
-    "https://www.youtube.com/embed/hJJVLvNXTQk?autoplay=1&mute=1&loop=1&playlist=hJJVLvNXTQk",
-    "https://www.youtube.com/embed/HZsrcXfQ6X0?autoplay=1&mute=1&loop=1&playlist=HZsrcXfQ6X0",
-    "https://www.youtube.com/embed/J6D2U_aFpaU?autoplay=1&mute=1&loop=1&playlist=J6D2U_aFpaU",
-    "https://www.youtube.com/embed/Uffly4jZuH8?autoplay=1&mute=1&loop=1&playlist=Uffly4jZuH8",
-    "https://www.youtube.com/embed/OChldbfQxPI?autoplay=1&mute=1&loop=1&playlist=OChldbfQxPI",
-    "https://www.youtube.com/embed/fblho2oT94g?autoplay=1&mute=1&loop=1&playlist=fblho2oT94g",
-    "https://www.youtube.com/embed/hwyOum3wHDk?autoplay=1&mute=1&loop=1&playlist=hwyOum3wHDk",
-    "https://www.youtube.com/embed/WfF42AsLuRI?autoplay=1&mute=1&loop=1&playlist=WfF42AsLuRI",
-    "https://www.youtube.com/embed/5QSEmmXJ9qk?autoplay=1&mute=1&loop=1&playlist=5QSEmmXJ9qk",
-    "https://www.youtube.com/embed/YVglBqomMbQ?autoplay=1&mute=1&loop=1&playlist=YVglBqomMbQ",
-    "https://www.youtube.com/embed/0Rxd80pEqWY?autoplay=1&mute=1&loop=1&playlist=0Rxd80pEqWY",
-    "https://www.youtube.com/embed/fylBhNoYb78?autoplay=1&mute=1&loop=1&playlist=fylBhNoYb78",
-    "https://www.youtube.com/embed/grmf7xoysk8?autoplay=1&mute=1&loop=1&playlist=grmf7xoysk8",
-    "https://www.youtube.com/embed/vhnaN1cU7qc?autoplay=1&mute=1&loop=1&playlist=vhnaN1cU7qc",
-    "https://www.youtube.com/embed/rSeips6uGHQ?autoplay=1&mute=1&loop=1&playlist=rSeips6uGHQ",
-    "https://www.youtube.com/embed/aPLPNz4q-uY?autoplay=1&mute=1&loop=1&playlist=aPLPNz4q-uY",
-    "https://www.youtube.com/embed/IDD-eMfq7qk?autoplay=1&mute=1&loop=1&playlist=IDD-eMfq7qk",
-    "https://www.youtube.com/embed/ZxKGnDnVYgM?autoplay=1&mute=1&loop=1&playlist=ZxKGnDnVYgM",
-    "https://www.youtube.com/embed/eLrVT3YYToU?autoplay=1&mute=1&loop=1&playlist=eLrVT3YYToU",
-    "https://www.youtube.com/embed/UX7N7h8zJTM?autoplay=1&mute=1&loop=1&playlist=UX7N7h8zJTM",
-    "https://www.youtube.com/embed/U_sMQoqTRdU?autoplay=1&mute=1&loop=1&playlist=U_sMQoqTRdU",
-    "https://www.youtube.com/embed/9kbh8lAdwBA?autoplay=1&mute=1&loop=1&playlist=9kbh8lAdwBA"
-];
+        // Replace video links
+        replaceVideoLinks();
+    }
 
+    function replaceVideoLinks() {
+        var videoContainer = document.getElementById('video-container');
+        videoContainer.innerHTML = ''; // Clear existing videos
 
-        var newVideos = document.querySelectorAll('.lazy-video');
-        newVideos.forEach(function(video, index) {
-            video.setAttribute('data-src', videoLinks[index]);
-            video.setAttribute('src', ''); // Reset the src to trigger lazy loading
-        });
+        // Shuffle video links
+        var shuffledLinks = shuffle(videoLinks);
+
+        // Create new video iframes and append to the container
+        for (var i = 0; i < 3; i++) {
+            var videoIframe = document.createElement('iframe');
+            videoIframe.className = 'lazy-video';
+            videoIframe.setAttribute('data-src', shuffledLinks[i]);
+            videoIframe.width = 560;
+            videoIframe.height = 315;
+            videoIframe.frameBorder = 0;
+            videoIframe.allowFullscreen = true;
+            videoContainer.appendChild(videoIframe);
+        }
+    }
+
+    // Function to shuffle an array
+    function shuffle(array) {
+        var currentIndex = array.length, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (currentIndex != 0) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+
+        return array;
     }
 
 </script>
+    
+   
 
 </body>
 </html>
