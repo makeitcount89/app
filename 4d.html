@@ -200,15 +200,29 @@
     }
 
     function newExercise() {
-        // Reset the timer
-        totalTime = 180;
-        updateCountdown(); // Update the display without starting the timer
+    // Reset the timer
+    totalTime = 180;
+    updateCountdown(); // Update the display without starting the timer
 
-        // Scroll to a random position on the screen
-        var randomX = Math.floor(Math.random() * window.innerWidth);
-        var randomY = Math.floor(Math.random() * window.innerHeight);
-        window.scrollTo(randomX, randomY);
-    }
+    // Define the possible increments for scrolling
+    var increments = [3, 6, 9, 12, 18, 21, 24, 27]; // Adjust as needed
+
+    // Choose a random increment from the array
+    var randomIncrement = increments[Math.floor(Math.random() * increments.length)];
+
+    // Get the current scroll position
+    var currentScrollPosition = window.scrollY;
+
+    // Calculate the new scroll position
+    var newScrollPosition = currentScrollPosition + randomIncrement * 315; // Assuming video height is 315px
+
+    // Scroll to the new position
+    window.scrollTo({
+        top: newScrollPosition,
+        behavior: 'smooth'
+    });
+}
+
 
 </script>
 
