@@ -29,9 +29,31 @@
     background-color: #333;
     color: #fff;
     padding: 5px;
-    font-size: 32px; /* Adjust the font-size to make the buttons 1.5 times bigger */
+    font-size: 24px; /* Adjust the font-size to make the buttons bigger */
     z-index: 999;
-        }
+}
+
+#control-buttons button {
+    padding: 10px; /* Increase padding for larger buttons */
+    margin: 5px; /* Add margin for button separation */
+}
+
+#control-buttons button.start {
+    background-color: green;
+}
+
+#control-buttons button.stop {
+    background-color: red;
+}
+
+#control-buttons button.reset {
+    background-color: yellow;
+}
+
+#control-buttons button.new-exercise {
+    background-color: blue;
+}
+
 
     </style>
 </head>
@@ -40,12 +62,12 @@
 <div id="container">
     <!-- Control buttons -->
     <div id="control-buttons">
-        <button onclick="startTimer()">Start Timer</button>
-        <button onclick="stopTimer()">Stop Timer</button>
-        <button onclick="resetTimer()">Reset Timer</button>
+        <button class="start" onclick="startTimer()">Start Timer</button>
+        <button class="stop" onclick="stopTimer()">Stop Timer</button>
+        <button class="reset" onclick="resetTimer()">Reset Timer</button>
         <button onclick="increaseTimer()">+1 Minute</button>
         <button onclick="decreaseTimer()">-1 Minute</button>
-        <button onclick="newExercise()">New Exercise</button>
+        <button class="new-exercise" onclick="newExercise()">New Exercise</button>
     </div>
 
     <!-- Ad the countdown timer -->
