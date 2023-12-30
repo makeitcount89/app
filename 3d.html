@@ -1,352 +1,71 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Babylon.js using Havok</title>
-    <!-- Babylon.js and Havok Physics -->
-    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
-    <style>
-      html,
-      body {
-        overflow: hidden;
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      #renderCanvas {
-        width: 100%;
-        height: 100%;
-        touch-action: none;
-      }
-      #canvasZone {
-        width: 100%;
-        height: 100%;
-        position: relative;
-      }
-      #counterDisplay {
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: white;
-        font-size: 20px;
-      }
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Object Detection with TensorFlow.js</title>
+    <!-- TensorFlow.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <!-- COCO-SSD model CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+</head>
+<body>
+    <h1>Camera Object Detection Example</h1>
+    <video id="cameraFeed" width="640" height="480" autoplay></video>
+    <canvas id="outputCanvas" width="640" height="480" style="border:1px solid;"></canvas>
 
-      @media screen and (orientation: landscape) {
-        body {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        #canvasZone {
-          width: 100vw;
-          height: 100vh;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="canvasZone">
-      <canvas id="renderCanvas"></canvas>
-      <div id="counterDisplay">Hits: 0</div>
-    </div>
     <script>
-      const canvas = document.getElementById("renderCanvas");
-      const engine = new BABYLON.Engine(canvas, true, {
-        preserveDrawingBuffer: true,
-        stencil: true,
-        disableWebGL2Support: false,
-      });
+        // Function to start camera feed and perform object detection
+        async function startCamera() {
+            const video = document.getElementById('cameraFeed');
+            const canvas = document.getElementById('outputCanvas');
+            const ctx = canvas.getContext('2d');
 
-      // Counter variable
-      let hitCounter = 0;
-      let startingX, startingY, deltaX = 0, deltaY = 0;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
 
-      function flashFrontWall(frontWall) {
-        const originalEmissiveColor = frontWall.material.diffuseColor.clone();
-        frontWall.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
-
-        setTimeout(() => {
-          frontWall.material.diffuseColor = originalEmissiveColor;
-        }, 500);
-      }
-
-      const createScene = async function () {
-        const scene = new BABYLON.Scene(engine);
-
-        // Camera setup
-        const camera = new BABYLON.UniversalCamera(
-          "camera1",
-          new BABYLON.Vector3(0, 5.25, -10),
-          scene
-        );
-        camera.setTarget(BABYLON.Vector3.Zero());
-        camera.attachControl(canvas, true);
-        camera.rotation.x = Math.PI / 8;
-
-       // Zoom out animation
-        const zoomOutAnimation = new BABYLON.Animation(
-          "zoomOutAnimation",
-          "position",
-          60,
-          BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-          BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-        );
-
-        // Animation keyframes
-        const zoomOutKeyframes = [
-          {
-            frame: 0,
-            value: camera.position.clone(),
-          },
-          {
-            frame: 100,
-            value: camera.position.multiplyByFloats(1.25, 1.25, 2), // Zoom out by 25%
-          },
-        ];
-
-        // Assign keyframes to animation
-        zoomOutAnimation.setKeys(zoomOutKeyframes);
-
-        // Attach animation to the camera
-        camera.animations.push(zoomOutAnimation);
-
-        // Run the animation
-        scene.beginAnimation(camera, 0, 100, false);
-        camera.detachControl(canvas);
-      
-        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-        light.intensity = 0.7;
-        const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 0.1, segments: 32 }, scene);
-        sphere.position.y = 4;
-        const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 7.5, height: 12 }, scene);
-
-
-// Load the texture for the ground
-var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
-floorMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/3c272d3c3e635c62d4b05408a43142a4d73af5d7/IMG_20231204_192618%20(1)-min.png", scene);
-
-// Apply the material to the ground
-ground.material = floorMaterial;
-
-        
-        // Front Wall
-        const courtWidth = 7.5;
-        const frontWallHeight = 5.5;
-        const courtLength = 12;
-
-        var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
-        frontWall.position.z = courtLength / 2 - 0.1;
-        frontWall.position.y = frontWallHeight / 2;
-
-        var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
-        frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/a520932be550ee9f6b20f905d70db71303a1b25e/squash%20error%20tracker-min%20(1)%20(1)-min.png", scene);
-        frontWall.material = frontWallMaterial;
-
-        const backWallHeight = 4.8;
-
-  var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: backWallHeight, depth: 0.2 }, scene);
-  backWall.position.z = -courtLength / 2 + 0.1; // Adjusted position for the back wall
-  backWall.position.y = backWallHeight / 2;
-
-  var backWallMaterial = new BABYLON.StandardMaterial("backWallMaterial", scene);
-  backWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // White color for the back wall
-  backWallMaterial.alpha = 0.1; // Adjust transparency as needed
-  backWall.material = backWallMaterial;
-
-        const shorterBackWallHeight = 0.6; // Adjust the height as needed
-const shorterBackWall = BABYLON.MeshBuilder.CreateBox("shorterBackWall", { width: courtWidth, height: shorterBackWallHeight, depth: 0.002 }, scene);
-shorterBackWall.position.z = -courtLength / 2 + 0.1; // Adjusted position for the back wall
-shorterBackWall.position.y = shorterBackWallHeight / 2;
-
-var shorterBackWallMaterial = new BABYLON.StandardMaterial("shorterBackWallMaterial", scene);
-shorterBackWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
-shorterBackWallMaterial.alpha = 0.5; // Adjust transparency as needed
-shorterBackWall.material = shorterBackWallMaterial;
-        
-       
-        // Side Walls (White)
-        const sideWallHeight = 5.5;
-        const sideWallDepth = 0.2;
-
-        var leftWall = BABYLON.MeshBuilder.CreateBox("leftWall", { width: sideWallDepth, height: sideWallHeight, depth: courtLength + 2 * sideWallDepth }, scene);
-        leftWall.position.x = -courtWidth / 2 - sideWallDepth / 2;
-        leftWall.position.y = sideWallHeight / 2;
-
-        var rightWall = BABYLON.MeshBuilder.CreateBox("rightWall", { width: sideWallDepth, height: sideWallHeight, depth: courtLength + 2 * sideWallDepth }, scene);
-        rightWall.position.x = courtWidth / 2 + sideWallDepth / 2;
-        rightWall.position.y = sideWallHeight / 2;
-
-        var sideWallMaterial = new BABYLON.StandardMaterial("sideWallMaterial", scene);
-        sideWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
-        leftWall.material = sideWallMaterial;
-        rightWall.material = sideWallMaterial;
-
-        // Initialize Havok Physics
-        const havokInstance = await HavokPhysics();
-        const hk = new BABYLON.HavokPlugin(true, havokInstance);
-        scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
-
-        // Create a sphere shape and the associated body.
-        const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.59 }, scene);
-
-        // Create a static box shape for the ground.
-        const groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-
-        // Create a static box shape for the front wall.
-        const frontWallAggregate = new BABYLON.PhysicsAggregate(frontWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-
-        const backWallAggregate = new BABYLON.PhysicsAggregate(backWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-        const shorterBackWallAggregate = new BABYLON.PhysicsAggregate(shorterBackWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-        
-        // Create static box shapes for the side walls.
-        const leftWallAggregate = new BABYLON.PhysicsAggregate(leftWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-        const rightWallAggregate = new BABYLON.PhysicsAggregate(rightWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-
-      // Handle touch interaction
-      scene.onPointerObservable.add((pointerInfo) => {
-        if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
-          startingX = pointerInfo.event.clientX;
-          startingY = pointerInfo.event.clientY;
-        } else if (
-          pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE &&
-          startingX !== undefined &&
-          startingY !== undefined
-        ) {
-          deltaX = startingX - pointerInfo.event.clientX;
-          deltaY = startingY - pointerInfo.event.clientY;
-
-          startingX = pointerInfo.event.clientX;
-          startingY = pointerInfo.event.clientY;
-        } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
-          startingX = undefined;
-          startingY = undefined;
-
-          if (sphere.position.y <= 0.5) {
-            const bounceImpulse = new BABYLON.Vector3(0, 5, 0);
-            sphereAggregate.body.applyImpulse(
-              bounceImpulse,
-              sphere.getAbsolutePosition()
-            );
-          }
-
-          const swipeVector = new BABYLON.Vector2(deltaX, deltaY);
-          if (swipeVector.length() > 2) {
-            const currentSpeed = sphereAggregate.body.getLinearVelocity().length();
-            const scalingFactor = 0.01 * currentSpeed;
-
-            const swipeImpulse = new BABYLON.Vector3(
-              -deltaX * scalingFactor,
-              0.006 * currentSpeed,
-              deltaY * scalingFactor
-            );
-            sphereAggregate.body.applyImpulse(
-              swipeImpulse,
-              sphere.getAbsolutePosition()
-            );
-            sphereAggregate.body.setLinearDamping(0.1);
-
-           const hitTolerance = 5 * frontWall.scaling.z;
-if (
-  sphere.position.z >= frontWall.position.z - hitTolerance &&
-  sphere.position.z <= frontWall.position.z + hitTolerance &&
-  sphere.position.y >= frontWall.position.y - frontWall.scaling.y / 2 &&
-  sphere.position.y <= frontWall.position.y + frontWall.scaling.y / 2
-) {
- 
-              hitCounter++;
-              flashFrontWall(frontWall);
+                // Wait for the metadata to be loaded, then play the video
+                video.onloadedmetadata = () => {
+                    video.play();
+                    detectFromCamera(video, ctx);
+                };
+            } catch (error) {
+                console.error('Error accessing camera:', error);
             }
-          }
-
-          deltaX = 0;
-          deltaY = 0;
         }
-      });
 
-        // Computer player logic
-        setInterval(() => {
-          if (hitCounter % 2 === 1) {
-            const computerSwipeImpulse = new BABYLON.Vector3(
-              0,
-              0.006 * sphereAggregate.body.getLinearVelocity().length(),
-              0.1
-            );
-            sphereAggregate.body.applyImpulse(
-              computerSwipeImpulse,
-              sphere.getAbsolutePosition()
-            );
-            sphereAggregate.body.setLinearDamping(0.1);
-          }
-        }, 1000);
+        // Function to perform object detection on camera feed
+        async function detectFromCamera(video, ctx) {
+            const model = await cocoSsd.load(); // Load COCO-SSD model
 
-        return scene;
-      };
+            // Continuously detect objects from camera feed
+            async function detectFrame() {
+                ctx.drawImage(video, 0, 0, 640, 480);
+                const predictions = await model.detect(video);
 
-      // ... Your existing code ...
+                // Draw predictions on the canvas
+                predictions.forEach(prediction => {
+                    ctx.beginPath();
+                    ctx.rect(...prediction.bbox);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = 'red';
+                    ctx.fillStyle = 'red';
+                    ctx.font = '16px Arial';
+                    ctx.fillText(`${prediction.class} (${Math.round(prediction.score * 100)}%)`, prediction.bbox[0], prediction.bbox[1] > 10 ? prediction.bbox[1] - 5 : 10);
+                    ctx.stroke();
+                });
 
-// Create advanced texture for GUI
-const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+                // Request the next animation frame
+                requestAnimationFrame(detectFrame);
+            }
 
-// Create a stack panel for the bar graph
-const barGraph = new BABYLON.GUI.StackPanel();
-barGraph.width = "150px";
-barGraph.height = "400px";
-barGraph.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-barGraph.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-advancedTexture.addControl(barGraph);
+            // Start object detection
+            detectFrame();
+        }
 
-// Create a rectangle for the bar
-const bar = new BABYLON.GUI.Rectangle();
-bar.width = "20px";
-bar.height = "50px";
-bar.cornerRadius = 5;
-bar.color = "green";
-bar.thickness = 2;
-barGraph.addControl(bar);
-
-// Handle click event on the bar
-bar.onPointerDownObservable.add(() => {
-  // Increase the height of the bar on click
-  bar.heightInPixels += 10;
-  hitCounter++; // Update the hit counter
-  updateCounterDisplay(); // Update the counter display
-});
-
-// Function to update the bar graph height
-function updateBarGraphHeight() {
-  bar.heightInPixels = hitCounter * 10; // Adjust the multiplier as needed
-}
-
-// Call the updateBarGraphHeight function whenever the hit counter is updated
-function updateCounterDisplay() {
-  const counterDisplay = document.getElementById("counterDisplay");
-  if (counterDisplay) {
-    counterDisplay.innerHTML = `Hits: ${hitCounter}`;
-    updateBarGraphHeight();
-  }
-}
-
-// ... The rest of your existing code ...
-
-
-
-      createScene().then((scene) => {
-        engine.runRenderLoop(() => {
-          if (scene) {
-            scene.render();
-          }
-        });
-      });
-
-      // Resize
-      window.addEventListener("resize", () => {
-        engine.resize();
-      });
-
+        // Start the camera when the page loads
+        window.onload = startCamera;
     </script>
-  </body>
+</body>
 </html>
