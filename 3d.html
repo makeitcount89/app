@@ -3,25 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Object Detection with TensorFlow.js</title>
+    <title>Camera Face Detection with TensorFlow.js</title>
     <!-- TensorFlow.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <!-- COCO-SSD model CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <!-- TensorFlow.js Face API model CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
 </head>
 <body>
-    <h1>Camera Object Detection Example</h1>
-    <video id="cameraFeed" width="320" height="240" autoplay></video>
-    <canvas id="outputCanvas" width="320" height="240" style="border:1px solid;"></canvas>
+    <h1>Camera Face Detection Example</h1>
+    <video id="cameraFeed" width="640" height="480" autoplay></video>
+    <canvas id="outputCanvas" width="640" height="480" style="border:1px solid;"></canvas>
 
     <script>
-        // Function to start camera feed and perform object detection
+        // Function to start camera feed and perform face detection
         async function startCamera() {
             const video = document.getElementById('cameraFeed');
             const canvas = document.getElementById('outputCanvas');
             const ctx = canvas.getContext('2d');
-            
-            const model = await cocoSsd.load(); // Load COCO-SSD model
 
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -30,43 +28,36 @@
                 // Wait for the metadata to be loaded, then play the video
                 video.onloadedmetadata = () => {
                     video.play();
-                    detectFromCamera(video, ctx, model);
+                    detectFacesFromCamera(video, ctx);
                 };
             } catch (error) {
                 console.error('Error accessing camera:', error);
             }
         }
 
-        // Function to perform object detection on camera feed
-        async function detectFromCamera(video, ctx, model) {
-            let frameCount = 0;
+        // Function to perform face detection on camera feed
+        async function detectFacesFromCamera(video, ctx) {
+            const model = await faceLandmarksDetection.load(); // Load Face API model
 
-            // Continuously detect objects from camera feed
+            // Continuously detect faces from camera feed
             async function detectFrame() {
-                // Process every second frame
-                frameCount++;
-                if (frameCount % 2 === 0) {
-                    ctx.drawImage(video, 0, 0, 320, 240);
-                    const predictions = await model.detect(video, { score: 0.3 });
+                ctx.drawImage(video, 0, 0, 640, 480);
+                const predictions = await model.estimateFaces(video);
 
-                    // Draw predictions on the canvas
-                    predictions.forEach(prediction => {
-                        ctx.beginPath();
-                        ctx.rect(...prediction.bbox);
-                        ctx.lineWidth = 2;
-                        ctx.strokeStyle = 'red';
-                        ctx.fillStyle = 'red';
-                        ctx.font = '12px Arial';
-                        ctx.fillText(`${prediction.class} (${Math.round(prediction.score * 100)}%)`, prediction.bbox[0], prediction.bbox[1] > 10 ? prediction.bbox[1] - 5 : 10);
-                        ctx.stroke();
-                    });
-                }
+                // Draw predictions on the canvas
+                predictions.forEach(prediction => {
+                    ctx.beginPath();
+                    ctx.rect(prediction.boundingBox.topLeft[0], prediction.boundingBox.topLeft[1], prediction.boundingBox.bottomRight[0] - prediction.boundingBox.topLeft[0], prediction.boundingBox.bottomRight[1] - prediction.boundingBox.topLeft[1]);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = 'red';
+                    ctx.stroke();
+                });
 
                 // Request the next animation frame
                 requestAnimationFrame(detectFrame);
             }
 
-            // Start object detection
+            // Start face detection
             detectFrame();
         }
 
