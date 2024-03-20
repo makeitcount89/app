@@ -272,8 +272,12 @@
             sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: .55 }, scene);
 
             const groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-                       ground.physicsImpostor.physicsBody.collisionFilterGroup = 2;
-            ground.physicsImpostor.physicsBody.collisionFilterMask = 2;
+                       if (ground.physicsImpostor) {
+    ground.physicsImpostor.physicsBody.collisionFilterGroup = 2;
+    ground.physicsImpostor.physicsBody.collisionFilterMask = 2;
+    ground.physicsImpostor.setPhysicsLinkWith(ground, null);
+}
+
 
             const roofAggregate = new BABYLON.PhysicsAggregate(roof, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
             roof.physicsImpostor.physicsBody.collisionFilterGroup = 2;
