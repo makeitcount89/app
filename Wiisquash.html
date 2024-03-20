@@ -169,6 +169,13 @@
             sphere.position.y = 4;
             const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 30, height: 40 }, scene);
 
+          if (ground.physicsImpostor) {
+    ground.physicsImpostor.physicsBody.collisionFilterGroup = 2;
+    ground.physicsImpostor.physicsBody.collisionFilterMask = 2;
+    ground.physicsImpostor.setPhysicsLinkWith(ground, null);
+}
+
+            
             var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
             floorMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/3c272d3c3e635c62d4b05408a43142a4d73af5d7/IMG_20231204_192618%20(1)-min.png", scene);
             ground.material = floorMaterial;
