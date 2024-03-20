@@ -292,9 +292,7 @@
     roof.physicsImpostor.physicsBody.collisionFilterGroup = 2;
     roof.physicsImpostor.physicsBody.collisionFilterMask = 2;
     roof.physicsImpostor.setPhysicsLinkWith(ground, null);
-}
-            roof.physicsImpostor.physicsBody.collisionFilterGroup = 2;
-            roof.physicsImpostor.physicsBody.collisionFilterMask = 2;
+            }
 
             const frontWallAggregate = new BABYLON.PhysicsAggregate(frontWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
             frontWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
