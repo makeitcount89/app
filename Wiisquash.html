@@ -295,25 +295,40 @@
             }
 
             const frontWallAggregate = new BABYLON.PhysicsAggregate(frontWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-            frontWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
-            frontWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
+            
+            if (frontWall.physicsImpostor) {
+    frontWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
+    frontWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
+    frintWall.physicsImpostor.setPhysicsLinkWith(ground, null);
+}
 
             const backWallAggregate = new BABYLON.PhysicsAggregate(backWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-            backWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
-            backWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
-
+            if (backWall.physicsImpostor) {
+    backWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
+    backWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
+    backWall.physicsImpostor.setPhysicsLinkWith(ground, null);
+}
+            
             const shorterBackWallAggregate = new BABYLON.PhysicsAggregate(shorterBackWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-            shorterBackWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
-            shorterBackWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
-
+          
+            if (shorterBackWall.physicsImpostor) {
+    shorterBackWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
+    shorterBackWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
+    shorterBackWall.physicsImpostor.setPhysicsLinkWith(ground, null);
+}
+            
             const leftWallAggregate = new BABYLON.PhysicsAggregate(leftWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-            leftWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
-            leftWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
-
+            if (leftWall.physicsImpostor) {
+    leftWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
+    leftWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
+    leftWall.physicsImpostor.setPhysicsLinkWith(ground
+}
             const rightWallAggregate = new BABYLON.PhysicsAggregate(rightWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
-            rightWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
-            rightWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
-            camera.inputs.attached.keyboard.detachControl();
+            if (rightWall.physicsImpostor) {
+    rightWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
+    rightWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
+    rightWall.physicsImpostor.setPhysicsLinkWith(ground
+}   camera.inputs.attached.keyboard.detachControl();
 
             let start = null;
             let dt;
