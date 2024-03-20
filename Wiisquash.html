@@ -287,6 +287,12 @@
 
 
             const roofAggregate = new BABYLON.PhysicsAggregate(roof, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+            
+            if (roof.physicsImpostor) {
+    roof.physicsImpostor.physicsBody.collisionFilterGroup = 2;
+    roof.physicsImpostor.physicsBody.collisionFilterMask = 2;
+    roof.physicsImpostor.setPhysicsLinkWith(ground, null);
+}
             roof.physicsImpostor.physicsBody.collisionFilterGroup = 2;
             roof.physicsImpostor.physicsBody.collisionFilterMask = 2;
 
