@@ -156,6 +156,8 @@
             camera.attachControl(canvas, true);
             camera.rotation.x = Math.PI / 8;
 
+            const courtWidth = 10; 
+
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
             light.intensity = 0.7;
             sphere  = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: .44, segments: 64 }, scene);
