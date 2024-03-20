@@ -180,6 +180,8 @@
             frontWall.material = frontWallMaterial;
             
             let cameraMode = 0;
+            let firstPersonView = false;
+
             actionCamButton.addEventListener("click", () => {
                 firstPersonView = false; 
                 cameraMode = (cameraMode + 1) % 3;
