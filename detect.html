@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babylon.js using Havok</title>
+    <!-- Babylon.js and Havok Physics -->
+    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></
+script>
+    <style>
+    #scoreDisplay {
+        position: absolute;
+        top: 20px; /* Adjust top position as needed */
+        left: 20px; /* Adjust left position as needed */
+        color: white;
+        font-size: 20px;
+        z-index: 100; /* Ensure a high z-index to bring it to the front */
+    }
+    
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #canvasContainer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #renderCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+        }
+
+        .container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+                    }
+
+        .input_video {
+            display: none;
+            transform: scaleX(-1);
+        }
+
+        .output_canvas {
+            width: 300px; /* Adjust as needed */
+            height: 200px; /* Adjust as needed */
+            transform: scaleX(-1);
+            opacity: 0.1; /* Set the opacity to control transparency */
+            
+                       
+            }
+            .container video {
+    opacity: 0.1; /* Set the opacity to control transparency */
+}
+
+        /* Styling for the coordinates div without flipping */
+        #handInfo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+        }
+
+        #counterDisplay {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvasContainer">
+        <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+
+        <div class="container">
+            <video class="input_video"></video>
+            <canvas class="output_canvas"></canvas>
+        </div>
+
+    <!-- Display hand coordinates and speed separately without flipping -->
+    <!-- <div id="handInfo"></div> -->
+    <div id="scoreDisplay">Score: 0</div>
+
+                
+
+           <div id="canvasZone">
+    <canvas id="videoCanvas"></canvas>
+    <!-- <div id="counterDisplay">Hits: 0</div> -->
+    <button id="actionCamButton" style="position: absolute; bottom: 20px; left: 5%; transform: translateX(-50%); background-color: black; color: white; padding: 10px; font-size: 16px; border: none; cursor: pointer;">Toggle CAM</button>
+    <button id="increaseSizeButton" style="position: absolute; bottom: 20px; left: 30%; transform: translateX(-50%); background-color: black; color: white; padding: 10px; font-size: 16px; border: none; cursor: pointer;">Soccer Ball</button>
+    <button id="BeachButton" style="position: absolute; bottom: 20px; left: 55%; transform: translateX(-50%); background-color: black; color: white; padding: 10px; font-size: 16px; border: none; cursor: pointer;">Beach Ball</button>
+    <button id="resetSizeButton" style="position: absolute; bottom: 20px; left: 80%; transform: translateX(-50%); background-color: black; color: white; padding: 10px; font-size: 16px; border: none; cursor: pointer;">Squash Ball</button>
+</div>
+
+            <script>
+            let score = 0;
+            // Update the score display function
+    function updateScoreDisplay() {
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        scoreDisplay.textContent = `Score: ${score}`;
+    }
+            let sphere; // Declare sphere globally
+            let sphereAggregate;
+
+increaseSizeButton.addEventListener("click", () => {
+    // Check if the sphere is defined
+    if (sphere) {
+        // Set the sphere size to 5 times the original size
+        const scaleFactor = 5;
+        sphere.scaling = new BABYLON.Vector3(scaleFactor, scaleFactor, scaleFactor);
+       
+       // Dispose the existing physics impostor
+        if (sphere.physicsImpostor) {
+            sphere.physicsImpostor.dispose();
+        }
+
+        // Create a new physics impostor for the updated size
+        sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: .64 }, babylonScene);
+             
+    }
+});
+
+
+// Add a new button click event listener for the 10x increase
+const BeachButton = document.getElementById("BeachButton");
+BeachButton.addEventListener("click", () => {
+    // Check if the sphere is defined
+    if (sphere) {
+        // Set the sphere size to 10 times the original size
+        const scaleFactor = 10;
+        sphere.scaling = new BABYLON.Vector3(scaleFactor, scaleFactor, scaleFactor);
+// Dispose the existing physics impostor
+        if (sphere.physicsImpostor) {
+            sphere.physicsImpostor.dispose();
+        }
+
+        // Create a new physics impostor for the updated size
+        sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.64 }, babylonScene);
+        
+    }
+});
+
+// Add a new button click event listener to reset the size
+const resetSizeButton = document.getElementById("resetSizeButton");
+resetSizeButton.addEventListener("click", () => {
+    // Check if the sphere is defined
+    if (sphere) {
+        // Reset the sphere size to the original size
+        const originalSize = 1;
+        sphere.scaling = new BABYLON.Vector3(originalSize, originalSize, originalSize);
+// Dispose the existing physics impostor
+        if (sphere.physicsImpostor) {
+            sphere.physicsImpostor.dispose();
+        }
+
+        // Create a new physics impostor for the updated size
+        sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.55 }, babylonScene);
+        
+       }
+});
+
+                // Previous hand coordinates
+                let prevHandCoordinates = { x: 0, y: 0, z: 0 };
+                // Babylon.js code
+                const canvas = document.getElementById("renderCanvas");
+                const engine = new BABYLON.Engine(canvas, true);
+
+                // Add this script to handle the button click
+                const actionCamButton = document.getElementById("actionCamButton");
+                
+               
+
+       
+                                // Counter variable
+                let hitCounter = 0;
+                let firstPersonView = true;
+                let startingX, startingY, deltaX = 0, deltaY = 0;
+
+                
+
+                const createScene = async function () {
+                    const scene = new BABYLON.Scene(engine);
+                    
+                     const camera = new BABYLON.UniversalCamera(
+                        "camera1",
+                        new BABYLON.Vector3(0, 5.25, -1),
+                        scene
+                    );
+                    camera.setTarget(BABYLON.Vector3.Zero());
+                    camera.attachControl(canvas, true);
+                    camera.rotation.x = Math.PI / 8;
+
+
+                    // Zoom out animation
+                    const zoomOutAnimation = new BABYLON.Animation(
+                        "zoomOutAnimation",
+                        "position",
+                        60,
+                        BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+                        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+                    );
+
+                    // Animation keyframes
+                    const zoomOutKeyframes = [
+                        {
+                            frame: 0,
+                            value: camera.position.clone(),
+                        },
+                        {
+                            frame: 100,
+                            value: camera.position.multiplyByFloats(1.25, 1.25, 1), // Zoom out by 25%
+                        },
+                    ];
+
+                    // Assign keyframes to animation
+                    zoomOutAnimation.setKeys(zoomOutKeyframes);
+
+                    // Attach animation to the camera
+                    camera.animations.push(zoomOutAnimation);
+
+                    // Run the animation
+                    scene.beginAnimation(camera, 0, 100, false);
+                    camera.detachControl(canvas);
+
+
+// Remove this line, as it's not needed for FreeCamera
+// camera.setTarget(BABYLON.Vector3.Zero());
+
+                    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+                    light.intensity = 0.7;
+                    sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: .44, segments: 64 }, scene);
+                    sphere.position.y = 4;
+                    const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 30, height: 40 }, scene);
+
+
+                    // Load the texture for the ground
+                    var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
+                    floorMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/3c272d3c3e635c62d4b05408a43142a4d73af5d7/IMG_20231204_192618%20(1)-min.png", scene);
+
+                    // Apply the material to the ground
+                    ground.material = floorMaterial;
+                    
+                     // Front Wall
+                    const courtWidth = 30;
+                    const frontWallHeight = 20;
+                    const courtLength = 40;
+                    
+                    // Create a roof
+const roofHeight = 20; // Adjust the height as needed
+const roof = BABYLON.MeshBuilder.CreateBox("roof", { width: courtWidth, height: 0.2, depth: courtLength }, scene);
+roof.position.y = 9 + roofHeight / 2; // Position it above the court
+roof.visibility = 0.1;
+
+
+                    var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.5 }, scene);
+                    frontWall.position.z = courtLength / 2 - 0.1;
+                    frontWall.position.y = frontWallHeight / 2;
+
+                    var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
+                    frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/a520932be550ee9f6b20f905d70db71303a1b25e/squash%20error%20tracker-min%20(1)%20(1)-min.png", scene);
+                    frontWall.material = frontWallMaterial;
+                    
+                    let cameraMode = 0;
+                actionCamButton.addEventListener("click", () => {
+                    // Toggle first-person view
+                   firstPersonView = false; 
+                   cameraMode = (cameraMode + 1) % 3;
+switch (cameraMode) {
+        case 0:
+            // Default camera position
+            
+            camera.position = new BABYLON.Vector3(4, 10, - 50);
+                       camera.rotation.x = Math.PI / 200;
+  break;
+        case 1:
+            // First-person view
+            firstPersonView = false;
+            camera.position = new BABYLON.Vector3(4, 30, - 40);
+            camera.rotation.x = Math.PI / 5;
+            break;
+        case 2:
+            // Third-person view
+            firstPersonView = true;
+             break;
+        
+            }
+});
+
+// Create a sound object
+var sound = new BABYLON.Sound("mySound", "https://raw.githubusercontent.com/makeitcount89/app/d3458d15e516a8e1bb09c29b9bee5998f656b30d/sport-squash-ball-hit-against-court-wall-002.mp3", scene, null, { loop: false, autoplay: true, spatialSound: true  });
+let canPlaySound = true;
+scene.registerBeforeRender(function () {
+                         const collisionPoint = sphere.getAbsolutePosition().y;
+            const frontWallHeight = 1; // Adjust the threshold as needed
+
+            if (sphere.intersectsMesh(frontWall, true) && canPlaySound && collisionPoint > frontWallHeight) {
+                // Increment the score only if the ball is above the specified height
+               sound.play();
+                        canPlaySound = false;
+                        score++;
+            updateScoreDisplay();
+            
+
+                 setTimeout(() => {
+                canPlaySound = true;
+            }, 1000); // Cooldown period in milliseconds
+        }
+        
+        
+    });
+
+                    const backWallHeight = 20;
+
+                    var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: backWallHeight, depth: 0.2 }, scene);
+                    backWall.position.z = -courtLength / 2 + 0.1; // Adjusted position for the back wall
+                    backWall.position.y = backWallHeight / 2;
+
+                    var backWallMaterial = new BABYLON.StandardMaterial("backWallMaterial", scene);
+                    backWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // White color for the back wall
+                    backWallMaterial.alpha = 0.1; // Adjust transparency as needed
+                    backWall.material = backWallMaterial;
+
+                    const shorterBackWallHeight = 1; // Adjust the height as needed
+                    const shorterBackWall = BABYLON.MeshBuilder.CreateBox("shorterBackWall", { width: courtWidth, height: shorterBackWallHeight, depth: 0.002 }, scene);
+                    shorterBackWall.position.z = -courtLength / 2 + 0.1; // Adjusted position for the back wall
+                    shorterBackWall.position.y = shorterBackWallHeight / 2;
+
+                    var shorterBackWallMaterial = new BABYLON.StandardMaterial("shorterBackWallMaterial", scene);
+                    shorterBackWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+                    shorterBackWallMaterial.alpha = 0.5; // Adjust transparency as needed
+                    shorterBackWall.material = shorterBackWallMaterial;
+
+
+                    // Side Walls (White)
+                    const sideWallHeight = 20;
+                    const sideWallDepth = 0.2;
+
+                    var leftWall = BABYLON.MeshBuilder.CreateBox("leftWall", { width: sideWallDepth, height: sideWallHeight, depth: courtLength + 2 * sideWallDepth }, scene);
+                    leftWall.position.x = -courtWidth / 2 - sideWallDepth / 2;
+                    leftWall.position.y = sideWallHeight / 2;
+
+                    var rightWall = BABYLON.MeshBuilder.CreateBox("rightWall", { width: sideWallDepth, height: sideWallHeight, depth: courtLength + 2 * sideWallDepth }, scene);
+                    rightWall.position.x = courtWidth / 2 + sideWallDepth / 2;
+                    rightWall.position.y = sideWallHeight / 2;
+
+                    var sideWallMaterial = new BABYLON.StandardMaterial("sideWallMaterial", scene);
+                    sideWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+                    leftWall.material = sideWallMaterial;
+                    rightWall.material = sideWallMaterial;
+
+                    // Initialize Havok Physics
+                    const havokInstance = await HavokPhysics();
+                    const hk = new BABYLON.HavokPlugin(true, havokInstance);
+                    scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
+                    
+                    let subSteps = 2; // Adjust this value based on your needs
+
+scene.getPhysicsEngine().setSubTimeStep(subSteps);
+
+
+                    // Create a sphere shape and the associated body.
+                   sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: .55 }, scene);
+
+                    // Create a static box shape for the ground.
+                    const groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+                    // Create a static box shape for the front wall.
+                    const frontWallAggregate = new BABYLON.PhysicsAggregate(frontWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+                    const backWallAggregate = new BABYLON.PhysicsAggregate(backWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+                    const shorterBackWallAggregate = new BABYLON.PhysicsAggregate(shorterBackWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+                    // Create static box shapes for the side walls.
+                    const leftWallAggregate = new BABYLON.PhysicsAggregate(leftWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+                    const rightWallAggregate = new BABYLON.PhysicsAggregate(rightWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+                    // Create a static box shape for the roof
+const roofAggregate = new BABYLON.PhysicsAggregate(roof, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+
+              
+                            if (firstPersonView) {
+                                // Enable camera
+                                
+
+                                // First-person view - Zoom in to be level with the back wall
+                                const targetPosition = new BABYLON.Vector3(0, backWall.position.y, backWall.position.z - 5);
+                                const zoomAnimation = new BABYLON.Animation(
+                                    "zoomAnimation",
+                                    "position",
+                                    60,
+                                    BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+                                    BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+                                );
+
+                                const zoomKeyframes = [
+                                    { frame: 0, value: camera.position.clone() },
+                                    { frame: 100, value: targetPosition },
+                                ];
+
+                                zoomAnimation.setKeys(zoomKeyframes);
+                                camera.animations.push(zoomAnimation);
+                                scene.beginAnimation(camera, 0, 100, false);
+                                
+                                                        }
+                                                        
+                                                                                
+              
+
+                    // Computer player logic
+                    setInterval(() => {
+                        if (hitCounter % 2 === 1) {
+                            const computerSwipeImpulse = new BABYLON.Vector3(
+                                0,
+                                0.006 * sphereAggregate.body.getLinearVelocity().length(),
+                                0.1
+                            );
+                            sphereAggregate.body.applyImpulse(
+                                computerSwipeImpulse,
+                                sphere.getAbsolutePosition()
+                            );
+                            sphereAggregate.body.setLinearDamping(0.1);
+                        }
+                    }, 1000);
+                    // Update camera position to follow the ball
+                    scene.registerBeforeRender(() => {
+                        if (firstPersonView) {
+                            // Move the camera to follow the ball
+                            camera.position = new BABYLON.Vector3(sphere.position.x, 5, sphere.position.z - 15);
+                       camera.rotation.x = Math.PI / 400;
+
+                        }
+
+                    });
+                    // Mediapipe Hands code
+                    const videoElement = document.getElementsByClassName('input_video')[0];
+                    const canvasElement = document.getElementsByClassName('output_canvas')[0];
+                    const canvasCtx = canvasElement.getContext('2d');
+
+                    function onResults(results) {
+                        canvasCtx.save();
+                        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                        canvasCtx.drawImage(
+                            results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+                        if (results.multiHandLandmarks) {
+                            for (const landmarks of results.multiHandLandmarks) {
+                                drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+                                    color: '#00FF00',
+                                    lineWidth: 5
+                                });
+                                drawLandmarks(canvasCtx, landmarks, {
+                                    color: '#FF0000',
+                                    lineWidth: 2
+                                });
+
+                                // Display hand coordinates
+                                const handInfoDiv = document.getElementById('handInfo');
+                                const currentCoordinates = {
+                                    x: landmarks[0].x.toFixed(2),
+                                    y: landmarks[0].y.toFixed(2),
+                                    z: landmarks[0].z.toFixed(2)
+                                };
+
+                                // Scaling factor for amplification
+                                const scalingFactor = 12;
+                                const scalingFactorY = 16;
+                                const scalingFactorZ = 1.22; // Adjust as needed
+
+
+                                // Calculate impulse based on the change in position
+                                const impulse = new BABYLON.Vector3(
+                                    (-currentCoordinates.x * scalingFactor + prevHandCoordinates.x * scalingFactor),
+                                    (-currentCoordinates.y * scalingFactorY + prevHandCoordinates.y * scalingFactorY), // Adjust the sign for the y-coordinate
+                                    (-currentCoordinates.y * scalingFactor + prevHandCoordinates.y * scalingFactor * scalingFactorZ)
+                                );
+
+                                // Apply the impulse to the sphere's physics body
+                                sphereAggregate.body.applyImpulse(impulse, sphere.getAbsolutePosition());
+
+                                // Update previous coordinates
+                                prevHandCoordinates = currentCoordinates;
+                              
+
+
+                             <!--   handInfoDiv.innerHTML = `Hand Coordinates: (${currentCoordinates.x}, ${currentCoordinates.y}, ${currentCoordinates.z})`; -->
+                            }
+                        }
+
+                        canvasCtx.restore();
+                    }
+
+                    const hands = new Hands({
+                        locateFile: (file) => {
+                            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                        }
+                    });
+
+                    hands.setOptions({
+                        maxNumHands: 2,
+                        modelComplexity: 0,
+                        minDetectionConfidence: 0.5,
+                        minTrackingConfidence: 0.5
+                    });
+
+                    hands.onResults(onResults);
+
+                    const camera2 = new Camera(videoElement, {
+                        onFrame: async () => {
+                            await hands.send({
+                                image: videoElement
+                            });
+                        },
+                        width: 600,
+                        height: 400
+                    });
+                    
+                    
+    scene.executeWhenReady(() => {
+        // This code will run when the scene is fully loaded
+
+        // Now you can safely start your camera or perform other operations
+        camera2.start();
+    });
+
+
+
+                    return scene;
+                };
+
+                babylonScene = createScene;            
+
+                
+
+                // Call createScene and store the scene in the babylonScene variable
+                createScene().then((scene) => {
+                    babylonScene = scene; // Assign the created scene to the variable
+                    engine.runRenderLoop(() => {
+                        if (scene) {
+                            scene.render();
+                        }
+                    });
+                });
+
+                // Resize
+                window.addEventListener("resize", () => {
+                    engine.resize();
+                });
+                
+                
+    </script>
+</body>
+</html>
