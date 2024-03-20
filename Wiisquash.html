@@ -113,8 +113,8 @@
                 if (sphere.physicsImpostor) {
                     sphere.physicsImpostor.dispose();
                 }
-                sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.64 }, babylonScene);
-            }
+                sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.64 }, scene);
+ }
         });
 
         const BeachButton = document.getElementById("BeachButton");
