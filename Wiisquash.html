@@ -321,13 +321,13 @@
             if (leftWall.physicsImpostor) {
     leftWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
     leftWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
-    leftWall.physicsImpostor.setPhysicsLinkWith(ground
+    leftWall.physicsImpostor.setPhysicsLinkWith(ground, null);
 }
             const rightWallAggregate = new BABYLON.PhysicsAggregate(rightWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
             if (rightWall.physicsImpostor) {
     rightWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
     rightWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
-    rightWall.physicsImpostor.setPhysicsLinkWith(ground
+    rightWall.physicsImpostor.setPhysicsLinkWith(ground, null);
 }   camera.inputs.attached.keyboard.detachControl();
 
             let start = null;
