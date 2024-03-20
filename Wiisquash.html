@@ -1,1 +1,169 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babylon.js using Havok</title>
+    <!-- Babylon.js and Havok Physics -->
+    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #canvasContainer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #renderCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input_video {
+            display: none;
+            transform: scaleX(-1);
+        }
+
+        .output_canvas {
+            width: 300px; /* Adjust as needed */
+            height: 200px; /* Adjust as needed */
+            transform: scaleX(-1);
+            opacity: 0.1; /* Set the opacity to control transparency */
+        }
+
+        #scoreDisplay {
+            position: absolute;
+            top: 20px; /* Adjust top position as needed */
+            left: 20px; /* Adjust left position as needed */
+            color: white;
+            font-size: 20px;
+            z-index: 100; /* Ensure a high z-index to bring it to the front */
+        }
+    </style>
+</head>
+<body>
+    <div id="canvasContainer">
+        <canvas id="renderCanvas"></canvas>
+        <div class="container">
+            <video class="input_video"></video>
+            <canvas class="output_canvas"></canvas>
+        </div>
+    </div>
+
+    <div id="scoreDisplay">Score: 0</div>
+
+    <script>
+        let score = 0;
+
+        // Update the score display function
+        function updateScoreDisplay() {
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            scoreDisplay.textContent = `Score: ${score}`;
+        }
+
+        let sphere; // Declare sphere globally
+        let sphereAggregate;
+
+        // Babylon.js code
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        const createScene = async function () {
+            const scene = new BABYLON.Scene(engine);
+
+            // Camera setup
+            const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 5, -10), scene);
+            camera.setTarget(BABYLON.Vector3.Zero());
+            camera.attachControl(canvas, true);
+
+            // Light setup
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+            light.intensity = 0.7;
+
+            // Sphere setup
+            sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 1 }, scene);
+            sphere.position.y = 5;
+
+            // Ground setup
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 }, scene);
+
+            // Physics setup
+            scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), new BABYLON.CannonJSPlugin());
+
+            // Create physics impostor for sphere
+            sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.2 }, scene);
+            ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.2 }, scene);
+
+            // Handle touch interaction
+            let startingX, startingY, deltaX = 0, deltaY = 0;
+
+            scene.onPointerObservable.add((pointerInfo) => {
+                if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+                    startingX = pointerInfo.event.clientX;
+                    startingY = pointerInfo.event.clientY;
+                } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
+                    deltaX = startingX - pointerInfo.event.clientX;
+                    deltaY = startingY - pointerInfo.event.clientY;
+
+                    startingX = pointerInfo.event.clientX;
+                    startingY = pointerInfo.event.clientY;
+                } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
+                    startingX = undefined;
+                    startingY = undefined;
+
+                    // Check if swipe contacts the sphere
+                    const swipeVector = new BABYLON.Vector2(deltaX, deltaY);
+                    if (swipeVector.length() > 2) { // Adjust the threshold based on your needs
+                        // Apply your logic for handling the swipe here...
+                    }
+
+                    deltaX = 0;
+                    deltaY = 0;
+                }
+            });
+
+            return scene;
+        };
+
+        // Call createScene and store the scene in the babylonScene variable
+        createScene().then((scene) => {
+            babylonScene = scene; // Assign the created scene to the variable
+            engine.runRenderLoop(() => {
+                if (scene) {
+                    scene.render();
+                }
+            });
+        });
+
+        // Resize
+        window.addEventListener("resize", () => {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
