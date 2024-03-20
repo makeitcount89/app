@@ -298,8 +298,6 @@
             const rightWallAggregate = new BABYLON.PhysicsAggregate(rightWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
             rightWall.physicsImpostor.physicsBody.collisionFilterGroup = 2;
             rightWall.physicsImpostor.physicsBody.collisionFilterMask = 2;
-
-            let firstPersonView = false;
             camera.inputs.attached.keyboard.detachControl();
 
             let start = null;
