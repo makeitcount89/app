@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Babylon.js using Havok</title>
+    <!-- Babylon.js and Havok Physics -->
+    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <style>
+      html,
+      body {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #renderCanvas {
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+      #canvasZone {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+      #counterDisplay {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-size: 20px;
+      }
+
+      @media screen and (orientation: landscape) {
+        body {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        #canvasZone {
+          width: 100vw;
+          height: 100vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="canvasZone">
+      <canvas id="renderCanvas"></canvas>
+      <div id="counterDisplay">Hits: 0</div>
+    </div>
+    <script>
+
+      function flashFrontWall(frontWall) {
+  const originalEmissiveColor = frontWall.material.diffuseColor.clone();
+  frontWall.material.diffuseColor = new BABYLON.Color3(1, 0, 0); // Set to red or your desired flash color
+
+  // Restore original emissive color after a delay
+  setTimeout(() => {
+    frontWall.material.diffuseColor = originalEmissiveColor;
+  }, 500); // Adjust the duration of the flash as needed
+}
+
+
+      
+      const canvas = document.getElementById("renderCanvas");
+      const engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, disableWebGL2Support: false });
+
+      // Counter variable
+      let hitCounter = 0;
+
+      
+
+
+      const createScene = async function () {
+        const scene = new BABYLON.Scene(engine);
+
+        // Camera setup
+        const camera = new BABYLON.UniversalCamera("camera1", new BABYLON.Vector3(0, 5.25, -10), scene);
+        camera.setTarget(BABYLON.Vector3.Zero());
+        camera.attachControl(canvas, true);
+        camera.rotation.x = Math.PI / 8; // You can experiment with the angle
+        
+
+        // Zoom out animation
+        const zoomOutAnimation = new BABYLON.Animation(
+          "zoomOutAnimation",
+          "position",
+          60,
+          BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+          BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+
+        // Animation keyframes
+        const zoomOutKeyframes = [
+          {
+            frame: 0,
+            value: camera.position.clone(),
+          },
+          {
+            frame: 100,
+            value: camera.position.multiplyByFloats(1.25, 1.25, 2), // Zoom out by 25%
+          },
+        ];
+
+        // Assign keyframes to animation
+        zoomOutAnimation.setKeys(zoomOutKeyframes);
+
+        // Attach animation to the camera
+        camera.animations.push(zoomOutAnimation);
+
+        // Run the animation
+        scene.beginAnimation(camera, 0, 100, false);
+        camera.detachControl(canvas);
+      
+        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        light.intensity = 0.7;
+        const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 0.1, segments: 32 }, scene);
+        sphere.position.y = 4;
+        const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 7.5, height: 12 }, scene);
+
+
+// Load the texture for the ground
+var floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
+floorMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/3c272d3c3e635c62d4b05408a43142a4d73af5d7/IMG_20231204_192618%20(1)-min.png", scene);
+
+// Apply the material to the ground
+ground.material = floorMaterial;
+
+        
+        // Front Wall
+        const courtWidth = 7.5;
+        const frontWallHeight = 5.5;
+        const courtLength = 12;
+
+        var frontWall = BABYLON.MeshBuilder.CreateBox("frontWall", { width: courtWidth, height: frontWallHeight, depth: 0.2 }, scene);
+        frontWall.position.z = courtLength / 2 - 0.1;
+        frontWall.position.y = frontWallHeight / 2;
+
+        var frontWallMaterial = new BABYLON.StandardMaterial("frontWallMaterial", scene);
+        frontWallMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/makeitcount89/app/a520932be550ee9f6b20f905d70db71303a1b25e/squash%20error%20tracker-min%20(1)%20(1)-min.png", scene);
+        frontWall.material = frontWallMaterial;
+
+        const backWallHeight = 4.8;
+
+  var backWall = BABYLON.MeshBuilder.CreateBox("backWall", { width: courtWidth, height: backWallHeight, depth: 0.2 }, scene);
+  backWall.position.z = -courtLength / 2 + 0.1; // Adjusted position for the back wall
+  backWall.position.y = backWallHeight / 2;
+
+  var backWallMaterial = new BABYLON.StandardMaterial("backWallMaterial", scene);
+  backWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // White color for the back wall
+  backWallMaterial.alpha = 0.1; // Adjust transparency as needed
+  backWall.material = backWallMaterial;
+
+        const shorterBackWallHeight = 0.6; // Adjust the height as needed
+const shorterBackWall = BABYLON.MeshBuilder.CreateBox("shorterBackWall", { width: courtWidth, height: shorterBackWallHeight, depth: 0.002 }, scene);
+shorterBackWall.position.z = -courtLength / 2 + 0.1; // Adjusted position for the back wall
+shorterBackWall.position.y = shorterBackWallHeight / 2;
+
+var shorterBackWallMaterial = new BABYLON.StandardMaterial("shorterBackWallMaterial", scene);
+shorterBackWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+shorterBackWallMaterial.alpha = 0.5; // Adjust transparency as needed
+shorterBackWall.material = shorterBackWallMaterial;
+        
+       
+        // Side Walls (White)
+        const sideWallHeight = 5.5;
+        const sideWallDepth = 0.2;
+
+        var leftWall = BABYLON.MeshBuilder.CreateBox("leftWall", { width: sideWallDepth, height: sideWallHeight, depth: courtLength + 2 * sideWallDepth }, scene);
+        leftWall.position.x = -courtWidth / 2 - sideWallDepth / 2;
+        leftWall.position.y = sideWallHeight / 2;
+
+        var rightWall = BABYLON.MeshBuilder.CreateBox("rightWall", { width: sideWallDepth, height: sideWallHeight, depth: courtLength + 2 * sideWallDepth }, scene);
+        rightWall.position.x = courtWidth / 2 + sideWallDepth / 2;
+        rightWall.position.y = sideWallHeight / 2;
+
+        var sideWallMaterial = new BABYLON.StandardMaterial("sideWallMaterial", scene);
+        sideWallMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+        leftWall.material = sideWallMaterial;
+        rightWall.material = sideWallMaterial;
+
+        // Initialize Havok Physics
+        const havokInstance = await HavokPhysics();
+        const hk = new BABYLON.HavokPlugin(true, havokInstance);
+        scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
+
+        // Create a sphere shape and the associated body.
+        const sphereAggregate = new BABYLON.PhysicsAggregate(sphere, BABYLON.PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.59 }, scene);
+
+        // Create a static box shape for the ground.
+        const groundAggregate = new BABYLON.PhysicsAggregate(ground, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+        // Create a static box shape for the front wall.
+        const frontWallAggregate = new BABYLON.PhysicsAggregate(frontWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+        const backWallAggregate = new BABYLON.PhysicsAggregate(backWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+        const shorterBackWallAggregate = new BABYLON.PhysicsAggregate(shorterBackWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+        
+        // Create static box shapes for the side walls.
+        const leftWallAggregate = new BABYLON.PhysicsAggregate(leftWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+        const rightWallAggregate = new BABYLON.PhysicsAggregate(rightWall, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+
+        // Variables for touch interaction
+        let startingX;
+        let startingY;
+        let deltaX = 0;
+        let deltaY = 0;
+
+        // Handle touch interaction
+scene.onPointerObservable.add((pointerInfo) => {
+    if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+        startingX = pointerInfo.event.clientX;
+        startingY = pointerInfo.event.clientY;
+    } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
+        deltaX = startingX - pointerInfo.event.clientX;
+        deltaY = startingY - pointerInfo.event.clientY;
+
+        startingX = pointerInfo.event.clientX;
+        startingY = pointerInfo.event.clientY;
+    } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
+        startingX = undefined;
+        startingY = undefined;
+
+        // Check if the sphere is on the ground
+        if (sphere.position.y <= 0.5) {
+            // Apply an impulse to make the sphere bounce
+            const bounceImpulse = new BABYLON.Vector3(0, 5, 0);
+            sphereAggregate.body.applyImpulse(bounceImpulse, sphere.getAbsolutePosition());
+        }
+
+      // Check if swipe contacts the sphere
+        const swipeVector = new BABYLON.Vector2(deltaX, deltaY);
+        if (swipeVector.length() > 2) { // Adjust the threshold based on your needs
+            // Calculate scaling factor based on current speed
+            const currentSpeed = sphereAggregate.body.getLinearVelocity().length();
+            const scalingFactor = 0.01 * currentSpeed;
+
+            // Apply an impulse based on the swipe direction, scaled force, and upward direction
+            const swipeImpulse = new BABYLON.Vector3(-deltaX * scalingFactor, 0.006 * currentSpeed, deltaY * scalingFactor);
+            sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
+            sphereAggregate.body.setLinearDamping(0.1);
+          // Check if the ball hits the front wall
+const hitTolerance = 0.5; // Adjust this value based on your needs
+if (sphere.position.z >= frontWall.position.z - hitTolerance &&
+    sphere.position.z <= frontWall.position.z + hitTolerance &&
+    sphere.position.y >= frontWall.position.y - frontWall.scaling.y / 2 &&
+    sphere.position.y <= frontWall.position.y + frontWall.scaling.y / 2) {
+  hitCounter++;
+  // Update the counter display
+  updateCounterDisplay();
+  // Flash the front wall
+  flashFrontWall(frontWall);
+}
+        }
+
+        deltaX = 0;
+        deltaY = 0;
+      
+    }
+});
+        // Variables for touch and mouse interaction
+let startingX;
+let startingY;
+let deltaX = 0;
+let deltaY = 0;
+
+// Handle touch and mouse interaction
+scene.onPointerObservable.add((pointerInfo) => {
+    if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+        startingX = pointerInfo.event.clientX || pointerInfo.event.touches[0].clientX;
+        startingY = pointerInfo.event.clientY || pointerInfo.event.touches[0].clientY;
+    } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE && startingX !== undefined && startingY !== undefined) {
+        const clientX = pointerInfo.event.clientX || pointerInfo.event.touches[0].clientX;
+        const clientY = pointerInfo.event.clientY || pointerInfo.event.touches[0].clientY;
+        deltaX = startingX - clientX;
+        deltaY = startingY - clientY;
+
+        startingX = clientX;
+        startingY = clientY;
+    } else if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
+        startingX = undefined;
+        startingY = undefined;
+
+        // Check if the sphere is on the ground
+        if (sphere.position.y <= 0.5) {
+            // Apply an impulse to make the sphere bounce
+            const bounceImpulse = new BABYLON.Vector3(0, 5, 0);
+            sphereAggregate.body.applyImpulse(bounceImpulse, sphere.getAbsolutePosition());
+        }
+
+        // Check if swipe contacts the sphere
+        const swipeVector = new BABYLON.Vector2(deltaX, deltaY);
+        if (swipeVector.length() > 2) { // Adjust the threshold based on your needs
+            // Calculate scaling factor based on current speed
+            const currentSpeed = sphereAggregate.body.getLinearVelocity().length();
+            const scalingFactor = 0.01 * currentSpeed;
+
+            // Apply an impulse based on the swipe direction, scaled force, and upward direction
+            const swipeImpulse = new BABYLON.Vector3(-deltaX * scalingFactor, 0.006 * currentSpeed, deltaY * scalingFactor);
+            sphereAggregate.body.applyImpulse(swipeImpulse, sphere.getAbsolutePosition());
+            sphereAggregate.body.setLinearDamping(0.1);
+          
+            // Check if the ball hits the front wall
+            const hitTolerance = 0.5; // Adjust this value based on your needs
+            if (sphere.position.z >= frontWall.position.z - hitTolerance &&
+                sphere.position.z <= frontWall.position.z + hitTolerance &&
+                sphere.position.y >= frontWall.position.y - frontWall.scaling.y / 2 &&
+                sphere.position.y <= frontWall.position.y + frontWall.scaling.y / 2) {
+                hitCounter++;
+                // Update the counter display
+                updateCounterDisplay();
+                // Flash the front wall
+                flashFrontWall(frontWall);
+            }
+        }
+
+        deltaX = 0;
+        deltaY = 0;
+    }
+});
+
+
+        return scene;
+      };
+
+      // Function to update the counter display
+      function updateCounterDisplay() {
+        const counterDisplay = document.getElementById("counterDisplay");
+        if (counterDisplay) {
+          counterDisplay.innerHTML = `Hits: ${hitCounter}`;
+        }
+      }
+
+      createScene().then((scene) => {
+        engine.runRenderLoop(() => {
+          if (scene) {
+            scene.render();
+          }
+        });
+      });
+
+      // Resize
+      window.addEventListener("resize", () => {
+        engine.resize();
+      });
+    </script>
+  </body>
+</html>
