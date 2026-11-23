@@ -7,8 +7,11 @@ export type Location = {
   includeSurroundingSuburbs?: boolean;
 };
 
+export type Near = { name: string; lat: number; lon: number; radiusKm: number };
+
 export type Criteria = {
   locations: Location[];
+  near?: Near;
   propertyTypes: string[];
   minPrice?: number;
   maxPrice?: number;
@@ -41,6 +44,9 @@ export type Listing = {
   features: string[];
   imageUrl?: string;
   dateListed?: string; // ISO
+  lat?: number;
+  lon?: number;
+  distanceKm?: number; // from criteria.near, when set
 };
 
 export type ScoredListing = Listing & { score: number; reasons: string[] };

@@ -22,6 +22,8 @@ type DomainListing = {
     suburb?: string;
     displayableAddress?: string;
     features?: string[];
+    latitude?: number;
+    longitude?: number;
   };
 };
 type DomainItem =
@@ -32,7 +34,7 @@ export function buildSearchBody(c: Criteria, page: number, now = new Date()) {
   const since = new Date(now.getTime() - c.listedWithinDays * 86_400_000);
   return {
     listingType: "Sale",
-    propertyTypes: c.propertyTypes,
+    propertyTypes: c.propertyTypes.length ? c.propertyTypes : undefined,
     minPrice: c.minPrice,
     maxPrice: c.maxPrice,
     minBedrooms: c.minBedrooms,
@@ -40,14 +42,17 @@ export function buildSearchBody(c: Criteria, page: number, now = new Date()) {
     minCarspaces: c.minCarspaces,
     minLandArea: c.minLandArea,
     listedSince: since.toISOString(),
-    locations: c.locations.map((l) => ({
+    geoWindow: c.near
+      ? { circle: { center: { lat: c.near.lat, lon: c.near.lon }, radiusInMeters: Math.round(c.near.radiusKm * 1000) } }
+      : undefined,
+    locations: c.locations.length ? c.locations.map((l) => ({
       state: l.state,
       region: l.region ?? "",
       area: l.area ?? "",
       suburb: l.suburb ?? "",
       postCode: l.postCode ?? "",
       includeSurroundingSuburbs: l.includeSurroundingSuburbs ?? false,
-    })),
+    })) : undefined,
     sort: { sortKey: "DateListed", direction: "Descending" },
     pageSize: PAGE_SIZE,
     pageNumber: page,
@@ -75,6 +80,8 @@ export function normalise(l: DomainListing): Listing {
     features: p.features ?? [],
     imageUrl: l.media?.find((m) => m.category === "Image")?.url,
     dateListed: l.dateListed,
+    lat: p.latitude,
+    lon: p.longitude,
   };
 }
 

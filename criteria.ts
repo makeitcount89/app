@@ -8,22 +8,24 @@ import type { Criteria } from "./lib/types";
  * "niceToHave" keywords only affect the ranking of what's left.
  */
 export const criteria: Criteria = {
-  // Suburbs to search. state is required; postCode makes the match exact.
-  locations: [
-    { state: "NSW", suburb: "Marrickville", postCode: "2204", includeSurroundingSuburbs: true },
-  ],
+  // Search a radius around a point. Set near to undefined to use locations instead.
+  near: { name: "Stirling SA", lat: -35.0045, lon: 138.7183, radiusKm: 10 },
 
-  // Any of: House, Townhouse, ApartmentUnitFlat, Villa, Duplex, SemiDetached,
-  // Terrace, VacantLand, AcreageSemiRural, NewHouseLand, Studio, Penthouse ...
-  propertyTypes: ["House", "Townhouse", "SemiDetached", "Terrace"],
+  // Suburbs to search (used when near is not set). state is required; postCode makes the match exact.
+  // e.g. { state: "SA", suburb: "Stirling", postCode: "5152", includeSurroundingSuburbs: true }
+  locations: [],
 
-  minPrice: 900_000,
-  maxPrice: 1_600_000,
+  // Leave empty for any type, or pick from: House, Townhouse, ApartmentUnitFlat, Villa,
+  // Duplex, SemiDetached, Terrace, VacantLand, AcreageSemiRural, NewHouseLand ...
+  propertyTypes: [],
 
-  minBedrooms: 3,
-  minBathrooms: 1,
-  minCarspaces: 0,
-  minLandArea: undefined, // m²
+  minPrice: undefined,
+  maxPrice: 1_500_000,
+
+  minBedrooms: 4, // 4 or more
+  minBathrooms: undefined,
+  minCarspaces: undefined,
+  minLandArea: 1500, // m²
 
   // Only consider listings added in the last N days ("new" listings).
   listedWithinDays: 30,

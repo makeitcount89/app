@@ -2,6 +2,20 @@ import type { Criteria, Listing, ScoredListing } from "./types";
 
 const DAY = 86_400_000;
 
+/** Great-circle distance in km. */
+export function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const rad = Math.PI / 180;
+  const a =
+    Math.sin(((lat2 - lat1) * rad) / 2) ** 2 +
+    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(((lon2 - lon1) * rad) / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(a));
+}
+
+function withDistance(l: Listing, c: Criteria): Listing {
+  if (!c.near || l.lat == null || l.lon == null) return l;
+  return { ...l, distanceKm: Math.round(distanceKm(c.near.lat, c.near.lon, l.lat, l.lon) * 10) / 10 };
+}
+
 function text(l: Listing) {
   return [l.headline, l.description, ...l.features].join(" ").toLowerCase();
 }
@@ -11,6 +25,9 @@ export function passesFilters(l: Listing, c: Criteria): boolean {
   const t = text(l);
   if (c.mustHave.some((k) => !t.includes(k.toLowerCase()))) return false;
   if (c.exclude.some((k) => t.includes(k.toLowerCase()))) return false;
+  // Double-check the radius (and land size) in case the API returns extras.
+  if (c.near && l.distanceKm != null && l.distanceKm > c.near.radiusKm) return false;
+  if (c.minLandArea && l.landArea != null && l.landArea < c.minLandArea) return false;
   return true;
 }
 
@@ -59,6 +76,7 @@ export function scoreListing(l: Listing, c: Criteria, now = new Date()): ScoredL
 
 export function topMatches(listings: Listing[], c: Criteria, now = new Date()): ScoredListing[] {
   return listings
+    .map((l) => withDistance(l, c))
     .filter((l) => passesFilters(l, c))
     .map((l) => scoreListing(l, c, now))
     .sort((a, b) => b.score - a.score || (b.dateListed ?? "").localeCompare(a.dateListed ?? ""))

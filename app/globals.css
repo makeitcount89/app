@@ -98,3 +98,4 @@ header h1 { margin: 0 0 6px; font-size: 1.75rem; letter-spacing: -0.01em; }
 
 .foot { color: var(--muted); font-size: 0.875rem; margin-top: 24px; }
 code { font-size: 0.9em; }
+.distance { color: var(--muted); font-size: 0.875rem; }

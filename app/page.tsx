@@ -17,13 +17,16 @@ function listedAgo(iso?: string) {
 
 function summary() {
   const parts = [
-    criteria.locations.map((l) => l.suburb || l.area || l.region || l.state).join(", "),
+    criteria.near
+      ? `Within ${criteria.near.radiusKm} km of ${criteria.near.name}`
+      : criteria.locations.map((l) => l.suburb || l.area || l.region || l.state).join(", "),
     criteria.minPrice || criteria.maxPrice
       ? `${criteria.minPrice ? aud.format(criteria.minPrice) : "any"} – ${criteria.maxPrice ? aud.format(criteria.maxPrice) : "any"}`
       : null,
     criteria.minBedrooms ? `${criteria.minBedrooms}+ bed` : null,
     criteria.minBathrooms ? `${criteria.minBathrooms}+ bath` : null,
     criteria.minCarspaces ? `${criteria.minCarspaces}+ car` : null,
+    criteria.minLandArea ? `${criteria.minLandArea.toLocaleString("en-AU")}+ m² land` : null,
     `listed in the last ${criteria.listedWithinDays} days`,
   ];
   return parts.filter(Boolean).join(" · ");
@@ -35,7 +38,7 @@ function Card({ l, rank }: { l: ScoredListing; rank: number }) {
     l.bedrooms != null && `${l.bedrooms} bed`,
     l.bathrooms != null && `${l.bathrooms} bath`,
     l.carspaces != null && `${l.carspaces} car`,
-    l.landArea && `${l.landArea} m²`,
+    l.landArea && `${l.landArea.toLocaleString("en-AU")} m²`,
   ].filter(Boolean);
   return (
     <li className="card">
@@ -53,6 +56,9 @@ function Card({ l, rank }: { l: ScoredListing; rank: number }) {
           {stats.join(" · ")}
           {l.propertyType && <span className="type">{l.propertyType}</span>}
         </div>
+        {l.distanceKm != null && criteria.near && (
+          <div className="distance">{l.distanceKm} km from {criteria.near.name}</div>
+        )}
         {l.headline && <p className="headline">{l.headline}</p>}
         <div className="meta">
           <span>{listedAgo(l.dateListed)}</span>

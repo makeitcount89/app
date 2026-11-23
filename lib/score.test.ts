@@ -65,3 +65,22 @@ test("normalise maps Domain fields", () => {
   assert.equal(l.price, 1_050_000);
   assert.equal(l.imageUrl, "https://img/x.jpg");
 });
+
+test("radius filter drops listings outside the circle", () => {
+  const near = { name: "Stirling SA", lat: -35.0045, lon: 138.7183, radiusKm: 10 };
+  const [a] = sampleListings(now);
+  const inside = { ...a, id: 100, lat: -35.03, lon: 138.72 }; // ~3 km
+  const outside = { ...a, id: 101, lat: -34.9285, lon: 138.6007 }; // Adelaide CBD, ~13 km
+  const top = topMatches([inside, outside], { ...c, near }, now);
+  assert.deepEqual(top.map((l) => l.id), [100]);
+  assert.ok(top[0].distanceKm! < 4);
+  const body = buildSearchBody({ ...c, near, locations: [] }, 1, now);
+  assert.equal(body.geoWindow?.circle.radiusInMeters, 10000);
+  assert.equal(body.locations, undefined);
+});
+
+test("land size filter", () => {
+  const [a] = sampleListings(now);
+  assert.ok(!passesFilters({ ...a, landArea: 900 }, { ...c, minLandArea: 1500 }));
+  assert.ok(passesFilters({ ...a, landArea: 2000 }, { ...c, minLandArea: 1500 }));
+});
