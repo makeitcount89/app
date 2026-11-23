@@ -6,8 +6,8 @@ Searches realestate.com.au (or Domain.com.au) for new **for-sale** listings that
 
 Set `source` in `criteria.ts`:
 
-- **`"rea"` (default):** realestate.com.au, using the private GraphQL endpoint its website calls (ported from [jamesramsay/realestate-com-au-api](https://github.com/jamesramsay/realestate-com-au-api)). It needs no key, but it's unofficial and against REA's terms, and it can break or be blocked at any time. It searches the suburbs in `locations` and has no listing dates, so results are sorted newest first instead of filtered by `listedWithinDays`.
-- **`"domain"`:** the official Domain API. It needs `DOMAIN_API_KEY` from a project with the **Agents & Listings** package, which Domain grants on request. It supports the `near` radius search and listing dates.
+- **`"rea"`:** realestate.com.au, using the private GraphQL endpoint its website calls (ported from [jamesramsay/realestate-com-au-api](https://github.com/jamesramsay/realestate-com-au-api)). It needs no key, but it's unofficial and against REA's terms, and it can break or be blocked at any time. It searches the suburbs in `locations` and has no listing dates, so results are sorted newest first instead of filtered by `listedWithinDays`.
+- **`"domain"` (default):** the official Domain API. It needs `DOMAIN_API_KEY` from a project with the **Agents & Listings** package, which Domain grants on request. It supports the `near` radius search and listing dates.
 
 ## How it works
 

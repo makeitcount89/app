@@ -11,7 +11,7 @@ export const criteria: Criteria = {
   // Where listings come from:
   //   "rea"    – realestate.com.au (unofficial, no key needed; searches the suburbs in `locations`)
   //   "domain" – Domain API (needs DOMAIN_API_KEY with Agents & Listings access; uses `near` radius)
-  source: "rea",
+  source: "domain",
   areaName: "Within ~10 km of Stirling SA",
 
   // Radius search (Domain only). Set near to undefined to use locations instead.
