@@ -45,7 +45,7 @@ export function buildSearchBody(c: Criteria, page: number, now = new Date()) {
     geoWindow: c.near
       ? { circle: { center: { lat: c.near.lat, lon: c.near.lon }, radiusInMeters: Math.round(c.near.radiusKm * 1000) } }
       : undefined,
-    locations: c.locations.length ? c.locations.map((l) => ({
+    locations: !c.near && c.locations.length ? c.locations.map((l) => ({
       state: l.state,
       region: l.region ?? "",
       area: l.area ?? "",
@@ -92,7 +92,7 @@ export async function searchDomain(c: Criteria, apiKey: string): Promise<Listing
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
       body: JSON.stringify(buildSearchBody(c, page)),
-      cache: "no-store",
+      next: { revalidate: 21600 },
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");

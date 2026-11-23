@@ -7,6 +7,7 @@ import type { Criteria } from "./types.ts";
 
 const now = new Date("2026-11-23T00:00:00Z");
 const c: Criteria = {
+  source: "domain",
   locations: [{ state: "NSW", suburb: "Sampleville" }],
   propertyTypes: ["House"],
   minPrice: 900_000,
@@ -83,4 +84,33 @@ test("land size filter", () => {
   const [a] = sampleListings(now);
   assert.ok(!passesFilters({ ...a, landArea: 900 }, { ...c, minLandArea: 1500 }));
   assert.ok(passesFilters({ ...a, landArea: 2000 }, { ...c, minLandArea: 1500 }));
+});
+
+import { parsePrice, parseLand, normaliseRea, buildReaQuery } from "./rea.ts";
+
+test("REA price and land parsing", () => {
+  assert.equal(parsePrice("$1,250,000"), 1_250_000);
+  assert.equal(parsePrice("Offers over $1.2m"), 1_200_000);
+  assert.equal(parsePrice("$950k - $1.05m"), 1_000_000);
+  assert.equal(parsePrice("Auction"), undefined);
+  assert.equal(parseLand("1,500", "m²"), 1500);
+  assert.equal(parseLand("2.5", "ha"), 25_000);
+  assert.equal(parseLand("1", "acres"), 4047);
+});
+
+test("REA listing normalises and query carries filters", () => {
+  const l = normaliseRea({
+    id: "1234", _links: { canonical: { href: "https://www.realestate.com.au/property-house-sa-stirling-1234" } },
+    address: { display: { fullAddress: "1 Main St, Stirling, SA 5152" }, suburb: "Stirling" },
+    price: { display: "$1,400,000" }, generalFeatures: { bedrooms: { value: 4 } },
+    propertySizes: { land: { displayValue: "2,000", sizeUnit: { displayValue: "m²" } } },
+    media: { mainImage: { templatedUrl: "https://i2.au.reastatic.net/{size}/abc/main.jpg" } },
+  });
+  assert.equal(l.landArea, 2000);
+  assert.equal(l.price, 1_400_000);
+  assert.equal(l.imageUrl, "https://i2.au.reastatic.net/800x600/abc/main.jpg");
+  const q = buildReaQuery({ ...c, source: "rea", minLandArea: 1500, locations: [{ state: "SA", suburb: "Stirling", postCode: "5152" }] }, 1);
+  assert.equal(q.localities[0].searchLocation, "Stirling, SA 5152");
+  assert.deepEqual(q.filters.landSize, { minimum: "1500" });
+  assert.deepEqual(q.filters.priceRange, { minimum: "900000", maximum: "1600000" });
 });

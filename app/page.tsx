@@ -17,7 +17,9 @@ function listedAgo(iso?: string) {
 
 function summary() {
   const parts = [
-    criteria.near
+    criteria.source === "rea"
+      ? criteria.areaName ?? criteria.locations.map((l) => l.suburb).join(", ")
+      : criteria.near
       ? `Within ${criteria.near.radiusKm} km of ${criteria.near.name}`
       : criteria.locations.map((l) => l.suburb || l.area || l.region || l.state).join(", "),
     criteria.minPrice || criteria.maxPrice
@@ -27,7 +29,7 @@ function summary() {
     criteria.minBathrooms ? `${criteria.minBathrooms}+ bath` : null,
     criteria.minCarspaces ? `${criteria.minCarspaces}+ car` : null,
     criteria.minLandArea ? `${criteria.minLandArea.toLocaleString("en-AU")}+ m² land` : null,
-    `listed in the last ${criteria.listedWithinDays} days`,
+    criteria.source === "domain" ? `listed in the last ${criteria.listedWithinDays} days` : "newest first",
   ];
   return parts.filter(Boolean).join(" · ");
 }
@@ -104,7 +106,7 @@ export default async function Home() {
               </ol>
               <p className="foot">
                 Ranked from {result.scanned} {result.scanned === 1 ? "listing" : "listings"} found.
-                {!result.sample && " Listing data from Domain."}
+                {!result.sample && (criteria.source === "rea" ? " Listing data from realestate.com.au." : " Listing data from Domain.")}
               </p>
             </>
           )}

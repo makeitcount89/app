@@ -10,6 +10,8 @@ export type Location = {
 export type Near = { name: string; lat: number; lon: number; radiusKm: number };
 
 export type Criteria = {
+  source: "rea" | "domain";
+  areaName?: string;
   locations: Location[];
   near?: Near;
   propertyTypes: string[];

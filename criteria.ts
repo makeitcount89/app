@@ -8,12 +8,26 @@ import type { Criteria } from "./lib/types";
  * "niceToHave" keywords only affect the ranking of what's left.
  */
 export const criteria: Criteria = {
-  // Search a radius around a point. Set near to undefined to use locations instead.
+  // Where listings come from:
+  //   "rea"    – realestate.com.au (unofficial, no key needed; searches the suburbs in `locations`)
+  //   "domain" – Domain API (needs DOMAIN_API_KEY with Agents & Listings access; uses `near` radius)
+  source: "rea",
+  areaName: "Within ~10 km of Stirling SA",
+
+  // Radius search (Domain only). Set near to undefined to use locations instead.
   near: { name: "Stirling SA", lat: -35.0045, lon: 138.7183, radiusKm: 10 },
 
-  // Suburbs to search (used when near is not set). state is required; postCode makes the match exact.
-  // e.g. { state: "SA", suburb: "Stirling", postCode: "5152", includeSurroundingSuburbs: true }
-  locations: [],
+  // Suburbs to search (REA always uses these; Domain uses them when near is not set).
+  // Roughly everything within 10 km of Stirling SA.
+  locations: [
+    ["Stirling", "5152"], ["Crafers", "5152"], ["Crafers West", "5152"], ["Cleland", "5152"],
+    ["Aldgate", "5154"], ["Bridgewater", "5155"], ["Heathfield", "5153"], ["Bradbury", "5153"],
+    ["Longwood", "5153"], ["Mylor", "5153"], ["Ironbank", "5153"], ["Scott Creek", "5153"],
+    ["Biggs Flat", "5153"], ["Upper Sturt", "5156"], ["Piccadilly", "5151"], ["Uraidla", "5142"],
+    ["Summertown", "5141"], ["Carey Gully", "5144"], ["Basket Range", "5138"], ["Greenhill", "5140"],
+    ["Eagle On The Hill", "5150"], ["Leawood Gardens", "5150"], ["Mount Osmond", "5064"],
+    ["Belair", "5052"], ["Verdun", "5245"], ["Cherry Gardens", "5157"], ["Coromandel East", "5157"],
+  ].map(([suburb, postCode]) => ({ state: "SA", suburb, postCode })),
 
   // Leave empty for any type, or pick from: House, Townhouse, ApartmentUnitFlat, Villa,
   // Duplex, SemiDetached, Terrace, VacantLand, AcreageSemiRural, NewHouseLand ...
@@ -27,7 +41,7 @@ export const criteria: Criteria = {
   minCarspaces: undefined,
   minLandArea: 1500, // m²
 
-  // Only consider listings added in the last N days ("new" listings).
+  // Only consider listings added in the last N days (Domain only; REA sorts newest first).
   listedWithinDays: 30,
 
   // Listing text must mention ALL of these (case-insensitive). Leave empty for none.
